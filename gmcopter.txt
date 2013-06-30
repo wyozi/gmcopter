@@ -1,0 +1,15 @@
+"mistdm"
+{
+	"base" "sandbox"
+    "title" "GMCopter"
+    "version" "1.0.0"
+    "menusystem" "1"
+
+    "author_name" "Wyozi, UtharQ"
+    "author_email" ""
+    "author_url" "http://github.com/wyozi"
+
+    "icon" ""
+    "info" ""
+    "hide" "0"
+}
