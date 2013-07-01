@@ -6,6 +6,7 @@ function ENT:SvInit()
 
 	self.Brake = 0
 	self.InputVelocity = Vector(0, 0, 0)
+	self.SeatEnts = {}
 
 	self:SetModel(hull.Model)
 	self:PhysicsInit(SOLID_VPHYSICS)
@@ -50,9 +51,11 @@ function ENT:AddRotors()
 			self.TopRotorPhys = phys
 		end
 
-		if not constraint.Axis(self, trotor, 0, 0, self.TopRotor.Pos, Vector(0,0,1), 0,0,0,1) then
+		local cst = constraint.Axis(self, trotor, 0, 0, self.TopRotor.Pos, Vector(0,0,1), self.TopRotorForceLimit,0,0,1)
+		if not cst then
 			MsgN("Constraint waswnt credted")
 		end
+		self.TopRotorHinge = cst
 
 		self:DeleteOnRemove(trotor)
 	end
@@ -78,11 +81,13 @@ function ENT:AddRotors()
 			self.BackRotorPhys = phys
 		end
 
+		local cst
 		if self.BackRotor.TwinBladed then
-			constraint.Axis(self, brotor, 0, 0, self.BackRotor.Pos, Vector(0, 0, 1), 0, 0, 0, 1)
+			cst = constraint.Axis(self, brotor, 0, 0, self.BackRotor.Pos, Vector(0, 0, 1), self.BackRotorForceLimit, 0, 0, 1)
 		else
-			constraint.Axis(self, brotor, 0, 0, self.BackRotor.Pos, Vector(0, 1, 0), 0, 0, 0, 1)
+			cst = constraint.Axis(self, brotor, 0, 0, self.BackRotor.Pos, Vector(0, 1, 0), self.BackRotorForceLimit, 0, 0, 1)
 		end
+		self.BackRotorHinge = cst
 
 		self:DeleteOnRemove(brotor)
 	end
@@ -114,14 +119,14 @@ function ENT:AddSeats()
 		ent:SetNotSolid(true)
 		ent:SetParent(self)
 
-		seat.Ent = ent
+		self.SeatEnts[i] = ent
 
 		self:DeleteOnRemove(ent)
 	end
 end
 
 function ENT:GetDriver()
-	local seatent = self.Seats[1].Ent
+	local seatent = self.SeatEnts[1]
 	if not IsValid(seatent) then return nil end
 	return seatent:GetDriver()
 end
@@ -129,9 +134,8 @@ end
 function ENT:Think()
 	local driver = self:GetDriver()
 	if IsValid(driver) and not self:IsEngineRunning() then
-		if not self.MSounds.Start:IsPlaying() then
+		if not self.MSounds.Start:IsPlaying() and driver.IncAltDown then
 			self.MSounds.Start:Play()
-			--self.MSounds.Start:ChangeVolume(0, 0)
 		elseif not driver.IncAltDown then -- Shouldn't get sound of rotors accelerating if we've stopped
 			self.MSounds.Start:Stop()
 		end
@@ -140,7 +144,7 @@ function ENT:Think()
 			self:SetEngineStartLevel(math.min(self:GetEngineStartLevel() + 1, self.MaxEngineStartLevel))
 			self.Brake = 0
 		elseif self:GetEngineStartLevel() > 0 then
-			self:SetEngineStartLevel(math.max(self:GetEngineStartLevel() - 3, 0))
+			self:SetEngineStartLevel(math.max(self:GetEngineStartLevel() - 2, 0))
 			self.Brake = 0.01
 		end
 
@@ -168,9 +172,9 @@ function ENT:Think()
 		end
 	end
 
-	--[[local RotorFrac = math.Clamp(self:RotorSpeed() / 5000, 0, 1)
+	local RotorFrac = math.Clamp(self:RotorSpeed() / 5000, 0, 1)
 
-	MsgN(self:RotorSpeed(), "  lel  ", RotorFrac)
+	--MsgN(self:RotorSpeed(), "  lel  ", RotorFrac)
 	if RotorFrac > 0.01 then
 		if not self.MSounds.Blades:IsPlaying() then
 			self.MSounds.Blades:Play()
@@ -178,7 +182,7 @@ function ENT:Think()
 		self.MSounds.Blades:ChangeVolume(RotorFrac, 0)
 	elseif self.MSounds.Blades:IsPlaying() then
 		self.MSounds.Blades:Stop()
-	end DURR DURR ]]
+	end
 
 	self:NextThink(CurTime() + 0.1)
 	return true
@@ -192,12 +196,14 @@ local function OverrideComponents(vec, x, y, z)
 end
 
 function ENT:PhysicsUpdate()
-	local oav = self.TopRotorPhys:GetAngleVelocity() * self.Brake
 	if self:IsEngineRunning() then
 		SetAngleVelocity(self.TopRotorPhys, Vector(0, 0, self.RotorSpinSpeed))
-	elseif self:GetEngineStartFrac() > 0.1 then
+		SetAngleVelocity(self.BackRotorPhys, Vector(0, self.RotorSpinSpeed, 0))
+	elseif self:GetEngineStartFrac() > 0 or self:RotorSpeed() > 40 then
 		SetAngleVelocity(self.TopRotorPhys, Vector(0, 0, self:GetEngineStartFrac() * self.RotorSpinSpeed))
+		SetAngleVelocity(self.BackRotorPhys, Vector(0, self:GetEngineStartFrac() * self.RotorSpinSpeed, 0))
 	end
+	--MsgN(self:RotorSpeed())
 
 	if self:IsEngineRunning() then
 
@@ -213,47 +219,75 @@ function ENT:PhysicsUpdate()
 			self.InputVelocity.z = math.max(self.InputVelocity.z - 1, -1)
 		end
 
+		if self:RotorSpeed() < 1000 then -- If rotors arent moving, dont stay in air. TODO make something more sophisticated. 
+			vel = Vector(0, 0, 0)
+		end
+
 		if IsValid(driver) then
 			local angles = self:GetAngles()
+			local anglevel = self.Phys:GetAngleVelocity()
+
 			if driver:KeyDown(IN_FORWARD) then
-				if angles.p < 12 then
+				if angles.p < 25 then
 					self.Phys:AddAngleVelocity(Vector(0, 0.1, 0))
 				end
-				self.InputVelocity = self.InputVelocity + OverrideComponents(angles:Forward() * 2.5, _, _, 0)
+				--self.InputVelocity = self.InputVelocity + OverrideComponents(angles:Forward() * 3.5, _, _, 0)
 			elseif driver:KeyDown(IN_BACK) then
-				if angles.p > -12 then
+				if angles.p > -17 then
 					self.Phys:AddAngleVelocity(Vector(0, -0.1, 0))
 				end
-				self.InputVelocity = self.InputVelocity - OverrideComponents(angles:Forward() * 2.5, _, _, 0)
+				--vel.z = vel.z + 10
+				--self.InputVelocity.z = self.InputVelocity.z - 1
+				--self.InputVelocity = self.InputVelocity - OverrideComponents(angles:Forward() * 3.5, _, _, 0)
+			end
+			if angles.p > 5 then
+				self.InputVelocity.z = self.InputVelocity.z + 1.5
 			end
 			
-			if angles.p > 12 or angles.p < 12 then
-				self.Phys:AddAngleVelocity(Vector(0, angles.p > 0 and -0.05 or 0.05, 0))
+			if angles.p > 35 or (angles.p > 5 and not driver:KeyDown(IN_FORWARD)) or angles.p < -25 or (angles.p < -5 and not driver:KeyDown(IN_BACK)) then
+				self.Phys:AddAngleVelocity(Vector(0, angles.p > 0 and -0.1 or 0.1, 0))
 			end
+
 
 			if driver:KeyDown(IN_MOVERIGHT) then
+				self:SetAngles(Angle(angles.p, angles.y, math.ApproachAngle(angles.r, 30, 0.3)))
 				self.Phys:AddAngleVelocity(Vector(0, 0, -0.2))
 			elseif driver:KeyDown(IN_MOVELEFT) then
+				self:SetAngles(Angle(angles.p, angles.y, math.ApproachAngle(angles.r, -30, 0.3)))
 				self.Phys:AddAngleVelocity(Vector(0, 0, 0.2))
+			else
+				local adiff = math.abs(angles.r) / 10
+				if math.abs(angles.r) > adiff then
+					self:SetAngles(Angle(angles.p, angles.y, math.ApproachAngle(angles.r, 0, adiff)))
+				end
+				if math.abs(anglevel.z) > 0.1 then
+					--MsgN(anglevel, "he", math.Approach(anglevel.z, 0, 0.05))
+					self.Phys:AddAngleVelocity(Vector(0, 0, anglevel.z < 0 and 0.1 or -0.1))
+				end
 			end
 
-			angles.r = 0
-			self:SetAngles(angles)
+			--angles.r = 0
+			--self:SetAngles(angles)
 
-			MsgN(angles)
+			--MsgN(angles)
 
 			--MsgN(self.InputVelocity, driver:KeyDown(IN_RIGHT), driver:KeyDown(IN_LEFTs))
 		end
 
-		self.InputVelocity.x = math.Clamp(self.InputVelocity.x, -300, 300)
-		self.InputVelocity.y = math.Clamp(self.InputVelocity.y, -300, 300)
+		self.InputVelocity.x = math.Clamp(self.InputVelocity.x, -4000, 4000)
+		self.InputVelocity.y = math.Clamp(self.InputVelocity.y, -4000, 4000)
 		self.InputVelocity.z = math.Clamp(self.InputVelocity.z, -200, 200)
 
 		vel = vel + self.InputVelocity
-
-		--MsgN(vel)
-		--vel = vel:Rotate(-1*self:GetAngles())
+		local vel1 = vel
+		vel:Rotate(self:GetAngles())
+		local vel2 = vel
+		vel.x = vel.x * 5
+		vel.y = vel.y * 5
+		MsgN(self:GetAngles(), " -> ", vel1, " - ", vel2, " - ", vel)
 		self.Phys:SetVelocity(vel)
+		--self.Phys:AddVelocity(self:GetAngles():Forward() * 10)
+		--MsgN(self.Phys:GetVelocity())
 
 	end
 
@@ -261,10 +295,14 @@ end
 
 function ENT:PhysicsCollide(cdata, phys)
 	if cdata.HitEntity:GetClass() == "worldspawn" then
-		MsgN(cdata.Speed)
+		--MsgN(cdata.Speed)
 		if self:IsEngineRunning() and self.LastEngineStarted < CurTime() - 2 then
-			if cdata.Speed < 200 then
+			self.InputVelocity = Vector(0, 0, 0)
+			if cdata.Speed < 100 then -- TODO Test if we're upright
 				self:SetEngineStartLevel(self.MaxEngineStartLevel - 2)
+				phys:SetVelocity(Vector(0, 0, 0))
+				MsgN("Set velocity to 0")
+				--MsgN("eng run: " .. tostring(self:IsEngineRunning()) .. " " .. tostring(self:GetEngineStartFrac()))
 			else
 				-- Bounce back?
 				local LastSpeed = math.max( cdata.OurOldVelocity:Length(), cdata.Speed )
@@ -276,6 +314,7 @@ function ENT:PhysicsCollide(cdata, phys)
 				local TargetVelocity = NewVelocity * LastSpeed * 0.2
 
 				phys:SetVelocity( TargetVelocity )
+				MsgN("Bounced from ground")
 			end
 		end
 	end
@@ -290,16 +329,19 @@ function ENT:Use(act, cal)
 	local d,v = self.MaxEnterDistance, _
 	for i=1,#self.Seats do
 		local seat = self.Seats[i]
-		if not IsValid(seat.Ent) then
+		local seatent = self.SeatEnts[i]
+		if not IsValid(seatent) or IsValid(seatent:GetDriver()) then
 			continue
 		end
 
-		local dist = seat.Ent:GetPos():Distance(
+		local dist = seatent:GetPos():Distance(
 						util.QuickTrace(act:GetShootPos(), act:GetAimVector() * self.MaxEnterDistance, act).HitPos)
+
+		MsgN(dist)
 
 		if dist < d then
 			d = dist
-			v = seat.Ent
+			v = seatent
 		end
 
 	end

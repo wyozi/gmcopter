@@ -44,3 +44,17 @@ function ENT:Draw()
 	self:DrawCopterHUD(ang, fwd, ri, self:GetUp())
 	--MsgN("drawin")
 end
+
+hook.Add("CalcView", "MyCalcView", function(ply, pos, angles, fov)
+    local heli = ply:GetHelicopter()
+    if IsValid(heli) then
+    	local view = {}
+    	local hang = heli:GetAngles()
+	    view.origin = heli:GetPos() - (hang:Forward()*400) + (hang:Up() * 250)
+	    view.angles = (heli:GetPos() - view.origin):Angle()
+	    view.angles.p = 32
+	    view.fov = fov
+	 
+	    return view
+    end
+end)

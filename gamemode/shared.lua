@@ -1,3 +1,5 @@
+include( 'player_class/player_gmc.lua' )
+
 local basefol = GM.FolderName.."/gamemode/gmcmodules/"
 
 local function LoadModuleFolder(modulenm)

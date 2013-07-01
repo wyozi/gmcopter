@@ -5,7 +5,7 @@ function meta:EnterHelicopter(helicopter, seat)
 		return false
 	end
 	self:EnterVehicle(seat)
-	self.InHeli = {heli = helicopter, seat = seat}
+	self:SetHelicopter(helicopter)
 	return true
 end
 
@@ -16,21 +16,17 @@ function meta:LeaveHelicopter()
 	local myseat = helicopter:GetSeatOf(self)
 
 	self:ExitVehicle()
-	self.InHeli = nil
+	self:SetHelicopter(NULL)
 	self.VehicleLeft = CurTime()
 
 	if myseat then
 		self:SetPos(helicopter:LocalToWorld(myseat.Exit))
 		self:SetEyeAngles((helicopter:LocalToWorld(myseat.Pos - Vector(0,0,40)) - self:GetPos()):Angle())
 	else
-		ErrorNoHalt("Couldn't find ply chair")
+		ErrorNoHalt("Couldn't find ply seat")
 	end
 	self:SetVelocity(helicopter:GetPhysicsObject():GetVelocity() * 1.2)
 
-end
-
-function meta:GetHelicopter()
-	return self.InHeli and self.InHeli.heli or nil
 end
 
 concommand.Add("+gmc_incalt", function(ply, cmd, args)
