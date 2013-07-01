@@ -1,10 +1,37 @@
+AddCSLuaFile("cl_init.lua")
 include("shared.lua")
 
+function ENT:SvInit()
+	local hull = self.Hull
+
+	self.Brake = 0
+	self.InputVelocity = Vector(0, 0, 0)
+
+	self:SetModel(hull.Model)
+	self:PhysicsInit(SOLID_VPHYSICS)
+	self:SetMoveType(MOVETYPE_VPHYSICS)
+	self:SetSolid(SOLID_VPHYSICS)
+	
+	local phys = self:GetPhysicsObject()
+	if phys:IsValid() then
+		self.Phys = phys
+		phys:SetMass(hull.Weight)
+		phys:Wake()
+
+		--phys:EnableDrag(true) -- lel wut
+	end
+
+	self:SetEngineStartLevel(0)
+
+	self:AddRotors()
+	self:AddSeats()
+
+end
 function ENT:AddRotors()
 
 	do
 		local trotor = ents.Create("prop_physics")
-		self.TopRotor.Ent = trotor
+		self.TopRotorEnt = trotor
 
 		trotor:SetModel(self.TopRotor.Model)
 		trotor:SetPos(self:LocalToWorld(self.TopRotor.Pos))
@@ -18,8 +45,9 @@ function ENT:AddRotors()
 			phys:EnableGravity(false)
 			phys:SetMass(5)
 			phys:EnableDrag(false)
+			phys:Wake()
 
-			self.TopRotor.Phys = phys
+			self.TopRotorPhys = phys
 		end
 
 		if not constraint.Axis(self, trotor, 0, 0, self.TopRotor.Pos, Vector(0,0,1), 0,0,0,1) then
@@ -31,7 +59,7 @@ function ENT:AddRotors()
 
 	do
 		local brotor = ents.Create("prop_physics")
-		self.BackRotor.Ent = brotor
+		self.BackRotorEnt = brotor
 
 		brotor:SetModel(self.BackRotor.Model)
 		brotor:SetPos(self:LocalToWorld(self.BackRotor.Pos))
@@ -45,8 +73,9 @@ function ENT:AddRotors()
 			phys:EnableGravity(false)
 			phys:SetMass(5)
 			phys:EnableDrag(false)
+			phys:Wake()
 
-			self.BackRotor.Phys = phys
+			self.BackRotorPhys = phys
 		end
 
 		if self.BackRotor.TwinBladed then
@@ -103,16 +132,20 @@ function ENT:Think()
 		if not self.MSounds.Start:IsPlaying() then
 			self.MSounds.Start:Play()
 			--self.MSounds.Start:ChangeVolume(0, 0)
-		elseif not driver:KeyDown(IN_FORWARD) then -- Shouldn't get sound of rotors accelerating if we've stopped
+		elseif not driver.IncAltDown then -- Shouldn't get sound of rotors accelerating if we've stopped
 			self.MSounds.Start:Stop()
 		end
 
-		if driver:KeyDown(IN_FORWARD) then
-			self:SetEngineStartLevel(self:GetEngineStartLevel() + 1)
+		if driver.IncAltDown then
+			self:SetEngineStartLevel(math.min(self:GetEngineStartLevel() + 1, self.MaxEngineStartLevel))
 			self.Brake = 0
 		elseif self:GetEngineStartLevel() > 0 then
-			self:SetEngineStartLevel(self:GetEngineStartLevel() - 1)
+			self:SetEngineStartLevel(math.max(self:GetEngineStartLevel() - 3, 0))
 			self.Brake = 0.01
+		end
+
+		if self:IsEngineRunning() then
+			self.LastEngineStarted = CurTime()
 		end
 
 		--self.MSounds.Start:ChangeVolume(self:GetEngineStartFrac(), 0)
@@ -128,12 +161,16 @@ function ENT:Think()
 		end
 		self.Brake = 0
 	elseif self.MSounds.Engine:IsPlaying() then
-		self.MSounds.Engine:Stop()
+		if self:GetEngineStartFrac() > 0 then
+			self.MSounds.Engine:ChangeVolume(self:GetEngineStartFrac(), 0)
+		else
+			self.MSounds.Engine:Stop()
+		end
 	end
 
-	local RotorFrac = math.Clamp(self:RotorSpeed() / 5000, 0, 1)
+	--[[local RotorFrac = math.Clamp(self:RotorSpeed() / 5000, 0, 1)
 
-	--MsgN(self:RotorSpeed(), "  lel  ", RotorFrac)
+	MsgN(self:RotorSpeed(), "  lel  ", RotorFrac)
 	if RotorFrac > 0.01 then
 		if not self.MSounds.Blades:IsPlaying() then
 			self.MSounds.Blades:Play()
@@ -141,30 +178,111 @@ function ENT:Think()
 		self.MSounds.Blades:ChangeVolume(RotorFrac, 0)
 	elseif self.MSounds.Blades:IsPlaying() then
 		self.MSounds.Blades:Stop()
-	end
+	end DURR DURR ]]
 
 	self:NextThink(CurTime() + 0.1)
 	return true
 end
 
+local function SetAngleVelocity(phys, angle)
+	phys:AddAngleVelocity( -1 * phys:GetAngleVelocity( ) + angle)
+end
+local function OverrideComponents(vec, x, y, z)
+	return Vector(x or vec.x, y or vec.y, z or vec.z)
+end
+
 function ENT:PhysicsUpdate()
-	local oav = self.TopRotor.Phys:GetAngleVelocity() * self.Brake
+	local oav = self.TopRotorPhys:GetAngleVelocity() * self.Brake
 	if self:IsEngineRunning() then
-		self.TopRotor.Phys:AddAngleVelocity(Vector(0, 0, self.RotorSpinSpeed) - oav)
+		SetAngleVelocity(self.TopRotorPhys, Vector(0, 0, self.RotorSpinSpeed))
 	elseif self:GetEngineStartFrac() > 0.1 then
-		self.TopRotor.Phys:AddAngleVelocity(Vector(0, 0, self:GetEngineStartFrac() * self.RotorSpinSpeed) - oav)
+		SetAngleVelocity(self.TopRotorPhys, Vector(0, 0, self:GetEngineStartFrac() * self.RotorSpinSpeed))
 	end
 
 	if self:IsEngineRunning() then
-		local vel = self:GetAngles():Up() * (self:RotorSpeed() / 750)
-		vel = Vector(0, 0, vel.z)
-		self.Phys:AddVelocity(vel)
+
+		local driver = self:GetDriver()
+
+		local vel = Vector(0, 0, 9)
+
+		if IsValid(driver) and driver.IncAltDown then
+			self.InputVelocity.z = self.InputVelocity.z + 0.5
+		elseif IsValid(driver) and driver.DecAltDown then
+			self.InputVelocity.z = self.InputVelocity.z - 1.5
+		elseif self.InputVelocity.z > -1 then
+			self.InputVelocity.z = math.max(self.InputVelocity.z - 1, -1)
+		end
+
+		if IsValid(driver) then
+			local angles = self:GetAngles()
+			if driver:KeyDown(IN_FORWARD) then
+				if angles.p < 12 then
+					self.Phys:AddAngleVelocity(Vector(0, 0.1, 0))
+				end
+				self.InputVelocity = self.InputVelocity + OverrideComponents(angles:Forward() * 2.5, _, _, 0)
+			elseif driver:KeyDown(IN_BACK) then
+				if angles.p > -12 then
+					self.Phys:AddAngleVelocity(Vector(0, -0.1, 0))
+				end
+				self.InputVelocity = self.InputVelocity - OverrideComponents(angles:Forward() * 2.5, _, _, 0)
+			end
+			
+			if angles.p > 12 or angles.p < 12 then
+				self.Phys:AddAngleVelocity(Vector(0, angles.p > 0 and -0.05 or 0.05, 0))
+			end
+
+			if driver:KeyDown(IN_MOVERIGHT) then
+				self.Phys:AddAngleVelocity(Vector(0, 0, -0.2))
+			elseif driver:KeyDown(IN_MOVELEFT) then
+				self.Phys:AddAngleVelocity(Vector(0, 0, 0.2))
+			end
+
+			angles.r = 0
+			self:SetAngles(angles)
+
+			MsgN(angles)
+
+			--MsgN(self.InputVelocity, driver:KeyDown(IN_RIGHT), driver:KeyDown(IN_LEFTs))
+		end
+
+		self.InputVelocity.x = math.Clamp(self.InputVelocity.x, -300, 300)
+		self.InputVelocity.y = math.Clamp(self.InputVelocity.y, -300, 300)
+		self.InputVelocity.z = math.Clamp(self.InputVelocity.z, -200, 200)
+
+		vel = vel + self.InputVelocity
+
+		--MsgN(vel)
+		--vel = vel:Rotate(-1*self:GetAngles())
+		self.Phys:SetVelocity(vel)
+
 	end
 
 end
 
+function ENT:PhysicsCollide(cdata, phys)
+	if cdata.HitEntity:GetClass() == "worldspawn" then
+		MsgN(cdata.Speed)
+		if self:IsEngineRunning() and self.LastEngineStarted < CurTime() - 2 then
+			if cdata.Speed < 200 then
+				self:SetEngineStartLevel(self.MaxEngineStartLevel - 2)
+			else
+				-- Bounce back?
+				local LastSpeed = math.max( cdata.OurOldVelocity:Length(), cdata.Speed )
+				local NewVelocity = phys:GetVelocity()
+				NewVelocity:Normalize()
+
+				LastSpeed = math.max( NewVelocity:Length(), LastSpeed )
+
+				local TargetVelocity = NewVelocity * LastSpeed * 0.2
+
+				phys:SetVelocity( TargetVelocity )
+			end
+		end
+	end
+end
+
 function ENT:RotorSpeed()
-	return self.TopRotor.Phys:GetAngleVelocity():Length()
+	return self.TopRotorPhys:GetAngleVelocity():Length()
 end
 
 -- TODO make better

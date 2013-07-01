@@ -5,6 +5,8 @@ end
 ENT.Base = "base_anim"
 ENT.Type = "anim"
 
+ENT.IsHelicopter = true
+
 -- Baseholder variables
 
 ENT.Hull = {
@@ -32,7 +34,7 @@ ENT.Passengers = {}
 ENT.MaxEnterDistance = 50
 ENT.MaxEngineStartLevel = 100
 
-ENT.RotorSpinSpeed = 12
+ENT.RotorSpinSpeed = 1000
 
 function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "ESL") -- EngineStartLevel
@@ -48,32 +50,8 @@ function ENT:IsEngineRunning()
 end
 
 function ENT:Initialize()
-	local hull = self.Hull
 
-	if SERVER then
-
-		self.Brake = 0
-
-		self:SetModel(hull.Model)
-		self:PhysicsInit(SOLID_VPHYSICS)
-		self:SetMoveType(MOVETYPE_VPHYSICS)
-		self:SetSolid(SOLID_VPHYSICS)
-		
-		local phys = self:GetPhysicsObject()
-		if phys:IsValid() then
-			self.Phys = phys
-			phys:SetMass(hull.Weight)
-			phys:Wake()
-
-			--phys:EnableDrag(true) -- lel wut
-		end
-
-		self:SetEngineStartLevel(0)
-
-		self:AddRotors()
-		self:AddSeats()
-
-	end
+	if SERVER then self:SvInit() end
 
 	self.MSounds = {}
 	for name, value in pairs(self.Sounds) do

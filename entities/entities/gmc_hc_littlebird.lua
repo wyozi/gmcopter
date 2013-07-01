@@ -43,3 +43,20 @@ ENT.Sounds = {
 	LowHealth = Sound("HelicopterVehicle/LowHealth.mp3"),
 	CrashAlarm = Sound("HelicopterVehicle/CrashAlarm.mp3")
 }
+
+if CLIENT then
+	function ENT:DrawCopterHUD(ang, fwd, ri, up)
+
+		ang:RotateAroundAxis(ri, -6)
+
+		cam.Start3D2D(self:LocalToWorld(self.Seats[1].Pos + Vector(40.2,3.75,37.75)), ang, 0.015)
+
+		surface.SetDrawColor(Color(255, 0, 0, 255))
+		surface.DrawOutlinedRect(870, 900, 590, 1000)
+
+		self:DrawInstrument("SupportingPitchAndBank", 970, 935, 110, 110)
+
+		cam.End3D2D()
+
+	end
+end
