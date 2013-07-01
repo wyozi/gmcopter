@@ -32,7 +32,7 @@ ENT.Passengers = {}
 ENT.MaxEnterDistance = 50
 ENT.MaxEngineStartLevel = 100
 
-ENT.RotorSpinSpeed = 10
+ENT.RotorSpinSpeed = 12
 
 function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "ESL") -- EngineStartLevel
