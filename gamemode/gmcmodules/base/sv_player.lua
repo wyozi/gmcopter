@@ -14,6 +14,20 @@ function GM:PlayerSpawn( pl )
 
 end
 
+function GM:PlayerSelectSpawn(ply)
+
+    local spawns = ents.FindByClass( "gmc_pilotspawn" )
+    gmcdebug.Msg("PilotSpawns: ", #spawns)
+    if #spawns == 0 then
+    	spawns = ents.FindByClass( "info_player_start" )
+    end
+    local random_entry = math.random( #spawns )
+
+    gmcdebug.Msg("Player spawnpoint selected: ", IsValid(spawns[random_entry]))
+
+    return spawns[random_entry]
+end
+
 hook.Add("PlayerSetModel", "SetModel", function(ply)
 	ply:SetModel("models/player/hostage02.mdl")
 end)

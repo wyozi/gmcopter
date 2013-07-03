@@ -1,4 +1,4 @@
-"mistdm"
+"gmcopter"
 {
 	"base" "sandbox"
     "title" "GMCopter"
@@ -8,6 +8,8 @@
     "author_name" "Wyozi, UtharQ"
     "author_email" ""
     "author_url" "http://github.com/wyozi"
+
+    "maps"      "^gmc_"
 
     "icon" ""
     "info" ""
