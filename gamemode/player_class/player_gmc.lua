@@ -58,23 +58,39 @@ function PLAYER:Loadout()
 
 end
 
+--[[ If needed..
 function PLAYER:Think()
-	
-	if CLIENT then
+end
 
-		local ply = self.Player
+hook.Add("Think", "PlyClassThink", function()
+	local plys = player.GetAll()
+	for i=1,#plys do
+		player_manager.RunClass(plys[i], "Think")
+	end
+end)
+]]
+
+if CLIENT then -- TODO move out of here
+	hook.Add("PostPlayerDraw", "DrawPlayerAccessories", function(ply)
 
 		local hat = ply.Hat
+		local glasses = ply.Glasses
 		if not hat then
 			hat = ClientsideModel("models/headset/headset.mdl", RENDERGROUP_OPAQUE)
+			hat:SetNoDraw(true)
 			ply.Hat = hat
 		end
+		if not glasses then
+			glasses = ClientsideModel("models/Aviator/aviator.mdl", RENDERGROUP_OPAQUE)
+			glasses:SetNoDraw(true)
+			ply.Glasses = glasses
+		end
 
-		if not ply:Alive() then
-			hat:SetNoDraw(true)
+		if not ply:Alive() or ( ply == LocalPlayer() and GetViewEntity():GetClass() == 'player' and (GetConVar('thirdperson') and GetConVar('thirdperson'):GetInt() == 0) ) then
+			--hat:SetNoDraw(true)
 			return
 		end
-		hat:SetNoDraw(false)
+		--hat:SetNoDraw(false)
 
 		local pos = Vector()
 		local ang = Angle()
@@ -88,22 +104,44 @@ function PLAYER:Think()
 
 		pos = attach.Pos
 		ang = attach.Ang
-
 		ang:RotateAroundAxis(ang:Up(), 180)
-		--ang:RotateAroundAxis(ang:Right(), 50)
 
-		hat:SetPos(pos + (ang:Forward() * 4.5) - (ang:Up() * 5))
-		hat:SetAngles(ang)
-	end
+		do
+			local hatpos = pos + (ang:Forward() * 3) - (ang:Up() * 3.5)
 
+			hat:SetPos(hatpos)
+			hat:SetAngles(ang)
+
+			hat:SetRenderOrigin(hatpos)
+			hat:SetRenderAngles(ang)
+
+			hat:SetupBones()
+			hat:DrawModel()
+
+			hat:SetRenderOrigin()
+			hat:SetRenderAngles()
+		end
+
+		do
+			local glassespos = pos + (ang:Forward() * 0.8) - (ang:Up() * 1.2)
+			ang:RotateAroundAxis(ang:Up(), 180)
+
+			glasses:SetPos(glassespos)
+			glasses:SetAngles(ang)
+
+			glasses:SetRenderOrigin(glassespos)
+			glasses:SetRenderAngles(ang)
+
+			glasses:SetupBones()
+			glasses:DrawModel()
+
+			glasses:SetRenderOrigin()
+			glasses:SetRenderAngles()
+			
+		end
+
+	end)
 end
-
-hook.Add("Think", "PlyClassThink", function()
-	local plys = player.GetAll()
-	for i=1,#plys do
-		player_manager.RunClass(plys[i], "Think")
-	end
-end)
 
 
 --

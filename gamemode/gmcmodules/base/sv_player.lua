@@ -13,3 +13,7 @@ function GM:PlayerSpawn( pl )
 	hook.Call( "PlayerSetModel", GAMEMODE, pl )
 
 end
+
+hook.Add("PlayerSetModel", "SetModel", function(ply)
+	ply:SetModel("models/player/hostage02.mdl")
+end)
