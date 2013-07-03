@@ -4,10 +4,10 @@ include("shared.lua")
 function ENT:SvInit()
 	local hull = self.Hull
 
-	self.Brake = 0
-	self.InputVelocity = Vector(0, 0, 0)
-	self.InputTrailVelocity = Vector(0, 0, 0)
-	self.TargetAngleVelocity = Vector(0, 0, 0)
+	self.InputVelocityTrail = Vector(0, 0, 0)
+	self.InputAngleVelocityTrail = Vector(0, 0, 0)
+	self.InputAngleTrail = Angle(0, 0, 0)
+
 	self.SeatEnts = {}
 
 	self:SetModel(hull.Model)
@@ -146,13 +146,8 @@ function ENT:Think()
 
 		if IsValid(driver) and driver.IncAltDown then
 			self:SetEngineStartLevel(math.min(self:GetEngineStartLevel() + 1, self.MaxEngineStartLevel))
-			self.Brake = 0
 		elseif self:GetEngineStartLevel() > 0 then
 			self:SetEngineStartLevel(math.max(self:GetEngineStartLevel() - 2, 0))
-			self.Brake = 0.01
-			if IsValid(self.Smoke) then
-				self.Smoke:Remove()
-			end
 		end
 
 		if self:IsEngineRunning() then
@@ -185,6 +180,7 @@ function ENT:Think()
 			self.MSounds.Blades:Play()
 		end
 		self.MSounds.Blades:ChangeVolume(RotorFrac, 0)
+
 	elseif self.MSounds.Blades:IsPlaying() then
 		self.MSounds.Blades:Stop()
 	end
@@ -193,25 +189,20 @@ function ENT:Think()
 	return true
 end
 
-local function SetAngleVelocity(phys, angle)
-	phys:AddAngleVelocity( -1 * phys:GetAngleVelocity( ) + angle)
-end
-local function OverrideComponents(vec, x, y, z)
-	return Vector(x or vec.x, y or vec.y, z or vec.z)
-end
-
 function ENT:PhysicsUpdate()
 	if self:IsEngineRunning() then
-		SetAngleVelocity(self.TopRotorPhys, Vector(0, 0, self.RotorSpinSpeed))
-		SetAngleVelocity(self.BackRotorPhys, Vector(0, self.RotorSpinSpeed, 0))
+		gmcutils.SetAngleVelocity(self.TopRotorPhys, Vector(0, 0, self.RotorSpinSpeed))
+		gmcutils.SetAngleVelocity(self.BackRotorPhys, Vector(0, self.RotorSpinSpeed, 0))
 	elseif self:GetEngineStartFrac() > 0 or self:RotorSpeed() > 40 then
-		SetAngleVelocity(self.TopRotorPhys, Vector(0, 0, self:GetEngineStartFrac() * self.RotorSpinSpeed))
-		SetAngleVelocity(self.BackRotorPhys, Vector(0, self:GetEngineStartFrac() * self.RotorSpinSpeed, 0))
+		gmcutils.SetAngleVelocity(self.TopRotorPhys, Vector(0, 0, self:GetEngineStartFrac() * self.RotorSpinSpeed))
+		gmcutils.SetAngleVelocity(self.BackRotorPhys, Vector(0, self:GetEngineStartFrac() * self.RotorSpinSpeed, 0))
 	end
 
 	if self:IsEngineRunning() then
 
 		local driver = self:GetDriver()
+		local angles = self:GetAngles()
+		local yawangles = angles:OnlyYaw()
 
 		local hovervel = Vector(0, 0, 9) -- TODO some math.sin magic to make us bounce upn down. Maybe make it rely on air speed?
 
@@ -219,45 +210,79 @@ function ENT:PhysicsUpdate()
 			hovervel = Vector(0, 0, 0)
 		end
 
-		self.InputVelocity = Vector(0, 0, 0)
+		local InputVelocity = Vector(0, 0, 0)
+		local InputAngleVelocity = Vector(0, 0, 0)
+		local InputAngle = Angle(0, 0, 0)
 
 		if IsValid(driver) then
 			if driver.IncAltDown then
-				self.InputVelocity:AddZ(300)
+				InputVelocity:AddZ(400)
 			elseif driver.DecAltDown then
-				self.InputVelocity:AddZ(-300)
+				InputVelocity:AddZ(-400)
+			end
+
+			if driver:KeyDown(IN_FORWARD) then
+				InputVelocity:Add(yawangles:Forward() * 800)
+				InputAngle.p = 30
+			elseif driver:KeyDown(IN_BACK) then
+				InputVelocity:Add(-yawangles:Forward() * 800)
+				InputAngle.p = -30
+			end
+
+			if driver:KeyDown(IN_MOVELEFT) then
+				InputAngleVelocity:AddZ(60)
+				InputAngle.r = -30
+			elseif driver:KeyDown(IN_MOVERIGHT) then
+				InputAngleVelocity:AddZ(-60)
+				InputAngle.r = 30
 			end
 		end
 
-		--gmcdebug.Msg("Test debug msg")
+		InputVelocity:ClampX(-4000, 4000)
+		InputVelocity:ClampY(-4000, 4000)
+		InputVelocity:ClampZ(-1000, 1000)
 
-		self.InputVelocity:ClampX(-4000, 4000)
-		self.InputVelocity:ClampY(-4000, 4000)
-		self.InputVelocity:ClampZ(-1000, 1000)
+		do -- Velocity
+			local CurVel = self.Phys:GetVelocity()
+			local TargetVel = gmcmath.ApproachVectorMod(self.InputVelocityTrail, InputVelocity, 3.5)
+			--TargetVel.z = gmcmath.Approach(TargetVel.z, InputVelocity.z, 1) -- Some extra
 
-		local CurVel = self.Phys:GetVelocity()
-		self.InputTrailVelocity = gmcmath.ApproachVector(self.InputTrailVelocity, self.InputVelocity, 2)
-		local TargetVel = self.InputTrailVelocity
+			local AddVel = gmcmath.VectorDiff(CurVel, TargetVel) > 0.1 and (TargetVel - CurVel) or vector_origin
 
-		--gmcdebug.Msg(self.InputVelocity, TargetVel)
+			--gmcdebug.Msg(TargetVel, AddVel)
 
-		local AddVel = gmcmath.VectorDiff(CurVel, TargetVel) > 0.1 and
-			(TargetVel - CurVel) or
-			vector_origin
+			local vel = hovervel + AddVel
+			self.Phys:AddVelocity(vel)
+		end
 
-		local vel = hovervel + AddVel
-		self.Phys:AddVelocity(vel)
+		do -- AngleVelocity
+			local CurAng = self.Phys:GetAngleVelocity()
+			local TargetAng = gmcmath.ApproachVectorMod(self.InputAngleVelocityTrail, InputAngleVelocity, 0.5)
 
-		--[[vel = vel + self.InputVelocity
-		local vel1 = vel
-		vel:Rotate(self:GetAngles())
-		local vel2 = vel
-		vel.x = vel.x * 8
-		vel.y = vel.y * 8
-		--MsgN(self:GetAngles(), " -> ", vel1, " - ", vel2, " - ", vel)
-		self.Phys:AddVelocity(vel)]]
-		--self.Phys:AddVelocity(self:GetAngles():Forward() * 10)
-		--MsgN(self.Phys:GetVelocity())
+			local SetAngVel = gmcmath.VectorDiff(CurAng, TargetAng) > 0.1 and (TargetAng - CurAng) or vector_origin
+
+			gmcutils.SetAngleVelocity(self.Phys, SetAngVel)
+		end
+
+		do -- Angle
+			local CurAng = self:GetAngles()
+			local TargetAng = self.InputAngleTrail
+
+			local InputTargetDiff = gmcmath.AngleDiff(InputAngle, TargetAng)
+
+			if self:IsJustAboveGround() then -- If we're above ground dont pitch or roll to avoid glitching with ground due to forcing angle
+				InputAngle.p = 0 -- We could set targetangle here but faking InputAngle makes transition smoother because TargetAngle is directly related to the SetAngles
+				InputAngle.r = 0
+			end 
+			TargetAng = gmcmath.ApproachAngleMod(TargetAng, InputAngle, math.Clamp(InputTargetDiff / 100, 0.1, 1.5)) -- math.Clamp is here to do some smoothening
+
+			local SetAng = gmcmath.AngleDiff(CurAng, TargetAng) > 0.1 and (TargetAng - CurAng) or nil
+
+			if SetAng then
+				SetAng.y = CurAng.y -- Dont mess with yaw because its not directly controlled by player
+				self:SetAngles(SetAng)
+			end
+		end
 
 	end
 
@@ -334,4 +359,16 @@ function ENT:OnRemove()
 	for _,snd in pairs(self.MSounds) do
 		snd:Stop()
 	end
+end
+
+function ENT:SpawnLaunchSmoke()
+
+	local vPoint = self:GetPos()
+	local effectdata = EffectData()
+	effectdata:SetStart( vPoint ) // not sure if we need a start and origin (endpoint) for this effect, but whatever
+	effectdata:SetOrigin( vPoint )
+	effectdata:SetNormal(Vector(0, 0, 1))
+	effectdata:SetScale( 1 )
+	util.Effect( "ThumperDust", effectdata, true, true )	
+ 
 end

@@ -74,6 +74,29 @@ function ENT:DrawCopterHUD(ang, fwd, ri, up)
 
 end
 
+function ENT:Think()
+	self:SpawnLaunchSmoke()
+end
+
+function ENT:SpawnLaunchSmoke()
+
+	if not self:IsEngineRunning() then return end
+
+	local vPoint = self:GetGroundHitPos()
+	local dist = vPoint:Distance(self:GetPos())
+
+	if dist > 250 then
+		return
+	end
+
+	local effectdata = EffectData()
+	effectdata:SetOrigin( vPoint )
+	effectdata:SetNormal(Vector(0, 0, 1))
+	effectdata:SetScale(10)
+	util.Effect( "ThumperDust", effectdata )	
+ 
+end
+
 
 hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
     local heli = ply:GetHelicopter()
@@ -89,8 +112,11 @@ hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
 	    	local tr = util.TraceLine({start=src, endpos=targ, filter={heli, ply, heli:GetNWEntity("trotor"), heli:GetNWEntity("brotor")}})
 	    	--MsgN(tr.Entity)
 		    view.origin = tr.Hit and tr.HitPos or targ
-		    view.angles = tr.Hit and (heli:GetPos() - view.origin):Angle() or heli:GetAngles()
+		    view.angles = tr.Hit and (heli:GetPos() - view.origin):Angle() or hang
+
 		    view.angles.p = 32
+		    view.angles.r = 0 -- Looks better this way
+
 		    view.fov = fov
 		 
 		    return view

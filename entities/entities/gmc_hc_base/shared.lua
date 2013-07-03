@@ -24,7 +24,8 @@ ENT.TopRotor = {
 ENT.BackRotor = {
 	Dir = -1,
 	Model = "models/Flyboi/LittleBird/LittleBirdT_fb.mdl",
-	Pos = Vector(-217, 9, 73)
+	Pos = Vector(-217, 9, 73),
+	Angles = Angle(0, 0, 0)
 }
 
 ENT.Seats = {
@@ -62,7 +63,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "ESL") -- EngineStartLevel
 end
 
-AccessorFunc(ENT, "ESL", "EngineStartLevel")
+AccessorFuncDT(ENT, "ESL", "EngineStartLevel")
 
 function ENT:GetEngineStartFrac()
 	return self:GetEngineStartLevel() / self.MaxEngineStartLevel
@@ -89,4 +90,11 @@ function ENT:Initialize()
 		})
 		self.MSounds[name] = CreateSound(self, "gmc."..self.ClassName.."."..name)
 	end
+end
+
+function ENT:GetGroundHitPos()
+	return util.QuickTrace(self:GetPos(), Vector(0, 0, -10000), self).HitPos
+end
+function ENT:IsJustAboveGround()
+	return util.TraceLine({start=self:GetPos(), endpos=self:GetPos() - Vector(0, 0, 60), filter={self}}).HitWorld
 end
