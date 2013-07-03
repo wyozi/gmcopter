@@ -106,17 +106,25 @@ hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
     		local view = {}
 	    	local hang = heli:GetAngles()
 
-	    	local src = heli:GetPos()
 	    	local targ = heli:GetPos() - (hang:Forward()*400) + (hang:Up() * 250)
-
-	    	local tr = util.TraceLine({start=src, endpos=targ, filter={heli, ply, heli:GetNWEntity("trotor"), heli:GetNWEntity("brotor")}})
-	    	--MsgN(tr.Entity)
+	    	local tr = util.TraceLine({start=heli:GetPos(), endpos=targ, filter={heli, ply, heli:GetNWEntity("trotor"), heli:GetNWEntity("brotor")}})
 		    view.origin = tr.Hit and tr.HitPos or targ
 		    view.angles = tr.Hit and (heli:GetPos() - view.origin):Angle() or hang
 
 		    view.angles.p = 32
 		    view.angles.r = 0 -- Looks better this way
 
+		    view.fov = fov
+		 
+		    return view
+		elseif camview == GMC_CAMVIEW_THIRDPERSON then
+    		local view = {}
+    		local hang = angles
+    		
+	    	local targ = heli:GetPos() - (hang:Forward()*400) + (hang:Up() * 250)
+	    	local tr = util.TraceLine({start=heli:GetPos(), endpos=targ, filter={heli, ply, heli:GetNWEntity("trotor"), heli:GetNWEntity("brotor")}})
+		    view.origin = tr.Hit and tr.HitPos or targ
+		    view.angles = angles
 		    view.fov = fov
 		 
 		    return view
