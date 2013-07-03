@@ -6,6 +6,8 @@ function ENT:SvInit()
 
 	self.Brake = 0
 	self.InputVelocity = Vector(0, 0, 0)
+	self.InputTrailVelocity = Vector(0, 0, 0)
+	self.TargetAngleVelocity = Vector(0, 0, 0)
 	self.SeatEnts = {}
 
 	self:SetModel(hull.Model)
@@ -153,39 +155,22 @@ function ENT:Think()
 			end
 		end
 
-		if not IsValid(self.Smoke) and self:GetEngineStartFrac() > 0.5 then
-			--self.Smoke = self:CreateSmoke()
-		end
-
 		if self:IsEngineRunning() then
 			self.LastEngineStarted = CurTime()
 		end
 
-		--self.MSounds.Start:ChangeVolume(self:GetEngineStartFrac(), 0)
-
-
-		--MsgN(self:GetEngineStartLevel())
 	elseif self.MSounds.Start:IsPlaying() then
 		self.MSounds.Start:Stop()
 	end
 
-	if IsValid(self.Smoke) and self:IsEngineRunning() then
-		if self.LastEngineStarted < CurTime() - 3 then	
-			self.Smoke:Remove()
-		elseif self.LastEngineStarted < CurTime() - 1 then
-			self.Smoke:Fire("TurnOff", "", 0)
-		end
+	if self.Phys:IsAsleep() and self:GetEngineStartLevel() > 0 then
+		self.Phys:Wake()
 	end
-
-		--if IsValid(driver) then
-		--	driver:ChatPrint(tostring(self:GetAngles()))
-		--end
 
 	if self:IsEngineRunning() then
 		if not self.MSounds.Engine:IsPlaying() then
 			self.MSounds.Engine:Play()
 		end
-		self.Brake = 0
 	elseif self.MSounds.Engine:IsPlaying() then
 		if self:GetEngineStartFrac() > 0 then
 			self.MSounds.Engine:ChangeVolume(self:GetEngineStartFrac(), 0)
@@ -195,8 +180,6 @@ function ENT:Think()
 	end
 
 	local RotorFrac = math.Clamp(self:RotorSpeed() / 5000, 0, 1)
-
-	--MsgN(self:RotorSpeed(), "  lel  ", RotorFrac)
 	if RotorFrac > 0.01 then
 		if not self.MSounds.Blades:IsPlaying() then
 			self.MSounds.Blades:Play()
@@ -225,95 +208,54 @@ function ENT:PhysicsUpdate()
 		SetAngleVelocity(self.TopRotorPhys, Vector(0, 0, self:GetEngineStartFrac() * self.RotorSpinSpeed))
 		SetAngleVelocity(self.BackRotorPhys, Vector(0, self:GetEngineStartFrac() * self.RotorSpinSpeed, 0))
 	end
-	--MsgN(self:RotorSpeed())
 
 	if self:IsEngineRunning() then
 
 		local driver = self:GetDriver()
 
-		local vel = Vector(0, 0, 9)
-
-		if IsValid(driver) and driver.IncAltDown then
-			self.InputVelocity.z = self.InputVelocity.z + 0.5
-		elseif IsValid(driver) and driver.DecAltDown then
-			self.InputVelocity.z = self.InputVelocity.z - 1.5
-		elseif self.InputVelocity.z > -1 then
-			self.InputVelocity.z = math.max(self.InputVelocity.z - 1, -1)
-		end
+		local hovervel = Vector(0, 0, 9) -- TODO some math.sin magic to make us bounce upn down. Maybe make it rely on air speed?
 
 		if self:RotorSpeed() < 1000 then -- If rotors arent moving, dont stay in air. TODO make something more sophisticated. 
-			vel = Vector(0, 0, 0)
+			hovervel = Vector(0, 0, 0)
 		end
+
+		self.InputVelocity = Vector(0, 0, 0)
 
 		if IsValid(driver) then
-			local angles = self:GetAngles()
-			local anglevel = self.Phys:GetAngleVelocity()
-
-			if driver:KeyDown(IN_FORWARD) then
-				if angles.p < 25 then
-					self.Phys:AddAngleVelocity(Vector(0, 0.1, 0))
-				end
-				--self.InputVelocity = self.InputVelocity + OverrideComponents(angles:Forward() * 3.5, _, _, 0)
-			elseif driver:KeyDown(IN_BACK) then
-				if angles.p > -17 then
-					self.Phys:AddAngleVelocity(Vector(0, -0.1, 0))
-				end
-				--vel.z = vel.z + 10
-				--self.InputVelocity.z = self.InputVelocity.z - 1
-				--self.InputVelocity = self.InputVelocity - OverrideComponents(angles:Forward() * 3.5, _, _, 0)
+			if driver.IncAltDown then
+				self.InputVelocity:AddZ(300)
+			elseif driver.DecAltDown then
+				self.InputVelocity:AddZ(-300)
 			end
-			if math.abs(angles.p) > 5 then
-				local angyurr = math.abs(angles.p) / 15
-				self.InputVelocity.z = self.InputVelocity.z + math.Clamp(angles.p, 1, 1.2)
-			end
-			
-			if angles.p > 35 or (angles.p > 5 and not driver:KeyDown(IN_FORWARD)) or angles.p < -25 or (angles.p < -5 and not driver:KeyDown(IN_BACK)) then
-				self.Phys:AddAngleVelocity(Vector(0, angles.p > 0 and -0.1 or 0.1, 0))
-			end
-
-			driver:ChatPrint("lel " .. tostring(angles.r))
-			if driver:KeyDown(IN_MOVERIGHT) then
-				self.TargetRoll = 30
-				self.TargetAngVel = -0.2
-				--self.Phys:AddAngleVelocity(Vector(0, 0, -0.2))
-			elseif driver:KeyDown(IN_MOVELEFT) then
-				self.TargetRoll = -30
-				self.TargetAngVel = 0.2
-				--self.Phys:AddAngleVelocity(Vector(0, 0, 0.2))
-			else
-				self.TargetRoll = 0
-				self.TargetAngVel = 0
-			end
-
-			if math.abs(self.TargetRoll - angles.r) > 0.1 then
-				local adiff = 0.1
-				self:SetAngles(Angle(angles.p, angles.y, math.Approach(angles.r, self.TargetRoll, adiff)))
-			end
-
-			if math.abs(self.TargetAngVel - anglevel.z) > 0.1 then
-				SetAngleVelocity(self.Phys, OverrideComponents(anglevel, _, _, math.Approach(anglevel.z, self.TargetAngVel, 0.05)))
-			end
-
-			--angles.r = 0
-			--self:SetAngles(angles)
-
-			--MsgN(angles)
-
-			--MsgN(self.InputVelocity, driver:KeyDown(IN_RIGHT), driver:KeyDown(IN_LEFTs))
 		end
 
-		self.InputVelocity.x = math.Clamp(self.InputVelocity.x, -4000, 4000)
-		self.InputVelocity.y = math.Clamp(self.InputVelocity.y, -4000, 4000)
-		self.InputVelocity.z = math.Clamp(self.InputVelocity.z, -200, 200)
+		--gmcdebug.Msg("Test debug msg")
 
-		vel = vel + self.InputVelocity
+		self.InputVelocity:ClampX(-4000, 4000)
+		self.InputVelocity:ClampY(-4000, 4000)
+		self.InputVelocity:ClampZ(-1000, 1000)
+
+		local CurVel = self.Phys:GetVelocity()
+		self.InputTrailVelocity = gmcmath.ApproachVector(self.InputTrailVelocity, self.InputVelocity, 2)
+		local TargetVel = self.InputTrailVelocity
+
+		--gmcdebug.Msg(self.InputVelocity, TargetVel)
+
+		local AddVel = gmcmath.VectorDiff(CurVel, TargetVel) > 0.1 and
+			(TargetVel - CurVel) or
+			vector_origin
+
+		local vel = hovervel + AddVel
+		self.Phys:AddVelocity(vel)
+
+		--[[vel = vel + self.InputVelocity
 		local vel1 = vel
 		vel:Rotate(self:GetAngles())
 		local vel2 = vel
 		vel.x = vel.x * 8
 		vel.y = vel.y * 8
 		--MsgN(self:GetAngles(), " -> ", vel1, " - ", vel2, " - ", vel)
-		self.Phys:AddVelocity(vel)
+		self.Phys:AddVelocity(vel)]]
 		--self.Phys:AddVelocity(self:GetAngles():Forward() * 10)
 		--MsgN(self.Phys:GetVelocity())
 
