@@ -19,7 +19,8 @@ ENT.TopRotor = {
 ENT.BackRotor = {
 	Dir = -1,
 	Model = "models/Flyboi/LittleBird/LittleBirdT_fb.mdl",
-	Pos = Vector(-217, 9, 73)
+	Pos = Vector(-217, 9, 73),
+	Angles = Angle(0, 0, 0)
 }
 
 ENT.Seats = {

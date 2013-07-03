@@ -43,18 +43,65 @@ function ENT:Draw()
 
 	self:DrawCopterHUD(ang, fwd, ri, self:GetUp())
 	--MsgN("drawin")
+
+	--[[
+	local particle = self.Emitter:Add("sprites/heatwave",self:GetPos())
+	particle:SetVelocity(self:GetVelocity()+self:GetForward()*-100)
+	particle:SetDieTime(0.1)
+	particle:SetStartAlpha(255)
+	particle:SetEndAlpha(255)
+	particle:SetStartSize(40)
+	particle:SetEndSize(20)
+	particle:SetColor(255,255,255)
+	particle:SetRoll(math.Rand(-50,50))
+	self.Emitter:Finish()]] 
+
 end
 
-hook.Add("CalcView", "MyCalcView", function(ply, pos, angles, fov)
+
+function ENT:DrawCopterHUD(ang, fwd, ri, up)
+
+	ang:RotateAroundAxis(ri, -6)
+
+	cam.Start3D2D(self:LocalToWorld(self.Seats[1].Pos + Vector(40.2,3.75,37.75)), ang, 0.015)
+
+	surface.SetDrawColor(Color(255, 0, 0, 255))
+	surface.DrawOutlinedRect(870, 900, 590, 1000)
+
+	self:DrawInstrument("SupportingPitchAndBank", 970, 935, 110, 110)
+
+	cam.End3D2D()
+
+end
+
+
+hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
     local heli = ply:GetHelicopter()
     if IsValid(heli) then
-    	local view = {}
-    	local hang = heli:GetAngles()
-	    view.origin = heli:GetPos() - (hang:Forward()*400) + (hang:Up() * 250)
-	    view.angles = (heli:GetPos() - view.origin):Angle()
-	    view.angles.p = 32
-	    view.fov = fov
-	 
-	    return view
+		local camview = GetConVar("gmc_camview"):GetInt()
+    	if camview == GMC_CAMVIEW_CHASE then
+    		local view = {}
+	    	local hang = heli:GetAngles()
+
+	    	local src = heli:GetPos()
+	    	local targ = heli:GetPos() - (hang:Forward()*400) + (hang:Up() * 250)
+
+	    	local tr = util.TraceLine({start=src, endpos=targ, filter={heli, ply, heli:GetNWEntity("trotor"), heli:GetNWEntity("brotor")}})
+	    	--MsgN(tr.Entity)
+		    view.origin = tr.Hit and tr.HitPos or targ
+		    view.angles = tr.Hit and (heli:GetPos() - view.origin):Angle() or heli:GetAngles()
+		    view.angles.p = 32
+		    view.fov = fov
+		 
+		    return view
+		elseif camview == GMC_CAMVIEW_COCKPIT then
+    		local view = {}
+	    	local hang = heli:GetAngles()
+		    view.origin = heli:GetPos() + (hang:Up() * 50) + (hang:Forward() * 100)
+		    view.angles = heli:GetAngles() --(heli:GetPos() - view.origin):Angle()
+		    view.fov = fov
+		 
+		    return view
+    	end
     end
 end)

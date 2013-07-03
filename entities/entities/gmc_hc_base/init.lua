@@ -36,8 +36,9 @@ function ENT:AddRotors()
 
 		trotor:SetModel(self.TopRotor.Model)
 		trotor:SetPos(self:LocalToWorld(self.TopRotor.Pos))
-		trotor:SetAngles(self:LocalToWorldAngles(self.TopRotor.Angles))
+		trotor:SetAngles(self:LocalToWorldAngles(self.TopRotor.Angles or Angle(0, 0, 0)))
 		trotor:SetOwner(self.Owner)
+		self:SetNWEntity("trotor", trotor)
 
 		trotor:Spawn()
 
@@ -66,8 +67,9 @@ function ENT:AddRotors()
 
 		brotor:SetModel(self.BackRotor.Model)
 		brotor:SetPos(self:LocalToWorld(self.BackRotor.Pos))
-		brotor:SetAngles(self:LocalToWorldAngles(self.BackRotor.Angles))
+		brotor:SetAngles(self:LocalToWorldAngles(self.BackRotor.Angles or Angle(0, 0, 0)))
 		brotor:SetOwner(self.Owner)
+		self:SetNWEntity("brotor", brotor)
 
 		brotor:Spawn()
 
@@ -133,19 +135,26 @@ end
 
 function ENT:Think()
 	local driver = self:GetDriver()
-	if IsValid(driver) and not self:IsEngineRunning() then
-		if not self.MSounds.Start:IsPlaying() and driver.IncAltDown then
+	if not self:IsEngineRunning() then
+		if not self.MSounds.Start:IsPlaying() and (IsValid(driver) and driver.IncAltDown) then
 			self.MSounds.Start:Play()
 		elseif not driver.IncAltDown then -- Shouldn't get sound of rotors accelerating if we've stopped
 			self.MSounds.Start:Stop()
 		end
 
-		if driver.IncAltDown then
+		if IsValid(driver) and driver.IncAltDown then
 			self:SetEngineStartLevel(math.min(self:GetEngineStartLevel() + 1, self.MaxEngineStartLevel))
 			self.Brake = 0
 		elseif self:GetEngineStartLevel() > 0 then
 			self:SetEngineStartLevel(math.max(self:GetEngineStartLevel() - 2, 0))
 			self.Brake = 0.01
+			if IsValid(self.Smoke) then
+				self.Smoke:Remove()
+			end
+		end
+
+		if not IsValid(self.Smoke) and self:GetEngineStartFrac() > 0.5 then
+			--self.Smoke = self:CreateSmoke()
 		end
 
 		if self:IsEngineRunning() then
@@ -154,10 +163,23 @@ function ENT:Think()
 
 		--self.MSounds.Start:ChangeVolume(self:GetEngineStartFrac(), 0)
 
+
 		--MsgN(self:GetEngineStartLevel())
 	elseif self.MSounds.Start:IsPlaying() then
 		self.MSounds.Start:Stop()
 	end
+
+	if IsValid(self.Smoke) and self:IsEngineRunning() then
+		if self.LastEngineStarted < CurTime() - 3 then	
+			self.Smoke:Remove()
+		elseif self.LastEngineStarted < CurTime() - 1 then
+			self.Smoke:Fire("TurnOff", "", 0)
+		end
+	end
+
+		--if IsValid(driver) then
+		--	driver:ChatPrint(tostring(self:GetAngles()))
+		--end
 
 	if self:IsEngineRunning() then
 		if not self.MSounds.Engine:IsPlaying() then
@@ -240,30 +262,36 @@ function ENT:PhysicsUpdate()
 				--self.InputVelocity.z = self.InputVelocity.z - 1
 				--self.InputVelocity = self.InputVelocity - OverrideComponents(angles:Forward() * 3.5, _, _, 0)
 			end
-			if angles.p > 5 then
-				self.InputVelocity.z = self.InputVelocity.z + 1.5
+			if math.abs(angles.p) > 5 then
+				local angyurr = math.abs(angles.p) / 15
+				self.InputVelocity.z = self.InputVelocity.z + math.Clamp(angles.p, 1, 1.2)
 			end
 			
 			if angles.p > 35 or (angles.p > 5 and not driver:KeyDown(IN_FORWARD)) or angles.p < -25 or (angles.p < -5 and not driver:KeyDown(IN_BACK)) then
 				self.Phys:AddAngleVelocity(Vector(0, angles.p > 0 and -0.1 or 0.1, 0))
 			end
 
-
+			driver:ChatPrint("lel " .. tostring(angles.r))
 			if driver:KeyDown(IN_MOVERIGHT) then
-				self:SetAngles(Angle(angles.p, angles.y, math.ApproachAngle(angles.r, 30, 0.3)))
-				self.Phys:AddAngleVelocity(Vector(0, 0, -0.2))
+				self.TargetRoll = 30
+				self.TargetAngVel = -0.2
+				--self.Phys:AddAngleVelocity(Vector(0, 0, -0.2))
 			elseif driver:KeyDown(IN_MOVELEFT) then
-				self:SetAngles(Angle(angles.p, angles.y, math.ApproachAngle(angles.r, -30, 0.3)))
-				self.Phys:AddAngleVelocity(Vector(0, 0, 0.2))
+				self.TargetRoll = -30
+				self.TargetAngVel = 0.2
+				--self.Phys:AddAngleVelocity(Vector(0, 0, 0.2))
 			else
-				local adiff = math.abs(angles.r) / 10
-				if math.abs(angles.r) > adiff then
-					self:SetAngles(Angle(angles.p, angles.y, math.ApproachAngle(angles.r, 0, adiff)))
-				end
-				if math.abs(anglevel.z) > 0.1 then
-					--MsgN(anglevel, "he", math.Approach(anglevel.z, 0, 0.05))
-					self.Phys:AddAngleVelocity(Vector(0, 0, anglevel.z < 0 and 0.1 or -0.1))
-				end
+				self.TargetRoll = 0
+				self.TargetAngVel = 0
+			end
+
+			if math.abs(self.TargetRoll - angles.r) > 0.1 then
+				local adiff = 0.1
+				self:SetAngles(Angle(angles.p, angles.y, math.Approach(angles.r, self.TargetRoll, adiff)))
+			end
+
+			if math.abs(self.TargetAngVel - anglevel.z) > 0.1 then
+				SetAngleVelocity(self.Phys, OverrideComponents(anglevel, _, _, math.Approach(anglevel.z, self.TargetAngVel, 0.05)))
 			end
 
 			--angles.r = 0
@@ -282,10 +310,10 @@ function ENT:PhysicsUpdate()
 		local vel1 = vel
 		vel:Rotate(self:GetAngles())
 		local vel2 = vel
-		vel.x = vel.x * 5
-		vel.y = vel.y * 5
-		MsgN(self:GetAngles(), " -> ", vel1, " - ", vel2, " - ", vel)
-		self.Phys:SetVelocity(vel)
+		vel.x = vel.x * 8
+		vel.y = vel.y * 8
+		--MsgN(self:GetAngles(), " -> ", vel1, " - ", vel2, " - ", vel)
+		self.Phys:AddVelocity(vel)
 		--self.Phys:AddVelocity(self:GetAngles():Forward() * 10)
 		--MsgN(self.Phys:GetVelocity())
 
@@ -295,7 +323,7 @@ end
 
 function ENT:PhysicsCollide(cdata, phys)
 	if cdata.HitEntity:GetClass() == "worldspawn" then
-		--MsgN(cdata.Speed)
+		MsgN(cdata.HitNormal, "pc", util.PointContents(cdata.HitPos + cdata.HitNormal*400))
 		if self:IsEngineRunning() and self.LastEngineStarted < CurTime() - 2 then
 			self.InputVelocity = Vector(0, 0, 0)
 			if cdata.Speed < 100 then -- TODO Test if we're upright
