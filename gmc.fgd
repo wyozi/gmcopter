@@ -1,0 +1,55 @@
+
+@include "base.fgd" 
+
+@SolidClass base(Trigger, Targetname) iconsprite("editor/obsolete.vmt") = gmc_mapedge : "A trigger volume that teleports helicopters entering to target map edge."
+[
+	otheredge(target_destination) : "Target Edge" : : "The name of the target edge to teleport to when the volume is triggered." 
+]
+
+@PointClass base(Origin) = gmc_missionstart :
+"A point where missions can start. This point is used to spawn mission related npcs, so it should be located on an open area."
+[
+	missions(string) : "Missions" : "" : "Missions that can start here. Separate by comma. Leave empty for all missions."
+
+	delay(integer) : "Delay Between Missions" : 120 : ""
+
+	delayrandomness(integer) : "Delay Randomness (Percentage)" : 20 : "By how many percentages should delay between missions vary at most."
+
+	input Enable(void) : "Allow this point to start missions."
+	input Disable(void) : "Disallow this point from starting missions"
+
+	output OnMissionStart(string) : "Fired when a mission is started."
+
+	spawnflags(flags) =
+	[
+		2048: "Starts disabled" : 0
+	]
+
+]
+
+
+@BaseClass color(0 0 200) base(Targetname, Angles, Shadow) = HeliSpawn
+[
+	helispawnid(string) : "Heli Spawn ID" : "" : "This string connects helicopter spawners to actual helicopter spawns. String can be anything you want as long as spawners and spawns have the same one."
+]
+
+
+@SolidClass base(Origin, HeliSpawn) iconsprite("editor/obsolete.vmt") = gmc_helispawn :
+"A trigger volume into which helicopters can spawn and players can land to. Helicopters are spawned at the bottom of this and helicopters that land within this are considered to be hangar-ready."
+[
+]
+
+@PointClass base(Origin, Angles, HeliSpawn) studio("models/props_lab/reciever_cart.mdl") = gmc_helispawner :
+"A point where players can open the helicopter spawner."
+[
+]
+
+@PointClass base(Origin, Angles) studio("models/editor/playerstart.mdl") = gmc_hangarclerk :
+"A point where hangar npcs should spawn. Should be in a place that players can't access but can reach (over the counter?)."
+[
+]
+
+@PointClass base(Origin, Angles) studio("models/editor/playerstart.mdl") = gmc_pilotspawn :
+"A point where players that are pilots can spawn. Should usually be inside a hangar."
+[
+]

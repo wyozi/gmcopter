@@ -97,7 +97,6 @@ function ENT:SpawnLaunchSmoke()
  
 end
 
-
 hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
     local heli = ply:GetHelicopter()
     if IsValid(heli) then
