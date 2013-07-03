@@ -104,3 +104,14 @@ function gmcutils.FindEmptySpaceInside(spacemins, spacemaxs, targoob, spottests,
 		end
 	end
 end
+
+local sin,cos,rad = math.sin,math.cos,math.rad; --Only needed when you constantly calculate a new polygon, it slightly increases the speed.
+function gmcutils.GenerateCirclePoly(x, y, radius, quality)
+    local circle = {};
+    local tmp = 0;
+    for i=1,quality do
+        tmp = rad(i*360)/quality
+        circle[i] = {x = x + cos(tmp)*radius,y = y + sin(tmp)*radius};
+    end
+    return circle;
+end

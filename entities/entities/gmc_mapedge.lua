@@ -14,24 +14,32 @@ function ENT:GetTeleportEntity()
 
 end
 
-function ENT:FindTeleportTarget(ent)
+function ENT:FindTeleportTarget(ent, heli)
 	local mins = ent:LocalToWorld(ent:OBBMins())
 	local maxs = ent:LocalToWorld(ent:OBBMaxs())
 
 	local thebox = maxs - mins -- TODO something better..
-	thebox.x = thebox.x * math.Rand(0, 1)
-	thebox.y = thebox.y * math.Rand(0, 1)
-	thebox.z = thebox.z * math.Rand(0, 1)
 
-	return mins + thebox
+	gmcdebug.Msg("Orig thebox vals: ", thebox, mins, maxs)
+
+	thebox.x = thebox.x * 0.5
+	thebox.y = thebox.y * 0.5
+	thebox.z = heli:GetPos().z - mins.z
+
+	local e = mins + thebox
+
+	gmcdebug.Msg("Found teleport target ", heli:GetPos(), " --> ", e)
+
+	return e
 
 end
 
 function ENT:StartTouch (ent)
-	if ent.IsHelicopter and (not ent.LastMEdgeTele or ent.LastMEdgeTele > CurTime() - 2) then -- TODO more dynamic last tele check
+	gmcdebug.Msg(ent, " hit map edge ", self)
+	if ent.IsHelicopter and (not ent.LastMEdgeTele or ent.LastMEdgeTele < CurTime() - 2) then -- TODO more dynamic last tele check
 		local tent = self:GetTeleportEntity()
 		if IsValid(tent) then
-			ent:SetPos(self:FindTeleportTarget(tent))
+			ent:SetPos(self:FindTeleportTarget(tent, ent))
 			ent.LastMEdgeTele = CurTime()
 		end
 	end

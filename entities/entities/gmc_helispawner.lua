@@ -40,7 +40,7 @@ if SERVER then
 			MsgN("!!!! NO SELF.HELISPAWNS FOUND")
 			return
 		end
-		local HeliSize = Vector(330, 130, 130) -- TODO get proper size
+		local HeliSize = Vector(370, 370, 130) -- TODO get proper size
 		local SpawnZone = table.Random(self.HeliSpawns)
 		local EmptyMins, EmptyMaxs = gmcutils.FindEmptySpaceInside(SpawnZone:LocalToWorld(SpawnZone:OBBMins()), SpawnZone:LocalToWorld(SpawnZone:OBBMaxs()), HeliSize, 1, {SpawnZone})
 		if EmptyMins then

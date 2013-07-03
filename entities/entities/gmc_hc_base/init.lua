@@ -7,6 +7,7 @@ function ENT:SvInit()
 	self.InputVelocityTrail = Vector(0, 0, 0)
 	self.InputAngleVelocityTrail = Vector(0, 0, 0)
 	self.InputAngleTrail = Angle(0, 0, 0)
+	self.RotorAngVel = 0
 
 	self.SeatEnts = {}
 
@@ -43,8 +44,9 @@ function ENT:AddRotors()
 
 		trotor:SetModel(self.TopRotor.Model)
 		trotor:SetPos(self:LocalToWorld(self.TopRotor.Pos))
-		trotor:SetAngles(self:LocalToWorldAngles(self.TopRotor.Angles or Angle(0, 0, 0)))
+		trotor:SetLocalAngles(self:LocalToWorldAngles(self.TopRotor.Angles or Angle(0, 0, 0)))
 		trotor:SetOwner(self.Owner)
+		trotor:SetParent(self)
 		self:SetNWEntity("trotor", trotor)
 
 		trotor:Spawn()
@@ -74,8 +76,9 @@ function ENT:AddRotors()
 
 		brotor:SetModel(self.BackRotor.Model)
 		brotor:SetPos(self:LocalToWorld(self.BackRotor.Pos))
-		brotor:SetAngles(self:LocalToWorldAngles(self.BackRotor.Angles or Angle(0, 0, 0)))
+		brotor:SetLocalAngles(self:LocalToWorldAngles(self.BackRotor.Angles or Angle(0, 0, 0)))
 		brotor:SetOwner(self.Owner)
+		brotor:SetParent(self)
 		self:SetNWEntity("brotor", brotor)
 
 		brotor:Spawn()
@@ -144,6 +147,8 @@ end
 
 function ENT:Think()
 	local driver = self:GetDriver()
+
+	-- Handle engine start logic
 	if not self:IsEngineRunning() then
 		if not self.MSounds.Start:IsPlaying() and (IsValid(driver) and driver.IncAltDown) then
 			self.MSounds.Start:Play()
@@ -165,6 +170,8 @@ function ENT:Think()
 		self.MSounds.Start:Stop()
 	end
 
+	-- Make sure if that if engine is on PhysicsUpdate gets called
+	-- TODO make it so right after stopping engine it still gets called for rotors?
 	if self.Phys:IsAsleep() and self:GetEngineStartLevel() > 0 then
 		self.Phys:Wake()
 	end
@@ -197,14 +204,19 @@ function ENT:Think()
 end
 
 function ENT:PhysicsUpdate()
-	if self:IsEngineRunning() then
-		gmcutils.SetAngleVelocity(self.TopRotorPhys, Vector(0, 0, self.RotorSpinSpeed))
-		gmcutils.SetAngleVelocity(self.BackRotorPhys, Vector(0, self.RotorSpinSpeed, 0))
-	elseif self:GetEngineStartFrac() > 0 or self:RotorSpeed() > 40 then
-		gmcutils.SetAngleVelocity(self.TopRotorPhys, Vector(0, 0, self:GetEngineStartFrac() * self.RotorSpinSpeed))
-		gmcutils.SetAngleVelocity(self.BackRotorPhys, Vector(0, self:GetEngineStartFrac() * self.RotorSpinSpeed, 0))
-	end
+	do
+		local mvm = 0
+		if self:IsEngineRunning() then
+			mvm = self.RotorSpinSpeed
+		elseif self:GetEngineStartFrac() > 0 or self:RotorSpeed() > 40 then
+			mvm = self:GetEngineStartFrac() * self.RotorSpinSpeed
+		end
 
+		self.LastRotorAng = ((self.LastRotorAng or 0) + math.Clamp(mvm/100, 0, 360)) % 360
+		self.TopRotorEnt:SetLocalAngles(Angle(0, self.LastRotorAng, 0))
+		self.BackRotorEnt:SetLocalAngles(Angle(self.LastRotorAng, 0, 0))
+
+	end
 	if self:IsEngineRunning() then
 
 		local driver = self:GetDriver()
@@ -214,9 +226,10 @@ function ENT:PhysicsUpdate()
 		local hovervel = Vector(0, 0, 9)
 		hovervel:AddZ(math.sin(CurTime()) * 20) -- Makes the helicopter "bounce" in air making hovering look a bit more realistic
 
-		if self:RotorSpeed() < 1000 then -- If rotors arent moving, dont stay in air. TODO make something more sophisticated. 
-			hovervel = Vector(0, 0, 0)
-		end
+		--if self:RotorSpeed() < 1000 then -- If rotors arent moving, dont stay in air. TODO make something more sophisticated.  Doesnt work due to custom angle system
+			--hovervel = Vector(0, 0, 0)
+			--gmcdebug.Msg("Fallin down due to slow rotorspeed")
+
 
 		local InputVelocity = Vector(0, 0, 0)
 		local InputAngleVelocity = Vector(0, 0, 0)
@@ -244,6 +257,8 @@ function ENT:PhysicsUpdate()
 				InputAngleVelocity:AddZ(-60)
 				InputAngle.r = 30
 			end
+		else -- No driver
+			InputVelocity:AddZ(-1000)
 		end
 
 		InputVelocity:ClampX(-4000, 4000)
@@ -257,6 +272,7 @@ function ENT:PhysicsUpdate()
 			local AddVel = gmcmath.VectorDiff(CurVel, TargetVel) > 0.1 and (TargetVel - CurVel) or vector_origin
 
 			local vel = hovervel + AddVel
+			--gmcdebug.Msg("AddingVel", self.Phys:GetVelocity(), vel)
 			self.Phys:AddVelocity(vel)
 		end
 
@@ -293,15 +309,25 @@ function ENT:PhysicsUpdate()
 
 end
 
+function ENT:StopEngine()
+	self:SetEngineStartLevel(self.MaxEngineStartLevel - 2)
+	self.LastEngineStopped = CurTime()
+
+	-- Reset trails.
+	self.InputVelocityTrail = Vector(0, 0, 0)
+	self.InputAngleVelocityTrail = Vector(0, 0, 0)
+	self.InputAngleTrail = Angle(0, 0, 0)
+end
+
 function ENT:PhysicsCollide(cdata, phys)
 	if cdata.HitEntity:GetClass() == "worldspawn" then
 		MsgN(cdata.HitNormal, "pc", util.PointContents(cdata.HitPos + cdata.HitNormal*400))
 		if self:IsEngineRunning() and self.LastEngineStarted < CurTime() - 2 then
 			self.InputVelocity = Vector(0, 0, 0)
+			gmcdebug.Msg("Colliding with speed ", cdata.Speed)
 			if cdata.Speed < 100 then -- TODO Test if we're upright
-				self:SetEngineStartLevel(self.MaxEngineStartLevel - 2)
+				self:StopEngine()
 				phys:SetVelocity(Vector(0, 0, 0))
-				MsgN("Set velocity to 0")
 			else
 				-- Bounce back?
 				local LastSpeed = math.max( cdata.OurOldVelocity:Length(), cdata.Speed )
@@ -310,10 +336,12 @@ function ENT:PhysicsCollide(cdata, phys)
 
 				LastSpeed = math.max( NewVelocity:Length(), LastSpeed )
 
-				local TargetVelocity = NewVelocity * LastSpeed * 0.2
+				local TargetVelocity = NewVelocity * LastSpeed * 2
 
 				phys:SetVelocity( TargetVelocity )
 				MsgN("Bounced from ground")
+
+				-- TODO Fix
 			end
 		end
 	end
@@ -350,9 +378,9 @@ end
 
 function ENT:GetSeatOf(ply)
 	local veh = ply:GetVehicle()
-	for _,v in pairs(self.Seats) do
-		if v.Ent == veh then
-			return v
+	for k,v in pairs(self.SeatEnts) do
+		if v == veh then
+			return self.Seats[k]
 		end
 	end
 end

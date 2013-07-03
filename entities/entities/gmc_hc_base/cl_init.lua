@@ -4,33 +4,6 @@ function ENT:DrawCopterHUD(ang)
 
 end
 
-	
-
-local sin,cos,rad = math.sin,math.cos,math.rad; --Only needed when you constantly calculate a new polygon, it slightly increases the speed.
-local function GenerateCirclePoly(x,y,radius,quality)
-    local circle = {};
-    local tmp = 0;
-    for i=1,quality do
-        tmp = rad(i*360)/quality
-        circle[i] = {x = x + cos(tmp)*radius,y = y + sin(tmp)*radius};
-    end
-    return circle;
-end
- 
-
-GMCInstruments = {
-	SupportingPitchAndBank = {
-		draw = function(heli, x, y, scaleX, scaleY)
-			-- TODO optimize
-			surface.SetDrawColor(Color(0, 0, 255))
-			surface.DrawPoly(GenerateCirclePoly(x+scaleX/2, y+scaleY/2, scaleX, 10))
-		end
-	}
-}
-
-function ENT:DrawInstrument(instr, x, y, scaleX, scaleY)
-	GMCInstruments[instr].draw(self, x, y, scaleX, scaleY)
-end
 
 function ENT:Draw()
 	self:DrawModel()
@@ -42,40 +15,41 @@ function ENT:Draw()
 	ang:RotateAroundAxis(fwd, 90)
 
 	self:DrawCopterHUD(ang, fwd, ri, self:GetUp())
-	--MsgN("drawin")
-
-	--[[
-	local particle = self.Emitter:Add("sprites/heatwave",self:GetPos())
-	particle:SetVelocity(self:GetVelocity()+self:GetForward()*-100)
-	particle:SetDieTime(0.1)
-	particle:SetStartAlpha(255)
-	particle:SetEndAlpha(255)
-	particle:SetStartSize(40)
-	particle:SetEndSize(20)
-	particle:SetColor(255,255,255)
-	particle:SetRoll(math.Rand(-50,50))
-	self.Emitter:Finish()]] 
-
-end
-
-
-function ENT:DrawCopterHUD(ang, fwd, ri, up)
-
-	ang:RotateAroundAxis(ri, -6)
-
-	cam.Start3D2D(self:LocalToWorld(self.Seats[1].Pos + Vector(40.2,3.75,37.75)), ang, 0.015)
-
-	surface.SetDrawColor(Color(255, 0, 0, 255))
-	surface.DrawOutlinedRect(870, 900, 590, 1000)
-
-	self:DrawInstrument("SupportingPitchAndBank", 970, 935, 110, 110)
-
-	cam.End3D2D()
 
 end
 
 function ENT:Think()
 	self:SpawnLaunchSmoke()
+
+	--[[ TODO
+
+	for k,ml in pairs(self.MLights) do
+		local meta = self.Lights[k]
+		if ml.LastBlink < CurTime() - meta.BlinkRate then
+			-- Blink()
+			--MsgN("Blink()")
+			ml.LastBlink = CurTime()
+
+			local dlight = ml.DLight
+			if not dlight then
+				ml.DLight = DynamicLight( 0 )
+				dlight = ml.DLight
+			end
+
+			--MsgN(self:LocalToWorld(meta.Pos))
+			dlight.Pos = self:LocalToWorld(meta.Pos)
+			dlight.r = 255
+			dlight.g = 0
+			dlight.b = 0
+			dlight.Brightness = 1
+			dlight.Size = 128
+			dlight.Decay = 128 * 3
+			dlight.DieTime = CurTime() + 1
+            dlight.Style = 0
+
+		end
+	end]]
+
 end
 
 function ENT:SpawnLaunchSmoke()

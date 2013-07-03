@@ -10,7 +10,7 @@ function gmcmath.Approach(val, targ, amount)
 		return math.max(val - amount, targ)
 	end
 	return val
-end
+end 
 
 function gmcmath.ApproachVectorMod(src, targ, amount)
 	src.x = gmcmath.Approach(src.x, targ.x, amount)

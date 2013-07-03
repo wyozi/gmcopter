@@ -31,3 +31,8 @@ end
 hook.Add("PlayerSetModel", "SetModel", function(ply)
 	ply:SetModel("models/player/hostage02.mdl")
 end)
+
+concommand.Add("spazz", function(ply)
+	local heli = ply:GetHelicopter()
+	heli:SetPos(heli:GetPos() + heli:GetVelocity():GetNormalized() * 1000 )
+end)

@@ -49,6 +49,13 @@ ENT.Sounds = {
 	CrashAlarm = Sound("HelicopterVehicle/CrashAlarm.mp3")
 }
 
+ENT.Lights = {
+	{
+		Pos = Vector(-220, -8, 75),
+		BlinkRate = 1
+	}
+}
+
 -- Simple variables
 
 ENT.MaxEnterDistance = 50
@@ -78,6 +85,13 @@ function ENT:Initialize()
 
 	if CLIENT then
 		self.Emitter = ParticleEmitter(self:GetPos())
+
+		self.MLights = {}
+		for k,ml in pairs(self.Lights) do
+			self.MLights[k] = {
+				LastBlink = 0
+			}
+		end
 	end
 
 	self.MSounds = {}
