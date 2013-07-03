@@ -120,8 +120,8 @@ hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
 		elseif camview == GMC_CAMVIEW_THIRDPERSON then
     		local view = {}
     		local hang = angles
-    		
-	    	local targ = heli:GetPos() - (hang:Forward()*400) + (hang:Up() * 250)
+
+	    	local targ = heli:GetPos() - (hang:Forward()*500)
 	    	local tr = util.TraceLine({start=heli:GetPos(), endpos=targ, filter={heli, ply, heli:GetNWEntity("trotor"), heli:GetNWEntity("brotor")}})
 		    view.origin = tr.Hit and tr.HitPos or targ
 		    view.angles = angles
