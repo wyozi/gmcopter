@@ -3,7 +3,7 @@
 
 @SolidClass base(Trigger, Targetname) iconsprite("editor/obsolete.vmt") = gmc_mapedge : "A trigger volume that teleports helicopters entering to target map edge."
 [
-	otheredge(target_destination) : "Target Edge" : : "The name of the target edge to teleport to when the volume is triggered." 
+	otheredge(target_destination) : "Target Edge" : : "The name of the target edge to teleport to when the volume is triggered. If multiple target edges exist, a random one is chosen." 
 ]
 
 @PointClass base(Origin) = gmc_missionstart :

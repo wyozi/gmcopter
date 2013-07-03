@@ -30,6 +30,11 @@ function ENT:SvInit()
 	self:AddSeats()
 
 end
+
+function ENT:HasBeenOn()
+	return self.LastEngineStarted ~= nil
+end
+
 function ENT:AddRotors()
 
 	do
