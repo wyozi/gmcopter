@@ -204,7 +204,8 @@ function ENT:PhysicsUpdate()
 		local angles = self:GetAngles()
 		local yawangles = angles:OnlyYaw()
 
-		local hovervel = Vector(0, 0, 9) -- TODO some math.sin magic to make us bounce upn down. Maybe make it rely on air speed?
+		local hovervel = Vector(0, 0, 9)
+		hovervel:AddZ(math.sin(CurTime()) * 20) -- Makes the helicopter "bounce" in air making hovering look a bit more realistic
 
 		if self:RotorSpeed() < 1000 then -- If rotors arent moving, dont stay in air. TODO make something more sophisticated. 
 			hovervel = Vector(0, 0, 0)
@@ -245,11 +246,8 @@ function ENT:PhysicsUpdate()
 		do -- Velocity
 			local CurVel = self.Phys:GetVelocity()
 			local TargetVel = gmcmath.ApproachVectorMod(self.InputVelocityTrail, InputVelocity, 3.5)
-			--TargetVel.z = gmcmath.Approach(TargetVel.z, InputVelocity.z, 1) -- Some extra
 
 			local AddVel = gmcmath.VectorDiff(CurVel, TargetVel) > 0.1 and (TargetVel - CurVel) or vector_origin
-
-			--gmcdebug.Msg(TargetVel, AddVel)
 
 			local vel = hovervel + AddVel
 			self.Phys:AddVelocity(vel)
@@ -297,7 +295,6 @@ function ENT:PhysicsCollide(cdata, phys)
 				self:SetEngineStartLevel(self.MaxEngineStartLevel - 2)
 				phys:SetVelocity(Vector(0, 0, 0))
 				MsgN("Set velocity to 0")
-				--MsgN("eng run: " .. tostring(self:IsEngineRunning()) .. " " .. tostring(self:GetEngineStartFrac()))
 			else
 				-- Bounce back?
 				local LastSpeed = math.max( cdata.OurOldVelocity:Length(), cdata.Speed )
@@ -332,8 +329,6 @@ function ENT:Use(act, cal)
 		local dist = seatent:GetPos():Distance(
 						util.QuickTrace(act:GetShootPos(), act:GetAimVector() * self.MaxEnterDistance, act).HitPos)
 
-		MsgN(dist)
-
 		if dist < d then
 			d = dist
 			v = seatent
@@ -359,16 +354,4 @@ function ENT:OnRemove()
 	for _,snd in pairs(self.MSounds) do
 		snd:Stop()
 	end
-end
-
-function ENT:SpawnLaunchSmoke()
-
-	local vPoint = self:GetPos()
-	local effectdata = EffectData()
-	effectdata:SetStart( vPoint ) // not sure if we need a start and origin (endpoint) for this effect, but whatever
-	effectdata:SetOrigin( vPoint )
-	effectdata:SetNormal(Vector(0, 0, 1))
-	effectdata:SetScale( 1 )
-	util.Effect( "ThumperDust", effectdata, true, true )	
- 
 end

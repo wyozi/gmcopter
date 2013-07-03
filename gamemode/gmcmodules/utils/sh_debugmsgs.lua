@@ -14,15 +14,17 @@ function gmcdebug.Msg(...)
 	if gmcdebug.DisableDebug then return end
 	local t = {...}
 	local str = "[DEBUG] " .. gmcdebug.GetTracebackSource(debug.traceback()) .. ": "
+	local rawstr = ""
 	for i=1,#t do
-		str = str .. tostring(t[i]) .. "\t"
+		rawstr = rawstr .. tostring(t[i]) .. "\t"
 	end
-	MsgN(str)
-	return str
+	local fstr = str .. rawstr
+	MsgN(fstr)
+	return fstr, rawstr
 end
 
 function gmcdebug.CMsg(...)
-	local msg = gmcdebug.Msg(...)
+	local _, msg = gmcdebug.Msg(...)
 	for _,ply in pairs(player.GetAll()) do
 		ply:ChatPrint(msg)
 	end

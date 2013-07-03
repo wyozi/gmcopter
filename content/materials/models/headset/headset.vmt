@@ -1,0 +1,5 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/headset/headset"
+                "$bumpmap"     "models/headset/headset_n"
+}

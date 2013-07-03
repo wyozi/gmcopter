@@ -54,9 +54,57 @@ function PLAYER:Loadout()
 	--self.Player:SwitchToDefaultWeapon()
 	self.Player:StripWeapons()
 	self.Player:Give("weapon_physgun")
-	self.Player:Give("weapon_toolgun")
+	self.Player:Give("gmod_tool")
 
 end
+
+function PLAYER:Think()
+	
+	if CLIENT then
+
+		local ply = self.Player
+
+		local hat = ply.Hat
+		if not hat then
+			hat = ClientsideModel("models/headset/headset.mdl", RENDERGROUP_OPAQUE)
+			ply.Hat = hat
+		end
+
+		if not ply:Alive() then
+			hat:SetNoDraw(true)
+			return
+		end
+		hat:SetNoDraw(false)
+
+		local pos = Vector()
+		local ang = Angle()
+
+		local attach_id = ply:LookupAttachment("eyes")
+		if not attach_id then return end
+
+		local attach = ply:GetAttachment(attach_id)
+
+		if not attach then return end
+
+		pos = attach.Pos
+		ang = attach.Ang
+
+		ang:RotateAroundAxis(ang:Up(), 180)
+		--ang:RotateAroundAxis(ang:Right(), 50)
+
+		hat:SetPos(pos + (ang:Forward() * 4.5) - (ang:Up() * 5))
+		hat:SetAngles(ang)
+	end
+
+end
+
+hook.Add("Think", "PlyClassThink", function()
+	local plys = player.GetAll()
+	for i=1,#plys do
+		player_manager.RunClass(plys[i], "Think")
+	end
+end)
+
 
 --
 -- Return true to draw local (thirdperson) camera - false to prevent - nothing to use default behaviour
