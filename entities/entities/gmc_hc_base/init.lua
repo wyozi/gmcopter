@@ -315,7 +315,6 @@ end
 
 function ENT:PhysicsCollide(cdata, phys)
 	if cdata.HitEntity:GetClass() == "worldspawn" then
-		MsgN(cdata.HitNormal, "pc", util.PointContents(cdata.HitPos + cdata.HitNormal*400))
 		if self:IsEngineRunning() and self.LastEngineStarted < CurTime() - 2 then
 			self.InputVelocity = Vector(0, 0, 0)
 			gmcdebug.Msg("Colliding with speed ", cdata.Speed)

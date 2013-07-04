@@ -28,6 +28,7 @@ function PLAYER:SetupDataTables()
 	self.Player:NetworkVar( "Entity", 0, "Helicopter" )
 end
 
+
 --AccessorFunc(PLAYER, "Helicopter", "InHeli")
 
 --
@@ -149,7 +150,7 @@ end
 --
 function PLAYER:ShouldDrawLocal()
 
-	if IsValid(self.Player:GetHelicopter()) then return true end
+	if IsValid(self.Player:GetHelicopter()) and GetConVar("gmc_camview"):GetInt() ~= GMC_CAMVIEW_FIRSTPERSON then return true end
 
 end
 

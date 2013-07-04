@@ -1,3 +1,13 @@
+
+util.AddNetworkString("gmc_ispawn")
+
+function GM:PlayerInitialSpawn( pl )
+	MsgN(pl:Nick() .. " initial spawn")
+
+	net.Start("gmc_ispawn")
+	net.Send(pl)
+end
+
 function GM:PlayerSpawn( pl )
 	-- Stop observer mode
 	pl:UnSpectate()
