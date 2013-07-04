@@ -41,6 +41,17 @@ function ENT:StartTouch (ent)
 		if IsValid(tent) then
 			local oldvel = ent:GetVelocity()
 
+			if self.ReqVel then
+				local ovsignum = gmcmath.VectorSignum(oldvel)
+				ovsignum = Vector(self.ReqVel.x == 0 and ovsignum.x or self.ReqVel.x,
+									self.ReqVel.y == 0 and ovsignum.y or self.ReqVel.y,
+									self.ReqVel.z == 0 and ovsignum.z or self.ReqVel.z) -- Zero components should match ovsignum in all cases
+
+				if self.ReqVel ~= ovsignum then
+					return
+				end
+			end
+
 			ent:SetPos(self:FindTeleportTarget(tent, ent))
 
 			local forcevel, addvel, mulvel = self.ForceVel or vector_origin, self.AddVel or vector_origin, self.MulVel or Vector(1, 1, 1)
@@ -73,7 +84,9 @@ function ENT:KeyValue(key, value)
 	if key == "otheredge" then
 		self.OtherEdgeName = value
 	elseif key == "forcevelocity" then
-		self.ForceVel = gmcutils.ParseHammerVector(value)
+		self.ForceVel = gmcmath.VectorSignum(gmcutils.ParseHammerVector(value))
+	elseif key == "reqvelocity" then
+		self.ReqVel = gmcmath.VectorSignum(gmcutils.ParseHammerVector(value))
 	elseif key == "addvelocity" then
 		self.AddVel = gmcutils.ParseHammerVector(value)
 	elseif key == "mulvelocity" then
