@@ -89,7 +89,7 @@ function ENT:SpawnLaunchSmoke()
 	local vPoint = self:GetGroundHitPos()
 	local dist = vPoint:Distance(self:GetPos())
 
-	if dist > 250 then
+	if not self:IsJustAboveGround() then
 		return
 	end
 

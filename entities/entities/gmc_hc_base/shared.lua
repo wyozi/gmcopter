@@ -9,18 +9,20 @@ ENT.IsHelicopter = true
 
 -- Baseholder variables
 
-
+-- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.Hull = {
 	Model = "models/Flyboi/LittleBird/littlebirda_fb.mdl",
 	Weight = 1300
 }
 
+-- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.TopRotor = {
 	Model = "models/Flyboi/LittleBird/littlebirdrotorm_fb.mdl",
 	Pos = Vector(-10, 0, 100),
 	Angles = Angle(0, 0, 0)
 }
 
+-- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.BackRotor = {
 	Dir = -1,
 	Model = "models/Flyboi/LittleBird/LittleBirdT_fb.mdl",
@@ -28,6 +30,7 @@ ENT.BackRotor = {
 	Angles = Angle(0, 0, 0)
 }
 
+-- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.Seats = {
 	{
 		Pos = Vector(22, 15, 49),
@@ -39,16 +42,18 @@ ENT.Seats = {
 	}
 }
 
+-- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.Sounds = {
-	Start = Sound("WAC/Heli/h6_start.wav"),
-	Blades = Sound("WAC/Heli/heli_loop_ext.wav"),
-	Engine = Sound("WAC/Heli/heli_loop_int.wav"),
-	MissileAlert = Sound("HelicopterVehicle/MissileNearby.mp3"),
-	MinorAlarm = Sound("HelicopterVehicle/MinorAlarm.mp3"),
-	LowHealth = Sound("HelicopterVehicle/LowHealth.mp3"),
-	CrashAlarm = Sound("HelicopterVehicle/CrashAlarm.mp3")
+	Start = {Sound = Sound("WAC/Heli/h6_start.wav")},
+	Blades = {Sound = Sound("WAC/Heli/heli_loop_ext.wav"), SoundLevel = 180},
+	Engine = {Sound = Sound("WAC/Heli/heli_loop_int.wav"), SoundLevel = 180},
+	MissileAlert = {Sound = Sound("HelicopterVehicle/MissileNearby.mp3")},
+	MinorAlarm = {Sound = Sound("HelicopterVehicle/MinorAlarm.mp3")},
+	LowHealth = {Sound = Sound("HelicopterVehicle/LowHealth.mp3")},
+	CrashAlarm = {Sound = Sound("HelicopterVehicle/CrashAlarm.mp3")}
 }
 
+-- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.Lights = {
 	{
 		Pos = Vector(-227, -9, 82),
@@ -78,11 +83,13 @@ ENT.Lights = {
 ENT.MaxEnterDistance = 50
 ENT.MaxEngineStartLevel = 10
 
+-- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.RotorSpinSpeed = 3000
 
 ENT.TopRotorForceLimit = 0
 ENT.BackRotorForceLimit = 0
 
+-- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.CopterGuiName = "LittlebirdDefaults"
 
 function ENT:SetupDataTables()
@@ -115,11 +122,13 @@ function ENT:Initialize()
 
 	self.MSounds = {}
 	for name, value in pairs(self.Sounds) do
+		local sndlevel = value.SoundLevel or 100
+
 		sound.Add({
-			name = "gmc."..self.ClassName.."."..name,
+			name = "gmc." .. self.ClassName .. "." .. name,
 			channel = CHAN_STATIC,
-			soundlevel = (name == "Blades" or name == "Engine") and 180 or 100,
-			sound = value
+			soundlevel = sndlevel,
+			sound = value.Sound
 		})
 		self.MSounds[name] = CreateSound(self, "gmc."..self.ClassName.."."..name)
 	end
