@@ -71,18 +71,15 @@ ENT.Lights = {
 
 
 if CLIENT then
-	function ENT:DrawCopterHUD(ang, fwd, ri, up)
+	local PANEL = {}
 
-		ang:RotateAroundAxis(ri, -6)
+	function PANEL:Paint()
+		surface.SetDrawColor(Color(0, 255, 0, 50))
 
-		cam.Start3D2D(self:LocalToWorld(self.Seats[1].Pos + Vector(40.2,3.75,37.75)), ang, 0.015)
-
-		surface.SetDrawColor(Color(255, 0, 0, 255))
-		surface.DrawOutlinedRect(870, 900, 590, 1000)
-
-		self:DrawInstrument("SupportingPitchAndBank", 970, 935, 110, 110)
-
-		cam.End3D2D()
-
+		local x, y = self:GetPos()
+		local w, h = self:GetSize()
+		surface.DrawRect(x, y, w, h)
 	end
+
+	gmchgui.Create("LittlebirdDefaults", PANEL)
 end

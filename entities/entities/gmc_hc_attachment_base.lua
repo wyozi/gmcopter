@@ -7,7 +7,7 @@ ENT.Type = "anim"
 ENT.Base = "base_anim"
 
 function ENT:SetupDataTables()
-	self:NetworkVar( "Entity", 0, "Heli" );
+	self:NetworkVar( "Entity", 0, "Heli" )
 end
 
 if SERVER then
@@ -34,4 +34,12 @@ if SERVER then
 
 	end
 
+end
+
+if CLIENT then
+	-- Add HeliGui components
+	-- Funcs: (take normal vgui panels but you should use gmchgui.Create(name, tbl) to create panels based on the HGuiPanel base)
+	-- hguiframe:AddBottomComponent()
+	function ENT:AddComponents(hguiframe)
+	end
 end

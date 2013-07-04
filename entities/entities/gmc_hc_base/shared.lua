@@ -83,6 +83,8 @@ ENT.RotorSpinSpeed = 3000
 ENT.TopRotorForceLimit = 0
 ENT.BackRotorForceLimit = 0
 
+ENT.CopterGuiName = "LittlebirdDefaults"
+
 function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "ESL") -- EngineStartLevel
 end
@@ -128,4 +130,15 @@ function ENT:GetGroundHitPos()
 end
 function ENT:IsJustAboveGround()
 	return util.TraceLine({start=self:GetPos(), endpos=self:GetPos() - Vector(0, 0, 60), filter={self}}).HitWorld
+end
+
+function ENT:GetHeliAttachments()
+	local es = ents.FindByClass("gmc_hc_attachment_*")
+	local l = {}
+	for _,e in pairs(es) do
+		if e:GetHeli() == self then
+			table.insert(l, e)
+		end
+	end
+	return l
 end

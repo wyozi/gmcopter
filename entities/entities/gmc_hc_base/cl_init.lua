@@ -62,7 +62,7 @@ function ENT:Think()
 	end
 end
 
-local mat = Material("sprites/glow04_noz") -- redglow1
+local mat = Material("gmcopter/sprites/light") -- redglow1
 function ENT:DrawLightSprites()
 	for k,ml in pairs(self.MLights) do
 		local meta = self.Lights[k] 
@@ -78,7 +78,7 @@ function ENT:DrawLightSprites()
 
 			cam.Start3D(EyePos(), EyeAngles())
 				render.SetMaterial(mat)
-				render.DrawSprite(pos, 16, 16, Color(255, 0, 0, alpha))
+				render.DrawSprite(pos, 64, 64, Color(255, 0, 0, alpha))
 			cam.End3D()
 		end
 	end

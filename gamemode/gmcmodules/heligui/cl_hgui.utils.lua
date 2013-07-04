@@ -1,5 +1,9 @@
 gmchgui = {}
 
 function gmchgui.Create(name, tbl)
-	vgui.Register( "HGui_" .. name, tbl, "HGuiBase" )
+	vgui.Register( gmchgui.Translate(name), tbl, "HGuiBase" )
+end
+
+function gmchgui.Translate(name)
+	return "HGui_" .. name
 end

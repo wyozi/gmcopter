@@ -10,13 +10,35 @@ function gmcdebug.GetTracebackSource(traceback)
 	return ll
 end
 
+function gmcdebug.ToString(obj)
+	if type(obj) == "table" then
+		return gmcdebug.TableToString(obj)
+	end
+	return tostring(obj)
+end
+
+function gmcdebug.TableToString(tbl)
+	local str = "{" .. tostring(#tbl) ..":"
+	if table.IsSequential(tbl) then
+		for k,v in ipairs(tbl) do
+			str = str .. gmcdebug.ToString(k) .. "=" .. gmcdebug.ToString(v) .. ", "
+		end
+	else
+		for k,v in pairs(tbl) do
+			str = str .. gmcdebug.ToString(k) .. "=" .. gmcdebug.ToString(v) .. ", "
+		end
+	end
+	str = str .. "}"
+	return str
+end
+
 function gmcdebug.Msg(...)
 	if gmcdebug.DisableDebug then return end
 	local t = {...}
 	local str = "[DEBUG] " .. gmcdebug.GetTracebackSource(debug.traceback()) .. ": "
 	local rawstr = ""
 	for i=1,#t do
-		rawstr = rawstr .. tostring(t[i]) .. "\t"
+		rawstr = rawstr .. gmcdebug.ToString(t[i]) .. "\t"
 	end
 	local fstr = str .. rawstr
 	MsgN(fstr)

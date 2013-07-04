@@ -14,18 +14,62 @@ function PANEL:Init()
 	self:SetPaintBackgroundEnabled( false )
 	self:SetPaintBorderEnabled( false )
 
+	self.BottomComponents = {}
+
+end
+
+function PANEL:Think()
+	local me = LocalPlayer()
+	local heli = me:GetHelicopter()
+	if heli ~= self.LastStoredHeli then
+		self.LastStoredHeli = heli
+		for _,comp in pairs(self.BottomComponents) do
+			comp:Remove() -- TODO?
+		end
+		table.Empty(self.BottomComponents)
+
+		if IsValid(heli) then
+			local atts = heli:GetHeliAttachments()
+			for _,att in ipairs(atts) do
+				att:AddComponents(self)
+			end
+		end
+
+	end
 end
 
 function PANEL:Paint( w, h )
 	local me = LocalPlayer()
 	if me:IsInHelicopter() then
-		--[[draw.DrawText( "Hello there!", "TargetID", w * 0.5, h * 0.25, Color( 255,255,255,255 ), TEXT_ALIGN_CENTER )
+		for _,att in ipairs(self.BottomComponents) do
+			att:Paint( )
+		end
+	end
+end
 
+function PANEL:AddBottomComponent(comp)
+	table.insert(self.BottomComponents, comp)
 
-		local rtTexture = surface.GetTextureID( "pp/rt" )
-		surface.SetTexture( rtTexture )
-		surface.SetDrawColor( 255, 255, 255, 255 )
-		surface.DrawTexturedRect( 0, 0, 250, 250 )]]
+	local oldpar = comp:GetParent()
+	comp:SetParent(self)
+	comp:SetVisible(false)
+
+	self:LayoutComponents()
+end
+
+function PANEL:LayoutComponents()
+	local count = #self.BottomComponents
+	if count > 0 then
+		local width = ScrW() / count
+		local wth = 0
+		for idx,comp in ipairs(self.BottomComponents) do
+			local owidth = comp.OverrideWidth or width
+			local height = comp.OverrideHeight or 200
+			comp:SetSize(owidth, height)
+			comp:SetPos(wth, ScrH() - height)
+
+			wth = wth + owidth
+		end
 	end
 end
 

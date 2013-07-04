@@ -24,13 +24,13 @@ concommand.Add("spawnheli", function(ply, cmd, args)
 
 	do
 		local att = ents.Create("gmc_hc_attachment_light")
-		att:SetHelicopter(ent)
+		ent:HeliAttach(att)
 		att:Spawn()
 	end
 
 	do
 		local att = ents.Create("gmc_hc_attachment_camera")
-		att:SetHelicopter(ent)
+		ent:HeliAttach(att)
 		att:Spawn()
 	end
 end)

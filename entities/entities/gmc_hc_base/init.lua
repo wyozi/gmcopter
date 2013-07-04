@@ -10,6 +10,7 @@ function ENT:SvInit()
 	self.RotorAngVel = 0
 
 	self.SeatEnts = {}
+	self.Attachments = {}
 
 	self:SetModel(hull.Model)
 	self:PhysicsInit(SOLID_VPHYSICS)
@@ -29,6 +30,13 @@ function ENT:SvInit()
 
 	self:AddRotors()
 	self:AddSeats()
+
+	if self.CopterGuiName then
+		local att = ents.Create("gmc_hc_attachment_cdefs")
+		self:HeliAttach(att)
+		att:Spawn()
+		att:SetNWString("coptergui", self.CopterGuiName)
+	end
 
 end
 
@@ -414,4 +422,9 @@ function ENT:OnRemove()
 	for _,snd in pairs(self.MSounds) do
 		snd:Stop()
 	end
+end
+
+function ENT:HeliAttach(att)
+	table.insert(self.Attachments, att)
+	att:SetHelicopter(self)
 end
