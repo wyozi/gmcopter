@@ -76,9 +76,8 @@ if CLIENT then
 	function PANEL:Paint()
 		surface.SetDrawColor(Color(0, 255, 0, 50))
 
-		local x, y = self:GetPos()
 		local w, h = self:GetSize()
-		surface.DrawRect(x, y, w, h)
+		surface.DrawRect(0, 0, w, h)
 	end
 
 	gmchgui.Create("LittlebirdDefaults", PANEL)

@@ -38,11 +38,20 @@ function PANEL:Think()
 	end
 end
 
+local HudMatrix = Matrix()
+
 function PANEL:Paint( w, h )
 	local me = LocalPlayer()
 	if me:IsInHelicopter() then
+		HudMatrix:SetTranslation(Vector(0, 0, 0))
+
 		for _,att in ipairs(self.BottomComponents) do
+			local posx, posy = att:GetPos()
+			HudMatrix:SetTranslation(Vector(posx, posy, 0))
+
+			cam.PushModelMatrix(HudMatrix)
 			att:Paint( )
+			cam.PopModelMatrix()
 		end
 	end
 end

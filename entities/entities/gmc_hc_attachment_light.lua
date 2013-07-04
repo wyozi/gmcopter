@@ -124,4 +124,9 @@ if CLIENT then
 	end
 
 
+	function ENT:AddComponents(hguiframe)
+		hguiframe:AddBottomComponent(vgui.Create("HGuiBase"))
+		
+	end
+
 end
