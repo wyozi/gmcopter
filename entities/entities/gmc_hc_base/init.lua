@@ -185,6 +185,8 @@ function ENT:Think()
 	if self:IsEngineRunning() then
 		if not self.MSounds.Engine:IsPlaying() then
 			self.MSounds.Engine:Play()
+			self.MSounds.Engine:ChangeVolume(0, 0)
+			self.MSounds.Engine:ChangeVolume(1, 2)
 		end
 	elseif self.MSounds.Engine:IsPlaying() then
 		if self:GetEngineStartFrac() > 0 then
