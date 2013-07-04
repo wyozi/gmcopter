@@ -44,7 +44,22 @@ function ENT:StartTouch (ent)
 
 			ent:SetPos(self:FindTeleportTarget(tent, ent))
 
-			-- TODO do something with forcevelocity, addvelocity and mulvelocity
+			local forcevel, addvel, mulvel = self.ForceVel or vector_origin, self.AddVel or vector_origin, self.MulVel or Vector(1, 1, 1)
+
+			local gotovel = Vector(oldvel.x, oldvel.y, oldvel.z)
+
+			if (forcevel.x ~= 0 and gmcmath.Signum(forcevel.x) ~= gmcmath.Signum(gotovel.x)) then
+				gotovel.x = -gotovel.x
+			end
+			if (forcevel.y ~= 0 and gmcmath.Signum(forcevel.y) ~= gmcmath.Signum(gotovel.y)) then
+				gotovel.y = -gotovel.y
+			end
+			if (forcevel.z ~= 0 and gmcmath.Signum(forcevel.z) ~= gmcmath.Signum(gotovel.z)) then
+				gotovel.z = -gotovel.z
+			end
+
+			gotovel = gotovel * mulvel
+			gotovel = gotovel + addvel
 
 			ent.LastMEdgeTele = CurTime()
 		end
