@@ -55,6 +55,18 @@ if SERVER then
 			ent:Spawn()
 			ent:Activate()
 
+			do
+				local att = ents.Create("gmc_hc_attachment_light")
+				att:SetHelicopter(ent)
+				att:Spawn()
+			end
+
+			do
+				local att = ents.Create("gmc_hc_attachment_camera")
+				att:SetHelicopter(ent)
+				att:Spawn()
+			end
+
 		else
 			gmcdebug.Msg("No spawn pos found :(")
 		end

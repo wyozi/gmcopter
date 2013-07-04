@@ -19,7 +19,13 @@ end
 function PANEL:Paint( w, h )
 	local me = LocalPlayer()
 	if me:IsInHelicopter() then
-		draw.DrawText( "Hello there!", "TargetID", w * 0.5, h * 0.25, Color( 255,255,255,255 ), TEXT_ALIGN_CENTER )
+		--[[draw.DrawText( "Hello there!", "TargetID", w * 0.5, h * 0.25, Color( 255,255,255,255 ), TEXT_ALIGN_CENTER )
+
+
+		local rtTexture = surface.GetTextureID( "pp/rt" )
+		surface.SetTexture( rtTexture )
+		surface.SetDrawColor( 255, 255, 255, 255 )
+		surface.DrawTexturedRect( 0, 0, 250, 250 )]]
 	end
 end
 

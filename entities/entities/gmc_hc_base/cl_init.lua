@@ -22,35 +22,42 @@ function ENT:Draw()
 end
 
 function ENT:DrawTranslucent()
-	self:DrawLightSprites()
+	if self:IsEngineRunning() then
+		self:DrawLightSprites()
+	end
 end
 
 function ENT:Think()
-	self:SpawnLaunchSmoke()
+	if self:GetEngineStartFrac() > 0 then
+		self:SpawnLaunchSmoke()
+	end
 
-	for k,ml in pairs(self.MLights) do
-		local meta = self.Lights[k]
-		if ml.LastBlink < CurTime() - meta.BlinkRate then
-			ml.LastBlink = CurTime()
+	if self:IsEngineRunning() then
 
-			local dlight = ml.DLight
-			if not dlight then
-				ml.DLight = DynamicLight( 0 )
-				dlight = ml.DLight
+		for k,ml in pairs(self.MLights) do
+			local meta = self.Lights[k]
+			if ml.LastBlink < CurTime() - meta.BlinkRate then
+				ml.LastBlink = CurTime()
+
+				local dlight = ml.DLight
+				if not dlight then
+					ml.DLight = DynamicLight( 0 )
+					dlight = ml.DLight
+				end
+
+				local pos = self:LocalToWorld(meta.Pos)
+
+				dlight.Pos = pos
+				dlight.r = 255
+				dlight.g = 0
+				dlight.b = 0
+				dlight.Brightness = meta.Brightness
+				dlight.Size = 128
+				dlight.Decay = 75 / meta.Decay
+				dlight.DieTime = CurTime() + meta.BlinkRate
+	            dlight.Style = 0
+
 			end
-
-			local pos = self:LocalToWorld(meta.Pos)
-
-			dlight.Pos = pos
-			dlight.r = 255
-			dlight.g = 0
-			dlight.b = 0
-			dlight.Brightness = meta.Brightness
-			dlight.Size = 128
-			dlight.Decay = 75 / meta.Decay
-			dlight.DieTime = CurTime() + meta.BlinkRate
-            dlight.Style = 0
-
 		end
 	end
 end
@@ -78,8 +85,6 @@ function ENT:DrawLightSprites()
 end
 
 function ENT:SpawnLaunchSmoke()
-
-	if not self:IsEngineRunning() then return end
 
 	local vPoint = self:GetGroundHitPos()
 	local dist = vPoint:Distance(self:GetPos())

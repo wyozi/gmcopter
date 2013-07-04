@@ -14,3 +14,24 @@ concommand.Add("spawnsmth", function(ply, cmd, args)
 	ent:Spawn()
 	ent:Activate()
 end)
+
+concommand.Add("spawnheli", function(ply, cmd, args)
+	local ent = ents.Create("gmc_hc_base")
+	ent.Owner = ply
+	ent:SetPos(ply:GetEyeTrace().HitPos + Vector(0, 0, 50))
+	ent:Spawn()
+	ent:Activate()
+
+	do
+		local att = ents.Create("gmc_hc_attachment_light")
+		att:SetHelicopter(ent)
+		att:Spawn()
+	end
+
+	do
+		local att = ents.Create("gmc_hc_attachment_camera")
+		att:SetHelicopter(ent)
+		att:Spawn()
+	end
+end)
+
