@@ -69,7 +69,7 @@ function ENT:AddRotors()
 			self.TopRotorPhys = phys
 		end
 
-		local cst = constraint.Axis(self, trotor, 0, 0, self.TopRotor.Pos, Vector(0,0,1), self.TopRotorForceLimit,0,0,1)
+		local cst = constraint.Axis(self, trotor, 0, 0, self.TopRotor.Pos, Vector(0, 0, 1), self.TopRotorForceLimit,0,0,1)
 		if not cst then
 			MsgN("Constraint waswnt credted")
 		end
@@ -130,7 +130,7 @@ function ENT:AddSeats()
 		if seat.Angles then
 			local a = self:GetAngles()
 			a.y = a.y-90
-			a:RotateAroundAxis(Vector(0,0,1), seat.Angles.y)
+			a:RotateAroundAxis(Vector(0, 0, 1), seat.Angles.y)
 			ent:SetAngles(a)
 		else
 			ang:RotateAroundAxis(self:GetUp(), -90)
@@ -177,9 +177,15 @@ function ENT:Think()
 	end
 
 	-- Make sure if that if engine is on PhysicsUpdate gets called
-	-- TODO make it so right after stopping engine it still gets called for rotors?
 	if self.Phys:IsAsleep() and (self:GetEngineStartLevel() > 0 or (self.LastEngineStopped and self.LastEngineStopped > CurTime()-4)) then -- LastEngineStop check to allow rotors spin after sleep
 		self.Phys:Wake()
+	end
+
+	if self:WaterLevel() > 0 then
+		self:DamageHeli(100)
+		if self:IsEngineRunning() then
+			self:StopEngine()
+		end
 	end
 
 	if self:IsEngineRunning() then
@@ -327,26 +333,59 @@ function ENT:StopEngine()
 	self.InputAngleTrail = Angle(0, 0, 0)
 end
 
+function ENT:DamageHeli(dmg, localhitpos)
+
+	self:SetVehHealth(math.max(self:GetVehHealth() - dmg, -1))
+
+	if self:IsEngineRunning() then
+		local HardHit = dmg > 50
+		local Sound = table.Random(HardHit and self.HitSounds.Hard or self.HitSounds.Soft)
+		sound.Play( Sound, localhitpos or self:GetPos() )
+
+		if localhitpos then
+			local vPoint = self:LocalToWorld(localhitpos)
+			local effectdata = EffectData()
+			effectdata:SetStart( vPoint )
+			effectdata:SetOrigin( vPoint )
+			effectdata:SetScale( 0.2 )
+			util.Effect( "HelicopterMegaBomb", effectdata )	
+ 		end
+	end
+
+
+	if self:GetVehHealth() < 0 then
+		-- TODO destroy everything but check if we were dead first
+	end
+end
+
 function ENT:PhysicsCollide(cdata, phys)
 	if cdata.HitEntity:GetClass() == "worldspawn" then
 		if self:IsEngineRunning() and self.LastEngineStarted < CurTime() - 2 then
 			self.InputVelocity = Vector(0, 0, 0)
-			gmcdebug.Msg("Colliding with speed ", cdata.Speed)
-			if cdata.Speed < 100 then -- TODO Test if we're upright
+
+			local ang = self:GetAngles()
+			local AreAnglesSane = ang:IsPitchWithin(-45, 45) and ang:IsRollWithin(-45, 45) -- we shouldnt accept all angles
+
+			gmcdebug.Msg("Colliding with speed ", cdata.Speed, AreAnglesSane)
+			if cdata.Speed < 100 and AreAnglesSane then
 				self:StopEngine()
 				phys:SetVelocity(Vector(0, 0, 0))
 			else
+
+				if cdata.DeltaTime > 0.2 then
+					--local hitpos = self:WorldToLocal(self:NearestPoint(cdata.HitPos + cdata.HitNormal*1000))
+					self:DamageHeli(cdata.Speed, self:WorldToLocal(cdata.HitPos))
+				end
+
 				-- Bounce back?
-				local LastSpeed = math.max( cdata.OurOldVelocity:Length(), cdata.Speed )
+				// Bounce like a crazy bitch
+				local LastSpeed = cdata.OurOldVelocity:Length()
 				local NewVelocity = phys:GetVelocity()
+			 
 				NewVelocity:Normalize()
-
-				LastSpeed = math.max( NewVelocity:Length(), LastSpeed )
-
-				local TargetVelocity = NewVelocity * LastSpeed * 2
-
+				local TargetVelocity = NewVelocity * LastSpeed * 0.99
+			 
 				phys:SetVelocity( TargetVelocity )
-				MsgN("Bounced from ground")
 
 				-- TODO Fix
 			end
@@ -358,7 +397,7 @@ function ENT:RotorSpeed()
 	return self.TopRotorPhys:GetAngleVelocity():Length()
 end
 
--- TODO make better
+-- TODO make cleaner
 function ENT:Use(act, cal)
 	local d,v = self.MaxEnterDistance, _
 	for i=1,#self.Seats do

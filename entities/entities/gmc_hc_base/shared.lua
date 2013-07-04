@@ -99,9 +99,10 @@ ENT.CopterGuiName = "LittlebirdDefaults"
 
 function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "ESL") -- EngineStartLevel
+	self:NetworkVar("Int", 1, "VehHealth") -- WAC did this so we might aswell
 end
 
-AccessorFuncDT(ENT, "ESL", "EngineStartLevel")
+gmcutils.AccessorFuncDT(ENT, "ESL", "EngineStartLevel")
 
 function ENT:GetEngineStartFrac()
 	return self:GetEngineStartLevel() / self.MaxEngineStartLevel
@@ -125,6 +126,7 @@ function ENT:Initialize()
 		end
 	end
 
+	-- Used for looping sounds
 	self.MSounds = {}
 	for name, value in pairs(self.Sounds) do
 		local sndlevel = value.SoundLevel or 100
