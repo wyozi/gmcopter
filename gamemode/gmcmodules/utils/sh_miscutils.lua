@@ -115,3 +115,8 @@ function gmcutils.GenerateCirclePoly(x, y, radius, quality)
     end
     return circle;
 end
+
+function gmcutils.ParseHammerVector(value)
+	local spl = value:Split(" ")
+	return Vector(tonumber(spl[1]), tonumber(spl[2]), tonumber(spl[3]))
+end

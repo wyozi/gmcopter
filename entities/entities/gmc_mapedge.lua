@@ -39,7 +39,13 @@ function ENT:StartTouch (ent)
 	if ent.IsHelicopter and (not ent.LastMEdgeTele or ent.LastMEdgeTele < CurTime() - 2) then -- TODO more dynamic last tele check
 		local tent = self:GetTeleportEntity()
 		if IsValid(tent) then
+			local oldvel = ent:GetVelocity()
+			local oldvelnor = oldvel:GetNormalized()
+
 			ent:SetPos(self:FindTeleportTarget(tent, ent))
+
+			-- TODO do something with forcevelocity, addvelocity and mulvelocity
+
 			ent.LastMEdgeTele = CurTime()
 		end
 	end
@@ -48,5 +54,11 @@ end
 function ENT:KeyValue(key, value)
 	if key == "otheredge" then
 		self.OtherEdgeName = value
+	elseif key == "forcevelocity" then
+		self.ForceVel = gmcutils.ParseHammerVector(value)
+	elseif key == "addvelocity" then
+		self.AddVel = gmcutils.ParseHammerVector(value)
+	elseif key == "mulvelocity" then
+		self.MulVel = gmcutils.ParseHammerVector(value)
 	end
 end

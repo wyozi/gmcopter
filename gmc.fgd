@@ -4,6 +4,12 @@
 @SolidClass base(Trigger, Targetname) iconsprite("editor/obsolete.vmt") = gmc_mapedge : "A trigger volume that teleports helicopters entering to target map edge."
 [
 	otheredge(target_destination) : "Target Edge" : : "The name of the target edge to teleport to when the volume is triggered. If multiple target edges exist, a random one is chosen." 
+
+	forcevelocity(vector) : "Force Velocity" : "0.0 0.0 0.0" : "A direction vector to which we must be going after teleport. Only components' signs (positive or negative) matter and must match that of velocity or the velocity is modified. Zero component means sign of component doesn't matter."
+
+	mulvelocity(vector) : "Multiply Velocity" : "1.0 1.0 1.0" : "Vector to multiple velocity by after teleport. Automatically rotated so x 1 would always be forward."
+
+	addvelocity(vector) : "Add To Velocity" : "0.0 0.0 0.0" : "Vector to add to velocity after teleport. Automatically rotated so x 1 would always be forward."
 ]
 
 @PointClass base(Origin) = gmc_missionstart :

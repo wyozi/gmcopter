@@ -245,12 +245,12 @@ function ENT:PhysicsUpdate()
 			if driver.IncAltDown then
 				InputVelocity:AddZ(400)
 			elseif driver.DecAltDown then
-				InputVelocity:AddZ(-400)
+				InputVelocity:AddZ(-800)
 			end
 
 			if driver:KeyDown(IN_FORWARD) then
 				InputVelocity:Add(yawangles:Forward() * 800)
-				InputAngle.p = 50
+				InputAngle.p = 60
 			elseif driver:KeyDown(IN_BACK) then
 				InputVelocity:Add(-yawangles:Forward() * 800)
 				InputAngle.p = -50
