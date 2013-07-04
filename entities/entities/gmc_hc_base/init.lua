@@ -178,7 +178,7 @@ function ENT:Think()
 
 	-- Make sure if that if engine is on PhysicsUpdate gets called
 	-- TODO make it so right after stopping engine it still gets called for rotors?
-	if self.Phys:IsAsleep() and (self:GetEngineStartLevel() > 0 or self.LastEngineStopped > CurTime()-4) then -- LastEngineStop check to allow rotors spin after sleep
+	if self.Phys:IsAsleep() and (self:GetEngineStartLevel() > 0 or (self.LastEngineStopped and self.LastEngineStopped > CurTime()-4)) then -- LastEngineStop check to allow rotors spin after sleep
 		self.Phys:Wake()
 	end
 
