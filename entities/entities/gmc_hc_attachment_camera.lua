@@ -38,7 +38,7 @@ end
 
 if CLIENT then
 
-	local matscreen = CreateMaterial("GMCRT","UnlitGeneric",{
+	--[[local matscreen = CreateMaterial("GMCRT","UnlitGeneric",{
 	        ["$vertexcolor"] = 1,
 	        ["$vertexalpha"] = 1,
 	        ["$ignorez"] = 1,
@@ -57,19 +57,14 @@ if CLIENT then
         render.SetViewPort(0, 0, 512, 512)
         cam.Start3D( EyePos(), EyeAngles() )
 
-        --surface.SetDrawColor(255, 0, 0)
-        --surface.DrawLine(0, 0, 25, 25)
-      	for _,ent in pairs(ents.FindByClass("gmc_helispawner")) do
-        	ent:Draw()
-        end
+        render.RenderView()
 
         cam.End3D()
         render.SetViewPort(0, 0, self.OldWidth, self.OldHeight)
         render.SetRenderTarget( self.OldRT )
 
 	end
-
-	--[[
+	
 	hook.Add("HUDPaint", "test", function()
 		local ea = ents.FindByClass("gmc_hc_attachment_camera")
 
@@ -84,6 +79,37 @@ if CLIENT then
 	       
 	        matscreen:SetTexture("$basetexture", OldTex)
 		end
-	end)
-]]
+	end)]]
+
+	function ENT:AddComponents(hguibase)
+		hguibase:AddBottomComponent(vgui.Create(gmchgui.Translate("RadarView")))
+	end
+
+	local PANEL = {}
+
+	function PANEL:Paint()
+		--surface.SetDrawColor(Color(0, 255, 0, 50))
+
+		
+		--surface.DrawRect(0, 0, w, h)
+		
+		local x,y = self:GetPos()
+		local w,h = self:GetSize()
+
+		local heli = LocalPlayer():GetHelicopter()
+		local ang = heli:GetAngles()
+		ang:RotateAroundAxis(ang:Right(), -90)
+
+		local CamData = {}
+		CamData.angles = ang
+		CamData.origin = heli:GetPos()
+		CamData.x = x
+		CamData.y = y
+		CamData.w = w
+		CamData.h = h
+		render.RenderView( CamData )
+	end
+
+	gmchgui.Create("RadarView", PANEL)
+
 end
