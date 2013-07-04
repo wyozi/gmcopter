@@ -53,6 +53,11 @@ ENT.Sounds = {
 	CrashAlarm = {Sound = Sound("HelicopterVehicle/CrashAlarm.mp3")}
 }
 
+ENT.HitSounds = {
+	Hard = gmcutils.MapTable(gmcutils.Range(1, 7), function(v) return Sound("physics/metal/metal_barrel_impact_hard" .. tostring(v) .. ".wav") end),
+	Soft = gmcutils.MapTable(gmcutils.Range(1, 4), function(v) return Sound("physics/metal/metal_barrel_impact_soft" .. tostring(v) .. ".wav") end)
+}
+
 -- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.Lights = {
 	{

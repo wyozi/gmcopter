@@ -120,3 +120,28 @@ function gmcutils.ParseHammerVector(value)
 	local spl = value:Split(" ")
 	return Vector(tonumber(spl[1]), tonumber(spl[2]), tonumber(spl[3]))
 end
+
+function gmcutils.Range(from, to, step)
+	step = step or 1
+	local tbl = {}
+	for i=from, to, step do
+		table.insert(tbl, i)
+	end
+	return tbl
+end
+
+function gmcutils.MapSequentialTable(tbl, funct)
+	local ntbl = {}
+	for k,v in ipairs(tbl) do
+		ntbl[k] = func(v)
+	end
+	return ntbl
+end
+
+function gmcutils.MapTable(tbl, func)
+	local ntbl = {}
+	for k,v in pairs(tbl) do
+		ntbl[k] = func(v)
+	end
+	return ntbl
+end
