@@ -152,13 +152,17 @@ function ENT:Think()
 
 	-- Handle engine start logic
 	if not self:IsEngineRunning() then
-		if not self.MSounds.Start:IsPlaying() and (IsValid(driver) and driver.IncAltDown) then
+		local ang = self:GetAngles()
+		local RequiredAngle = ang:IsPitchWithin(-15, 30) and ang:IsRollWithin(-15, 15) -- Are our angles good for liftoff. TODO warn player if not?
+		local CanLiftOff = (IsValid(driver) and driver.IncAltDown and RequiredAngle)
+
+		if not self.MSounds.Start:IsPlaying() and CanLiftOff then
 			self.MSounds.Start:Play()
 		elseif not driver.IncAltDown then -- Shouldn't get sound of rotors accelerating if we've stopped
 			self.MSounds.Start:Stop()
 		end
 
-		if IsValid(driver) and driver.IncAltDown then
+		if CanLiftOff then
 			self:SetEngineStartLevel(math.min(self:GetEngineStartLevel() + 1, self.MaxEngineStartLevel))
 		elseif self:GetEngineStartLevel() > 0 then
 			self:SetEngineStartLevel(math.max(self:GetEngineStartLevel() - 2, 0))
@@ -174,7 +178,7 @@ function ENT:Think()
 
 	-- Make sure if that if engine is on PhysicsUpdate gets called
 	-- TODO make it so right after stopping engine it still gets called for rotors?
-	if self.Phys:IsAsleep() and self:GetEngineStartLevel() > 0 then
+	if self.Phys:IsAsleep() and (self:GetEngineStartLevel() > 0 or self.LastEngineStopped > CurTime()-4) then -- LastEngineStop check to allow rotors spin after sleep
 		self.Phys:Wake()
 	end
 

@@ -48,3 +48,15 @@ local angmeta = FindMetaTable("Angle")
 function angmeta:OnlyYaw()
 	return Angle(0, self.y, 0)
 end
+
+function angmeta:IsPitchWithin(min, max)
+	return self.p > min and self.p < max
+end
+
+function angmeta:IsYawWithin(min, max)
+	return self.y > min and self.y < max
+end
+
+function angmeta:IsRollWithin(min, max)
+	return self.r > min and self.r < max
+end
