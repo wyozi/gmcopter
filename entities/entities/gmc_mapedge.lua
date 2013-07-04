@@ -40,7 +40,6 @@ function ENT:StartTouch (ent)
 		local tent = self:GetTeleportEntity()
 		if IsValid(tent) then
 			local oldvel = ent:GetVelocity()
-			local oldvelnor = oldvel:GetNormalized()
 
 			ent:SetPos(self:FindTeleportTarget(tent, ent))
 
@@ -60,6 +59,10 @@ function ENT:StartTouch (ent)
 
 			gotovel = gotovel * mulvel
 			gotovel = gotovel + addvel
+
+			if gotovel ~= oldvel then
+				ent:SetVelocity(gotovel)
+			end
 
 			ent.LastMEdgeTele = CurTime()
 		end
