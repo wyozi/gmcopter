@@ -27,21 +27,8 @@ function ENT:RunBehaviour()
 		        self.loco:FaceTowards(heli:GetPos())
 		        self:StartActivity( ACT_IDLE )  
 		    else
-		    	--self.loco:SelectWeightedSequence( ACT_GMOD_SIT_ROLLERCOASTER )
 		    	if not self.InHeli then
-		    		local freeseat = heli:GetFreeSeatIdx(true)
-			    	if freeseat then
-			    		local seatent = heli:GetSeatIdx(freeseat)
-			    		if self:EnterHelicopter(heli, seatent) then
-				    		self:StartActivity(  ACT_BUSY_SIT_CHAIR  )
-				    		self:SetNoDraw(true)
-
-				    		gmcdebug.CMsg("Rollercoastering!")
-
-			    		end
-			    	else
-			    		gmcdebug.CMsg("No free seats!")
-			    	end
+		    		-- TODO
 		    	end
 		    end
     	end

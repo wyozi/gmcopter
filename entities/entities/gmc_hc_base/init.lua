@@ -360,7 +360,7 @@ function ENT:Use(act, cal)
 
 		if dist < d then
 			d = dist
-			v = seatent
+			v = i
 		end
 
 	end
@@ -371,44 +371,20 @@ function ENT:Use(act, cal)
 end
 
 function ENT:GetSeatOf(ent)
-	--local veh = ply:GetVehicle()
 	for k,v in pairs(self.SeatEnts) do
-		local sittingent = self:GetEntOnSeat(v)
-		if sittingent == ent then
-			return self.Seats[k]
+		if self:GetPassenger(k) == ent then
+			return k
 		end
 	end
 end
 
-function ENT:GetSeatEntOf(ent)
+function ENT:IsSeatFree(idx)
+	return not IsValid(self:GetPassenger(idx))
+end
+
+function ENT:GetFreeSeat(skipdriver)
 	for k,v in pairs(self.SeatEnts) do
-		local sittingent = seal:GetEntOnSeat(v)
-		if sittingent == ent then
-			return v
-		end
-	end
-end
-
-function ENT:GetSeatIdx(idx)
-	return self.SeatEnts[idx]
-end
-
-function ENT:GetEntOnSeatIdx(idx)
-	return self:GetEntOnSeat(self.SeatEnts[idx])
-end
-
-function ENT:GetEntOnSeat(seatent)
-	if not IsValid(seatent) then return nil end
-	return IsValid(seatent.SittingEnt) and seatent.SittingEnt or seatent:GetDriver()
-end
-
-function ENT:IsSeatFree(seatent)
-	return IsValid(seatent) and not IsValid(self:GetEntOnSeat(seatent))
-end
-
-function ENT:GetFreeSeatIdx(nodriver)
-	for k,v in pairs(self.SeatEnts) do
-		if k == 1 and nodriver then
+		if k == 1 and skipdriver then
 			continue
 		end
 		if self:IsSeatFree(v) then
@@ -418,7 +394,21 @@ function ENT:GetFreeSeatIdx(nodriver)
 end
 
 function ENT:GetDriver()
-	return self:GetEntOnSeatIdx(1)
+	return self:GetPassenger(1)
+end
+
+function ENT:GetPassenger(idx)
+	local seatent = self:SeatIdxToEnt(idx)
+	if not IsValid(seatent) then return nil end
+	return seatent:GetDriver()
+end
+
+function ENT:SeatIdxToEnt(idx)
+	return self.SeatEnts[idx]
+end
+
+function ENT:SeatIdxToSeatData(idx)
+	return self.Seats[idx]
 end
 
 function ENT:OnRemove()
