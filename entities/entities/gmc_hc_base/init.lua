@@ -139,12 +139,6 @@ function ENT:AddSeats()
 	end
 end
 
-function ENT:GetDriver()
-	local seatent = self.SeatEnts[1]
-	if not IsValid(seatent) then return nil end
-	return seatent:GetDriver()
-end
-
 function ENT:Think()
 	local driver = self:GetDriver()
 
@@ -244,10 +238,10 @@ function ENT:PhysicsUpdate()
 
 			if driver:KeyDown(IN_FORWARD) then
 				InputVelocity:Add(yawangles:Forward() * 800)
-				InputAngle.p = 30
+				InputAngle.p = 50
 			elseif driver:KeyDown(IN_BACK) then
 				InputVelocity:Add(-yawangles:Forward() * 800)
-				InputAngle.p = -30
+				InputAngle.p = -50
 			end
 
 			if driver:KeyDown(IN_MOVELEFT) then
@@ -376,13 +370,55 @@ function ENT:Use(act, cal)
 	end
 end
 
-function ENT:GetSeatOf(ply)
-	local veh = ply:GetVehicle()
+function ENT:GetSeatOf(ent)
+	--local veh = ply:GetVehicle()
 	for k,v in pairs(self.SeatEnts) do
-		if v == veh then
+		local sittingent = self:GetEntOnSeat(v)
+		if sittingent == ent then
 			return self.Seats[k]
 		end
 	end
+end
+
+function ENT:GetSeatEntOf(ent)
+	for k,v in pairs(self.SeatEnts) do
+		local sittingent = seal:GetEntOnSeat(v)
+		if sittingent == ent then
+			return v
+		end
+	end
+end
+
+function ENT:GetSeatIdx(idx)
+	return self.SeatEnts[idx]
+end
+
+function ENT:GetEntOnSeatIdx(idx)
+	return self:GetEntOnSeat(self.SeatEnts[idx])
+end
+
+function ENT:GetEntOnSeat(seatent)
+	if not IsValid(seatent) then return nil end
+	return IsValid(seatent.SittingEnt) and seatent.SittingEnt or seatent:GetDriver()
+end
+
+function ENT:IsSeatFree(seatent)
+	return IsValid(seatent) and not IsValid(self:GetEntOnSeat(seatent))
+end
+
+function ENT:GetFreeSeatIdx(nodriver)
+	for k,v in pairs(self.SeatEnts) do
+		if k == 1 and nodriver then
+			continue
+		end
+		if self:IsSeatFree(v) then
+			return k
+		end
+	end
+end
+
+function ENT:GetDriver()
+	return self:GetEntOnSeatIdx(1)
 end
 
 function ENT:OnRemove()

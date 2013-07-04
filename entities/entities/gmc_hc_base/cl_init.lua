@@ -1,5 +1,7 @@
 include("shared.lua")
 
+ENT.RenderGroup = RENDERGROUP_BOTH 
+
 function ENT:DrawCopterHUD(ang)
 
 end
@@ -16,18 +18,19 @@ function ENT:Draw()
 
 	self:DrawCopterHUD(ang, fwd, ri, self:GetUp())
 
+
+end
+
+function ENT:DrawTranslucent()
+	self:DrawLightSprites()
 end
 
 function ENT:Think()
 	self:SpawnLaunchSmoke()
 
-	--[[ TODO
-
 	for k,ml in pairs(self.MLights) do
 		local meta = self.Lights[k]
 		if ml.LastBlink < CurTime() - meta.BlinkRate then
-			-- Blink()
-			--MsgN("Blink()")
 			ml.LastBlink = CurTime()
 
 			local dlight = ml.DLight
@@ -36,20 +39,42 @@ function ENT:Think()
 				dlight = ml.DLight
 			end
 
-			--MsgN(self:LocalToWorld(meta.Pos))
-			dlight.Pos = self:LocalToWorld(meta.Pos)
+			local pos = self:LocalToWorld(meta.Pos)
+
+			dlight.Pos = pos
 			dlight.r = 255
 			dlight.g = 0
 			dlight.b = 0
-			dlight.Brightness = 1
+			dlight.Brightness = meta.Brightness
 			dlight.Size = 128
-			dlight.Decay = 128 * 3
-			dlight.DieTime = CurTime() + 1
+			dlight.Decay = 75 / meta.Decay
+			dlight.DieTime = CurTime() + meta.BlinkRate
             dlight.Style = 0
 
 		end
-	end]]
+	end
+end
 
+local mat = Material("sprites/glow04_noz") -- redglow1
+function ENT:DrawLightSprites()
+	for k,ml in pairs(self.MLights) do
+		local meta = self.Lights[k] 
+
+		local timealive = CurTime() - ml.LastBlink
+		local timefrac = timealive
+		local fulltime = meta.Decay
+
+		if timefrac < fulltime then
+			local pos = self:LocalToWorld(meta.Pos)
+			local alpha = (fulltime-timefrac) * 255 * meta.Brightness
+			--MsgN(alpha)
+
+			cam.Start3D(EyePos(), EyeAngles())
+				render.SetMaterial(mat)
+				render.DrawSprite(pos, 16, 16, Color(255, 0, 0, alpha))
+			cam.End3D()
+		end
+	end
 end
 
 function ENT:SpawnLaunchSmoke()
@@ -67,7 +92,9 @@ function ENT:SpawnLaunchSmoke()
 	effectdata:SetOrigin( vPoint )
 	effectdata:SetNormal(Vector(0, 0, 1))
 	effectdata:SetScale(10)
-	util.Effect( "ThumperDust", effectdata )	
+	util.Effect( "ThumperDust", effectdata )
+
+	--gmcparticles.Smokey(vPoint, Vector(math.random(), math.random(), 0) * math.Rand(-300, 300))
  
 end
 

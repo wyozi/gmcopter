@@ -51,8 +51,25 @@ ENT.Sounds = {
 
 ENT.Lights = {
 	{
-		Pos = Vector(-220, -8, 75),
-		BlinkRate = 1
+		Pos = Vector(-227, -9, 82),
+		Color = Color(255, 0, 0),
+		Brightness = 1,
+		BlinkRate = 1,
+		Decay = 1
+	},
+	{
+		Pos = Vector(-238, -10, 123),
+		Color = Color(255, 0, 0),
+		Brightness = 1,
+		BlinkRate = 0.8,
+		Decay = 0.8
+	},
+	{
+		Pos = Vector(29, -6, 20),
+		Color = Color(255, 0, 0),
+		Brightness = 1,
+		BlinkRate = 0.5,
+		Decay = 0.2
 	}
 }
 
