@@ -73,7 +73,7 @@ ENT.Lights = {
 if CLIENT then
 	local PANEL = {}
 
-	local scl = ScrW() / 640
+	--[[local scl = ScrW() / 640
 	PANEL.OverrideWidth = ScrW()
 	PANEL.OverrideHeight = 188 * scl
 
@@ -85,7 +85,7 @@ if CLIENT then
 		local w, h = self:GetSize()
 		surface.SetMaterial(mat)
 		surface.DrawTexturedRect(0, 0, w, h)
-	end
+	end]]
 
 	gmchgui.Create("LittlebirdDefaults", PANEL)
 end

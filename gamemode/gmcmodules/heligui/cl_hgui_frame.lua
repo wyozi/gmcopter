@@ -71,10 +71,22 @@ end
 function PANEL:LayoutComponents()
 	local count = #self.BottomComponents
 	if count > 0 then
-		local width = ScrW() / count
+
+		local usableWidth = ScrW()
+		local usableCount = 0
+
+		for _,comp in ipairs(self.BottomComponents) do
+			if comp.OverrideWidth then
+				usableWidth = usableWidth - comp.OverrideWidth
+			else
+				usableCount = usableCount + (comp.WidthCells or 1) -- WidthCells = amount of screen divisors to use
+			end
+		end
+
+		local eawidth = usableCount > 0 and usableWidth/ usableCount or 0
 		local wth = 0
 		for idx,comp in ipairs(self.BottomComponents) do
-			local owidth = comp.OverrideWidth or width
+			local owidth = comp.OverrideWidth or ( eawidth * ( comp.WidthCells or 1 ) )
 			local height = comp.OverrideHeight or 200
 			comp:SetSize(owidth, height)
 			comp:SetPos(wth, ScrH() - height)
