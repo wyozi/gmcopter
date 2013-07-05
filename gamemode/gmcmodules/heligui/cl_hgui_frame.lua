@@ -2,7 +2,7 @@ local PANEL = {}
 
 function PANEL:Init()
 
-	self:SetFocusTopLevel( true )
+	--self:SetFocusTopLevel( true )
 
 	self:SetSize(ScrW(), ScrH())
 	self:SetPos(0, 0)
