@@ -39,7 +39,7 @@ end
 if CLIENT then
 	-- Add HeliGui components
 	-- Funcs: (take normal vgui panels but you should use gmchgui.Create(name, tbl) to create panels based on the HGuiPanel base)
-	-- hguiframe:AddBottomComponent()
+	-- hguiframe:AddBottomComponent(comp, self)
 	function ENT:AddComponents(hguiframe)
 	end
 end

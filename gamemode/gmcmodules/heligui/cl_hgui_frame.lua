@@ -50,18 +50,20 @@ function PANEL:Paint( w, h )
 			HudMatrix:SetTranslation(Vector(posx, posy, 0))
 
 			cam.PushModelMatrix(HudMatrix)
-			att:Paint( )
+			att:Paint( att.ParentAttachment )
 			cam.PopModelMatrix()
 		end
 	end
 end
 
-function PANEL:AddBottomComponent(comp)
+function PANEL:AddBottomComponent(comp, att)
 	table.insert(self.BottomComponents, comp)
 
 	local oldpar = comp:GetParent()
 	comp:SetParent(self)
 	comp:SetVisible(false)
+
+	comp.ParentAttachment = att
 
 	self:LayoutComponents()
 end

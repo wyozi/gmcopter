@@ -1,0 +1,1 @@
+-- https://code.google.com/p/gm-atmos/source/browse/trunk/lua/atmos/Client/atmos_nature.lua

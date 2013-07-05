@@ -87,18 +87,19 @@ if CLIENT then
 
 	local PANEL = {}
 
-	function PANEL:Paint()
-		--surface.SetDrawColor(Color(0, 255, 0, 50))
-
-		
-		--surface.DrawRect(0, 0, w, h)
+	function PANEL:Paint( att )
 		
 		local x,y = self:GetPos()
 		local w,h = self:GetSize()
 
 		local heli = LocalPlayer():GetHelicopter()
-		local ang = heli:GetAngles()
-		ang:RotateAroundAxis(ang:Right(), -90)
+		local ang
+		if IsValid(att) then
+			ang = att:GetAngles()
+		else
+			ang = heli:GetAngles()
+			ang:RotateAroundAxis(ang:Right(), -90)
+		end
 
 		local CamData = {}
 		CamData.angles = ang
@@ -107,6 +108,7 @@ if CLIENT then
 		CamData.y = y
 		CamData.w = w
 		CamData.h = h
+		CamData.fov = 90
 		render.RenderView( CamData )
 	end
 
