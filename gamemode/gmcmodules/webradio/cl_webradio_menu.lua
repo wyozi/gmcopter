@@ -13,7 +13,6 @@ function PANEL:Init()
 	top:Dock( TOP )
 
 	local t = vgui.Create("DTextEntry", top)
-	t:SetText("hi")
 	t:SetSize(1, 50)
 	t:Dock(FILL)
 

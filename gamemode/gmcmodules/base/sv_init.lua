@@ -39,5 +39,11 @@ concommand.Add("spawnheli", function(ply, cmd, args)
 		ent:HeliAttach(att)
 		att:Spawn()
 	end
+
+	do
+		local att = ents.Create("gmc_hc_attachment_radio")
+		ent:HeliAttach(att)
+		att:Spawn()
+	end
 end)
 

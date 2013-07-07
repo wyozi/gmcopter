@@ -33,6 +33,14 @@ gmcwebradio.Services = {
 		},
 		TranslateURL = function(url) return url end,
 		OpenType = GMCWR_OPENTYPE_BASS
+	},
+	WebRadio = {
+		Patterns = {
+			"^https?://([^(/|:)]*):%d.*",
+			"^https?://.*%.pls"
+		},
+		TranslateURL = function(url) return url end,
+		OpenType = GMCWR_OPENTYPE_BASS
 	}
 }
 

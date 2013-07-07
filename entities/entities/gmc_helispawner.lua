@@ -73,6 +73,12 @@ if SERVER then
 				att:Spawn()
 			end
 
+			do
+				local att = ents.Create("gmc_hc_attachment_radio")
+				ent:HeliAttach(att)
+				att:Spawn()
+			end
+
 		else
 			gmcdebug.Msg("No spawn pos found :(")
 		end
