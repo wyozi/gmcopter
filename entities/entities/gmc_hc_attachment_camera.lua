@@ -20,15 +20,40 @@ if SERVER then
 
 	end
 
+	function ENT:Think()
+		--[[
+		local heli = self:GetHelicopter()
+		if IsValid(heli) then
+			local driver = heli:GetDriver()
+			if not IsValid(driver) then return end
+
+			if driver:KeyDown( IN_WALK ) then
+				local lang = self:GetLocalAngles()
+				self:SetLocalAngles(Angle(lang.p+5, lang.y, lang.r))
+			elseif driver:KeyDown( IN_RIGHT ) then
+				local lang = self:GetLocalAngles()
+				self:SetLocalAngles(Angle(lang.p-5, lang.y, lang.r))
+			end
+
+			gmcdebug.CMsg(self:GetLocalAngles(), driver:KeyDown(IN_WALK), driver:KeyDown(IN_RIGHT))
+
+		end
+		]]
+	end
+
 end
 
 if CLIENT then
 
 	function ENT:AddComponents(hguibase)
-		hguibase:AddBottomComponent(vgui.Create(gmchgui.Translate("RadarView")))
+		hguibase:AddBottomComponent(vgui.Create(gmchgui.Translate("RadarView")), self)
 	end
 
 	local PANEL = {}
+
+	local UpdateCView = {
+		draw = false
+	}
 
 	function PANEL:Paint( att )
 		
@@ -44,17 +69,33 @@ if CLIENT then
 			ang:RotateAroundAxis(ang:Right(), -90)
 		end
 
-		local CamData = {}
-		CamData.angles = ang
-		CamData.origin = heli:GetPos()
-		CamData.x = x
-		CamData.y = y
-		CamData.w = w
-		CamData.h = h
-		CamData.fov = 90
-		render.RenderView( CamData )
+		UpdateCView.ang = ang
+		UpdateCView.pos = heli:GetPos()
+		UpdateCView.x = x
+		UpdateCView.y = y
+		UpdateCView.w = w
+		UpdateCView.h = h
+
+		UpdateCView.draw = true
 	end
 
 	gmchgui.Create("RadarView", PANEL)
+
+	-- render.RenderView doesn't work (leaves out world faces, "culling") if called from PANEL:Paint(), so we're using a workaround to call the renderview from HUDPaint to make it work properly
+	hook.Add("HUDPaint", "RenderViewWorkaroundFix", function()
+
+		if not UpdateCView.draw then return end
+
+		local CamData = {}
+		CamData.angles = UpdateCView.ang
+		CamData.origin = UpdateCView.pos
+		CamData.x = UpdateCView.x
+		CamData.y = UpdateCView.y
+		CamData.w = UpdateCView.w
+		CamData.h = UpdateCView.h
+		CamData.fov = 90
+		CamData.drawviewmodel = false
+		render.RenderView( CamData )
+	end)
 
 end
