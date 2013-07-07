@@ -70,7 +70,7 @@ if CLIENT then
 		end
 
 		UpdateCView.ang = ang
-		UpdateCView.pos = heli:GetPos()
+		UpdateCView.pos = heli:GetPos() + Vector(0, 0, 15)
 		UpdateCView.x = x
 		UpdateCView.y = y
 		UpdateCView.w = w
