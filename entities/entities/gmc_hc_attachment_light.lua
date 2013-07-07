@@ -15,7 +15,7 @@ if SERVER then
 		self:SetMoveType( MOVETYPE_VPHYSICS )
 		self:SetSolid( SOLID_VPHYSICS )
 
-		self:SetLocalPos(Vector(75, 0, 20))
+		self:SetLocalPos(Vector(75, 2.5, 20))
 		self:SetLocalAngles(Angle(30, 0, 0))
 
 		self.LightOn = true
