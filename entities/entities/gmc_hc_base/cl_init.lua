@@ -28,10 +28,13 @@ function ENT:DrawTranslucent()
 end
 
 function ENT:Think()
+
+	-- Smoke
 	if self:GetEngineStartFrac() > 0 then
 		self:SpawnLaunchSmoke()
 	end
 
+	-- Lights
 	if self:IsEngineRunning() then
 
 		for k,ml in pairs(self.MLights) do
@@ -60,6 +63,48 @@ function ENT:Think()
 			end
 		end
 	end
+
+	if self:IsEngineRunning() then
+		if not self.MSounds.Engine:IsPlaying() then
+			self.MSounds.Engine:Play()
+			self.MSounds.Engine:ChangeVolume(0, 0)
+			self.MSounds.Engine:ChangeVolume(1, 2)
+		end
+
+		if LocalPlayer():GetHelicopter() == self then
+			self.MSounds.Engine:ChangeVolume(self.Sounds.Engine.VolInside, 0)
+			self.MSounds.Engine:ChangePitch(self.Sounds.Engine.PitchInside * 100, 0)
+		else
+			self.MSounds.Engine:ChangeVolume(1, 0)
+			self.MSounds.Engine:ChangePitch(100, 0)
+		end
+
+	elseif self.MSounds.Engine:IsPlaying() then
+		if self:GetEngineStartFrac() > 0 then
+			self.MSounds.Engine:ChangeVolume(self:GetEngineStartFrac(), 0)
+		else
+			self.MSounds.Engine:Stop()
+		end
+	end
+
+	local RotorFrac = self:GetRotorFrac()
+	if RotorFrac > 0.01 then
+		if not self.MSounds.Blades:IsPlaying() then
+			self.MSounds.Blades:Play()
+		end
+		if LocalPlayer():GetHelicopter() == self then
+			self.MSounds.Blades:ChangeVolume(RotorFrac * 0.3, 0)
+		else
+			self.MSounds.Blades:ChangeVolume(RotorFrac, 0)
+		end
+
+	elseif self.MSounds.Blades:IsPlaying() then
+		self.MSounds.Blades:Stop()
+	end
+
+	self:NextThink(CurTime() + 0.1)
+	return true
+
 end
 
 local mat = Material("gmcopter/sprites/light") -- redglow1
@@ -144,3 +189,9 @@ hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
     	end
     end
 end)
+
+function ENT:OnRemove()
+	for _,snd in pairs(self.MSounds) do
+		snd:Stop()
+	end
+end

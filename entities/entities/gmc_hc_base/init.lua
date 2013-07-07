@@ -176,8 +176,10 @@ function ENT:Think()
 		self.MSounds.Start:Stop()
 	end
 
-	-- Make sure if that if engine is on PhysicsUpdate gets called
-	if self.Phys:IsAsleep() and (self:GetEngineStartLevel() > 0 or (self.LastEngineStopped and self.LastEngineStopped > CurTime()-4)) then -- LastEngineStop check to allow rotors spin after sleep
+	self:SetRotorFrac(gmcmath.Approach(self:GetRotorFrac(), self:GetEngineStartFrac(), 0.03))
+
+	-- Make sure if that if engine or rotors are on PhysicsUpdate gets called
+	if self.Phys:IsAsleep() and (self:GetEngineStartLevel() > 0 or self:GetRotorFrac() > 0) then
 		self.Phys:Wake()
 	end
 
@@ -188,43 +190,13 @@ function ENT:Think()
 		end
 	end
 
-	if self:IsEngineRunning() then
-		if not self.MSounds.Engine:IsPlaying() then
-			self.MSounds.Engine:Play()
-			self.MSounds.Engine:ChangeVolume(0, 0)
-			self.MSounds.Engine:ChangeVolume(1, 2)
-		end
-	elseif self.MSounds.Engine:IsPlaying() then
-		if self:GetEngineStartFrac() > 0 then
-			self.MSounds.Engine:ChangeVolume(self:GetEngineStartFrac(), 0)
-		else
-			self.MSounds.Engine:Stop()
-		end
-	end
-
-	local RotorFrac = math.Clamp(self:RotorSpeed() / 5000, 0, 1)
-	if RotorFrac > 0.01 then
-		if not self.MSounds.Blades:IsPlaying() then
-			self.MSounds.Blades:Play()
-		end
-		self.MSounds.Blades:ChangeVolume(RotorFrac, 0)
-
-	elseif self.MSounds.Blades:IsPlaying() then
-		self.MSounds.Blades:Stop()
-	end
-
 	self:NextThink(CurTime() + 0.1)
 	return true
 end
 
 function ENT:PhysicsUpdate()
 	do
-		local mvm = 0
-		if self:IsEngineRunning() then
-			mvm = self.RotorSpinSpeed
-		elseif self:GetEngineStartFrac() > 0 or self:RotorSpeed() > 40 then
-			mvm = self:GetEngineStartFrac() * self.RotorSpinSpeed
-		end
+		local mvm = self:GetRotorFrac() * self.RotorSpinSpeed
 
 		self.LastRotorAng = ((self.LastRotorAng or 0) + math.Clamp(mvm/100, 0, 360)) % 360
 		self.TopRotorEnt:SetLocalAngles(Angle(0, self.LastRotorAng, 0))

@@ -46,7 +46,7 @@ ENT.Seats = {
 ENT.Sounds = {
 	Start = {Sound = Sound("WAC/Heli/h6_start.wav")},
 	Blades = {Sound = Sound("WAC/Heli/heli_loop_ext.wav"), SoundLevel = 180},
-	Engine = {Sound = Sound("WAC/Heli/heli_loop_int.wav"), SoundLevel = 180},
+	Engine = {Sound = Sound("WAC/Heli/heli_loop_int.wav"), SoundLevel = 180, PitchInside = 0.9, VolInside = 0.4},
 	MissileAlert = {Sound = Sound("HelicopterVehicle/MissileNearby.mp3")},
 	MinorAlarm = {Sound = Sound("HelicopterVehicle/MinorAlarm.mp3")},
 	LowHealth = {Sound = Sound("HelicopterVehicle/LowHealth.mp3")},
@@ -100,6 +100,7 @@ ENT.CopterGuiName = "LittlebirdDefaults"
 function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "ESL") -- EngineStartLevel
 	self:NetworkVar("Int", 1, "VehHealth") -- WAC did this so we might aswell
+	self:NetworkVar("Float", 0, "RotorFrac") -- The rotor's speed as frac 0 - 1
 end
 
 gmcutils.AccessorFuncDT(ENT, "ESL", "EngineStartLevel")
