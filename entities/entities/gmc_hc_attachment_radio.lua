@@ -23,14 +23,16 @@ if CLIENT then
 	local PANEL = {}
 
 	CreateClientConVar("gmc_webradio_volume", "50", true, false)
+	CreateClientConVar("gmc_webradio_startonenter", "0", true, false)
 
 	function PANEL:Init()
 
 		local btn = vgui.Create("DButton", self)
-		btn:SetText("Loading.. ")
+		btn:SetText("Loading..")
 		btn.DoClick = function()
+			if table.Count(gmcwebradio.LocalRadios) == 0 then return end
 			local cur = self.ParentAttachment:GetCurUrl()
-			self.SetToUrl = gmcwebradio.NextRadioUrl(cur)
+			self.SetToUrl = cur and gmcwebradio.NextRadioUrl(cur) or table.GetFirstValue(gmcwebradio.LocalRadios).url
 		end
 		self.btn = btn
 
@@ -53,7 +55,13 @@ if CLIENT then
 		self.ParentAttachment:TrySetVol(self.slider:GetValue() / 100)
 
 		local cururl = self.ParentAttachment:GetCurUrl()
-		self.btn:SetText(tostring(cururl))
+		if cururl then
+			self.btn:SetText("Current station: " .. tostring(cururl))
+		elseif table.Count(gmcwebradio.LocalRadios) == 0 then
+			self.btn:SetText("No stations. Add one from F1 menu.")
+		else
+			self.btn:SetText("No station loaded. Press to load.")
+		end
 		if self.SetToUrl and self.SetToUrl ~= cururl then
 			self.ParentAttachment:StartRadio(self.SetToUrl)
 			self.SetToUrl = nil
@@ -99,10 +107,12 @@ if CLIENT then
 		elseif ply:GetHelicopter() == heli and not self.music then
 			self.music = {}
 
-			local rand = table.Random(gmcwebradio.LocalRadios)
-			if rand then
-				self:StartRadio(rand.url)
-				gmcdebug.Msg("Starting radio", rand)
+			if GetConVar("gmc_webradio_startonenter"):GetBool() then
+				local rand = table.Random(gmcwebradio.LocalRadios)
+				if rand then
+					self:StartRadio(rand.url)
+					gmcdebug.Msg("Starting radio", rand)
+				end
 			end
 		end
 
