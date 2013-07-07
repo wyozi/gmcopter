@@ -85,6 +85,7 @@ if CLIENT then
 	hook.Add("HUDPaint", "RenderViewWorkaroundFix", function()
 
 		if not UpdateCView.draw then return end
+		UpdateCView.draw = false
 
 		local CamData = {}
 		CamData.angles = UpdateCView.ang
