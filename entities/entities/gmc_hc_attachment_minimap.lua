@@ -79,12 +79,24 @@ if CLIENT then
 
 					MMCache[targx][targy] = cl
 				end
-				
-				--MsgN(pc, clrs[pc])
 
 				surface.SetDrawColor(cl)
 				surface.DrawRect(x*10, y*10, 10, 10)
 			end
+		end
+
+		do
+			surface.SetDrawColor(Color(255, 255, 0))
+			surface.DrawRect(midx*10-5, midy*10-5, 10, 10)
+
+			local yaw = math.rad(heli:GetAngles().y)
+
+			-- TODO rotate line to right when turning right, etc
+
+			local xadd = math.cos(yaw)
+			local yadd = math.sin(yaw)
+
+			surface.DrawLine(midx*10, midy*10, midx*10 + xadd*25, midy*10 + yadd*25)
 		end
 
 	end
