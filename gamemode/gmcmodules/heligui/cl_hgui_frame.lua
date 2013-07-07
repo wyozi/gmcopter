@@ -7,8 +7,8 @@ function PANEL:Init()
 	self:SetSize(ScrW(), ScrH())
 	self:SetPos(0, 0)
 
-	self:SetMouseInputEnabled( false )
-	self:SetKeyboardInputEnabled( false )
+	--self:SetMouseInputEnabled( false )
+	--self:SetKeyboardInputEnabled( false )
 
 	-- This turns off the engine drawing
 	self:SetPaintBackgroundEnabled( false )
@@ -38,22 +38,32 @@ function PANEL:Think()
 	end
 end
 
+--[[
 local HudMatrix = Matrix()
 
-function PANEL:Paint( w, h )
-	local me = LocalPlayer()
-	if me:IsInHelicopter() then
-		HudMatrix:SetTranslation(Vector(0, 0, 0))
+function PANEL:PaintComponents()
+	HudMatrix:SetTranslation(Vector(0, 0, 0))
 
-		for _,att in ipairs(self.BottomComponents) do
-			local posx, posy = att:GetPos()
-			HudMatrix:SetTranslation(Vector(posx, posy, 0))
+	for _,att in ipairs(self.BottomComponents) do
+		local posx, posy = att:GetPos()
+		HudMatrix:SetTranslation(Vector(posx, posy, 0))
 
-			cam.PushModelMatrix(HudMatrix)
-			att:Paint( att.ParentAttachment )
-			cam.PopModelMatrix()
+		cam.PushModelMatrix(HudMatrix)
+		local s, e = pcall(att.Paint, att )
+		if not s then
+			ErrorNoHalt(e)
 		end
+		cam.PopModelMatrix()
 	end
+end
+]]
+
+function PANEL:Paint( w, h )
+	--local me = LocalPlayer()
+	--if me:IsInHelicopter() then
+	--	self:PaintComponents()
+	--end
+	return true
 end
 
 function PANEL:AddBottomComponent(comp, att)
@@ -61,7 +71,7 @@ function PANEL:AddBottomComponent(comp, att)
 
 	local oldpar = comp:GetParent()
 	comp:SetParent(self)
-	comp:SetVisible(false)
+	--comp:SetVisible(false)
 
 	comp.ParentAttachment = att
 

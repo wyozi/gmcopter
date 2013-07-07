@@ -55,15 +55,15 @@ if CLIENT then
 		draw = false
 	}
 
-	function PANEL:Paint( att )
+	function PANEL:Paint( )
 		
 		local x,y = self:GetPos()
 		local w,h = self:GetSize()
 
 		local heli = LocalPlayer():GetHelicopter()
 		local ang
-		if IsValid(att) then
-			ang = att:GetAngles()
+		if IsValid(self.ParentAttachment) then
+			ang = self.ParentAttachment:GetAngles()
 		else
 			ang = heli:GetAngles()
 			ang:RotateAroundAxis(ang:Right(), -90)

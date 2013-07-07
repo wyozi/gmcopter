@@ -73,19 +73,15 @@ ENT.Lights = {
 if CLIENT then
 	local PANEL = {}
 
-	--[[local scl = ScrW() / 640
-	PANEL.OverrideWidth = ScrW()
-	PANEL.OverrideHeight = 188 * scl
-
-	local mat = Material("gmcopter/hud/simcopter.png")
+	function PANEL:Init()
+		local btn = vgui.Create("DButton", self)
+		btn:SetText("Sup")
+		MsgN(btn)
+	end
 
 	function PANEL:Paint()
-		surface.SetDrawColor(Color(255, 255, 255, 255))
-
-		local w, h = self:GetSize()
-		surface.SetMaterial(mat)
-		surface.DrawTexturedRect(0, 0, w, h)
-	end]]
+		return true -- draw children
+	end
 
 	gmchgui.Create("LittlebirdDefaults", PANEL)
 end
