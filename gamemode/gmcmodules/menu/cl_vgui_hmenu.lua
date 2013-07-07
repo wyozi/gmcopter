@@ -22,7 +22,7 @@ function PANEL:Init()
 		}
 	}
 
-	for i,v in ipairs(tabnames) do
+	for i,v in ipairs(tabdata) do
 		local btn = vgui.Create("GMCMenuButton", self)
 		btn:SetText(v.Name)
 		btn:SetPos(0, 200 + i*42)
@@ -36,7 +36,7 @@ function PANEL:Init()
 
 	self.Tabs:GetChildren()[1]:SetVisible(false) -- Hides the tab links. We b usin buttons for them.
 
-	for i,v in ipairs(tabnames) do
+	for i,v in ipairs(tabdata) do
 		self.Tabs:AddSheet(v.Name, v.Panel, "icon16/book_open.png", false, false, "This be hovertext?")
 
 	end
