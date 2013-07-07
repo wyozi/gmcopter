@@ -17,10 +17,74 @@ end
 if CLIENT then
 
 	function ENT:AddComponents(hguiframe)
+		hguiframe:AddBottomComponent(vgui.Create(gmchgui.Translate("Radio")), self)
 	end
 
+	local PANEL = {}
+
+	CreateClientConVar("gmc_webradio_volume", "50", true, false)
+
+	function PANEL:Init()
+
+		local btn = vgui.Create("DButton", self)
+		btn:SetText("Loading.. ")
+		btn.DoClick = function()
+			local cur = self.ParentAttachment:GetCurUrl()
+			self.SetToUrl = gmcwebradio.NextRadioUrl(cur)
+		end
+		self.btn = btn
+
+		local slider = vgui.Create( "DNumSlider", self )
+		slider:SetMin(0)
+		slider:SetMax(100)
+		slider:SetValue(GetConVarNumber("gmc_webradio_volume")*100)
+		slider.OnValueChanged = function(_, val)
+			RunConsoleCommand("gmc_webradio_volume", math.Round(val)/100)
+		end
+		self.slider = slider
+	end
+
+	function PANEL:Think()
+		local w, h = self:GetSize()
+		self.slider:SetSize(w, 50)
+		self.btn:SetSize(w, 50)
+		self.btn:SetPos(0, 50)
+
+		self.ParentAttachment:TrySetVol(self.slider:GetValue() / 100)
+
+		local cururl = self.ParentAttachment:GetCurUrl()
+		self.btn:SetText(tostring(cururl))
+		if self.SetToUrl and self.SetToUrl ~= cururl then
+			self.ParentAttachment:StartRadio(self.SetToUrl)
+			self.SetToUrl = nil
+		end
+	end
+
+	function PANEL:Paint()
+		self:PaintBackground()
+		return true -- draw children
+	end
+
+	gmchgui.Create("Radio", PANEL)
+
 	function ENT:StartRadio(radio)
-		self.music.snd = gmcwebradio.Play(radio.url, gmcwebradio.FindService(radio.url))
+		if self.music.snd then
+			self.music.snd:Stop()
+		end
+		self.music.snd = gmcwebradio.Play(radio, gmcwebradio.FindService(radio))
+		self.music.changed = CurTime()
+	end
+
+	function ENT:GetCurUrl()
+		if self.music and self.music.snd then
+			return self.music.snd.url
+		end
+	end
+
+	function ENT:TrySetVol(vol)
+		if self.music and self.music.snd and self.music.changed < CurTime() - 1 then -- changed check to prevent console spam for undefined setVolume
+			self.music.snd:SetVolume(vol)
+		end
 	end
 
 	function ENT:Think()
@@ -37,13 +101,13 @@ if CLIENT then
 
 			local rand = table.Random(gmcwebradio.LocalRadios)
 			if rand then
-				self:StartRadio(rand)
+				self:StartRadio(rand.url)
 				gmcdebug.Msg("Starting radio", rand)
 			end
 		end
 
 		if self.music and self.music.snd then
-			self.music.snd:SetPos(heli:GetPos())
+			--elf.music.snd:SetPos(heli:GetPos())
 		end
 
 	end

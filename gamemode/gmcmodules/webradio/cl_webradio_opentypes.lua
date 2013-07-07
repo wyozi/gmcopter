@@ -25,7 +25,7 @@ end
 
 local basscontainer = {}
 function basscontainer:Play()
-	sound.PlayURL( self.url, "3d mono", function(snd)
+	sound.PlayURL( self.url, "", function(snd)
 		if not snd or not snd:IsValid() then
 			MsgN("GMCOPTER: WebRadio couldn't load BASS sound!")
 			return

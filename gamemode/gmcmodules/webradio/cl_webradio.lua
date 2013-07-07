@@ -9,3 +9,19 @@ function gmcwebradio.Load()
 end
 
 gmcwebradio.LocalRadios = gmcwebradio.Load()
+
+function gmcwebradio.NextRadioUrl(cur)
+	local first
+	local retnext = false
+	for _, v in pairs(gmcwebradio.LocalRadios) do
+		if not first then
+			first = v.url
+		end
+		if v.url == cur then
+			retnext = true
+		elseif retnext then
+			return v.url
+		end
+	end
+	return first
+end

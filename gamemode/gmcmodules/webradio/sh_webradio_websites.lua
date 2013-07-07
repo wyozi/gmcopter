@@ -16,7 +16,7 @@ gmcwebradio.Services = {
 		},
 		TranslateURL = function(url) return url .. "&autoplay=1" --[[TODO this might break everything]] end,
 		OpenType = GMCWR_OPENTYPE_HTML,
-		VolumeSetter = function(html, vol) html:RunJavascript("document.getElementById(\"movie_player\").setVolume(" .. tostring(vol*100) .. ")") end
+		VolumeSetter = function(html, vol) html:QueueJavascript("document.getElementById(\"movie_player\").setVolume(" .. tostring(vol*100) .. ")") end
 	},
 	YoutubePlaylist = {
 		Patterns = {
@@ -25,7 +25,7 @@ gmcwebradio.Services = {
 		},
 		TranslateURL = function(url) return url end,
 		OpenType = GMCWR_OPENTYPE_HTML,
-		VolumeSetter = function(html, vol) html:RunJavascript("document.getElementById(\"movie_player\").setVolume(" .. tostring(vol*100) .. ")") end
+		VolumeSetter = function(html, vol) html:QueueJavascript("document.getElementById(\"movie_player\").setVolume(" .. tostring(vol*100) .. ")") end
 	},
 	WebSound = {
 		Patterns = {
