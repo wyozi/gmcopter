@@ -92,15 +92,13 @@ if CLIENT then
 		local LightPos = self:GetPos() + LightNrm * 5
 
 		-- glow sprite
-		--[[
 		render.SetMaterial( matBeam )
-		local BeamDot = BeamDot = 0.25
+		local BeamDot = 0.25
 		render.StartBeam( 3 )
-		render.AddBeam( LightPos + LightNrm * 1, 128, 0.0, Color( r, g, b, 255 * BeamDot) )
-		render.AddBeam( LightPos - LightNrm * 100, 128, 0.5, Color( r, g, b, 64 * BeamDot) )
-		render.AddBeam( LightPos - LightNrm * 200, 128, 1, Color( r, g, b, 0) )
+		render.AddBeam( LightPos + LightNrm * 1, 128, 0.0, Color( 255, 255, 255, 255 * BeamDot) )
+		render.AddBeam( LightPos + LightNrm * 100, 128, 0.5, Color( 255, 255, 255, 64 * BeamDot) )
+		render.AddBeam( LightPos + LightNrm * 200, 128, 1, Color( 255, 255, 255, 0) )
 		render.EndBeam()
-		--]]
 
 		if ( ViewDot >= 0 ) then
 
