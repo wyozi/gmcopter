@@ -1,5 +1,12 @@
 local PANEL = {}
 
+local function CreateIntroductionPanel(parent)
+	local panel = vgui.Create("DHTML", parent)
+	panel:OpenURL("http://wyozi.github.io/gmcopter/introduction.html")
+
+	return panel
+end
+
 function PANEL:Init()
 
 	self:SetSize(ScrW(), ScrH())
@@ -16,6 +23,10 @@ function PANEL:Init()
 	self.Tabs = vgui.Create("DPropertySheet", self)
 
 	local tabdata = {
+		{
+			Name = "Introduction",
+			Panel = CreateIntroductionPanel(self.Tabs)
+		},
 		{
 			Name = "Options",
 			Panel = vgui.Create("DPanel", self.Tabs)
@@ -41,7 +52,7 @@ function PANEL:Init()
 	self.Tabs:GetChildren()[1]:SetVisible(false) -- Hides the tab links. We b usin buttons for them.
 
 	for i,v in ipairs(tabdata) do
-		v.Sheet = self.Tabs:AddSheet(v.Name, v.Panel, "icon16/book_open.png", false, false, "This be hovertext?")
+		v.Sheet = self.Tabs:AddSheet(v.Name, v.Panel, "icon16/book_open.png", false, false, v.Name)
 	end
 
 end
