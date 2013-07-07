@@ -29,6 +29,13 @@ if CLIENT then
 		Other = Color(0, 0, 0)
 	}
 
+	-- contains X tables which contain Y values
+	local MMCache = {}
+
+	local function RoundTens(x)
+		return math.floor(x/100)*100
+	end
+
 	function PANEL:Paint( att )
 		
 		local x,y = self:GetPos()
@@ -41,18 +48,38 @@ if CLIENT then
 		local downvec = Vector(0, 0, -10000)
 		local filtertbl = {LocalPlayer():GetHelicopter()}
 
+		-- TODO clear MMCache
+
 		for x=0,w/10 do
 			for y=0, h/10 do
 
-				local startvec = helipos + Vector((x-midx)*100, (y-midy)*100, 0)
-				local tr = util.QuickTrace(startvec, downvec, filtertbl)
+				local targx = RoundTens(helipos.x + (x-midx)*100)
+				local targy = RoundTens(helipos.y + (y-midy)*100)
 
-				local pc = util.PointContents(tr.HitPos - tr.HitNormal*5)
+				local cl
 
-				local cl = clrs.Other
-				if bit.band(pc, CONTENTS_TRANSLUCENT) == CONTENTS_TRANSLUCENT then
-					cl = clrs.Water
+				if MMCache[targx] then
+					cl = MMCache[targx][targy]
 				end
+
+				if not cl then
+					if not MMCache[targx] then
+						MMCache[targx] = {}
+					end
+
+					local startvec = Vector(targx, targy, helipos.z)
+					local tr = util.QuickTrace(startvec, downvec, filtertbl)
+
+					local pc = util.PointContents(tr.HitPos - tr.HitNormal*5)
+
+					cl = clrs.Other
+					if bit.band(pc, CONTENTS_TRANSLUCENT) == CONTENTS_TRANSLUCENT then
+						cl = clrs.Water
+					end
+
+					MMCache[targx][targy] = cl
+				end
+				
 				--MsgN(pc, clrs[pc])
 
 				surface.SetDrawColor(cl)
