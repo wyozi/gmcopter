@@ -2,10 +2,10 @@ local PANEL = {}
 
 function PANEL:Init()
 
-	--self:SetFocusTopLevel( true )
-
 	self:SetSize(ScrW(), ScrH())
 	self:SetPos(0, 0)
+
+	self:SetTitle("")
 
 	self:SetKeyboardInputEnabled( false )
 
@@ -21,6 +21,8 @@ function PANEL:Init()
 			Panel = vgui.Create("DPanel", self.Tabs)
 		}
 	}
+
+	gmchooks.Call("GMCAddMenuOptions", tabdata)
 
 	for i,v in ipairs(tabdata) do
 		local btn = vgui.Create("GMCMenuButton", self)
@@ -41,6 +43,20 @@ function PANEL:Init()
 
 	end
 
+end
+
+function PANEL:Think()
+	local binding = input.LookupBinding("gm_showhelp")
+	if not binding then return end
+
+	if self.m_fCreateTime > SysTime() - 0.5 then
+		return
+	end
+
+	local keynum = _G["KEY_" .. binding]
+	if input.IsKeyDown( keynum ) then
+		self:Close()
+	end
 end
 
 function PANEL:Paint()
