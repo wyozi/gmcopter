@@ -22,7 +22,7 @@ function PANEL:Init()
 		}
 	}
 
-	gmchooks.Call("GMCAddMenuOptions", tabdata)
+	gmchooks.Call("GMCAddMenuPanel", tabdata, self.Tabs)
 
 	for i,v in ipairs(tabdata) do
 		local btn = vgui.Create("GMCMenuButton", self)
