@@ -74,9 +74,6 @@ if CLIENT then
 	local PANEL = {}
 
 	function PANEL:Init()
-		local btn = vgui.Create("DButton", self)
-		btn:SetText("Sup")
-		MsgN(btn)
 	end
 
 	function PANEL:Paint()
