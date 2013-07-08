@@ -25,19 +25,26 @@ end
 
 local basscontainer = {}
 function basscontainer:Play()
+	self.Stopped = false
 	sound.PlayURL( self.url, "", function(snd)
 		if not snd or not snd:IsValid() then
 			MsgN("GMCOPTER: WebRadio couldn't load BASS sound!")
 			return
 		end
+		if self.Stopped then
+			gmcdebug.Msg("Stopped before starting")
+			return
+		end
 		gmcdebug.Msg("Basscontainer succesfully loaded channel", snd)
 		self.snd = snd
 		snd:Play()
+		self.PlayingStarted = CurTime()
 	end) 
 end
 function basscontainer:Stop()
 	if self:IsValid() then
 		self.snd:Stop()
+		self.Stopped = true
 	end
 end
 function basscontainer:SetVolume(vol)

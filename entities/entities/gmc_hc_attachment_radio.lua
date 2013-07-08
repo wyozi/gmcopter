@@ -31,6 +31,9 @@ if CLIENT then
 		btn:SetText("Loading..")
 		btn.DoClick = function()
 			if table.Count(gmcwebradio.LocalRadios) == 0 then return end
+			if self.ParentAttachment.music and self.ParentAttachment.music.changed and self.ParentAttachment.music.changed > CurTime()-2 then
+				return
+			end
 			local cur = self.ParentAttachment:GetCurUrl()
 			self.SetToUrl = cur and gmcwebradio.NextRadioUrl(cur) or table.GetFirstValue(gmcwebradio.LocalRadios).url
 		end
