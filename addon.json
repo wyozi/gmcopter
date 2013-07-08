@@ -1,0 +1,10 @@
+{
+	"title"		:	"GMCopter",
+	"type"		:	"gamemode",
+	"tags"		:	[ "fun" ],
+	"ignore"	:
+	[
+		"*.git",
+		".gitignore"
+	]
+}
