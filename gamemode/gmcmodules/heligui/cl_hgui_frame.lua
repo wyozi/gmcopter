@@ -18,7 +18,14 @@ function PANEL:Init()
 
 end
 
+CreateClientConVar("gmc_hidehgui", "0", false, false)
+
 function PANEL:Think()
+
+	if GetConVar("gmc_hidehgui"):GetBool() == self:IsVisible() then
+		self:SetVisible(not self:IsVisible())
+	end
+
 	local me = LocalPlayer()
 	local heli = me:GetHelicopter()
 	if heli ~= self.LastStoredHeli then

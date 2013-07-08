@@ -100,22 +100,16 @@ if CLIENT then
 		render.AddBeam( LightPos + LightNrm * 200, 128, 1, Color( 255, 255, 255, 0) )
 		render.EndBeam()
 
+			--render.SetMaterial( matLight )
+			--render.DrawSprite( LightPos, 128, 128, Color(255, 255, 255, 255), 1 )
 		if ( ViewDot >= 0 ) then
 
 			render.SetMaterial( matLight )
-			local Visibile	= util.PixelVisible( LightPos, 16, self.PixVis )	
+			
+			local Size = 268 * ViewDot
 
-			if (!Visibile) then return end
-
-			local Size = math.Clamp( Distance * Visibile * ViewDot * 1.5, 64, 512 )
-
-			Distance = math.Clamp( Distance, 32, 800 )
-			local Alpha = math.Clamp( (1000 - Distance) * Visibile * ViewDot, 0, 100 )
-			local Col = self:GetColor()
-			Col.a = Alpha
-
-			render.DrawSprite( LightPos, Size, Size, Col, Visibile * ViewDot )
-			render.DrawSprite( LightPos, Size*0.4, Size*0.4, Color(255, 255, 255, Alpha), Visibile * ViewDot )
+			render.DrawSprite( LightPos, Size, Size, Color(255, 255, 255, 255))
+			render.DrawSprite( LightPos, Size*0.4, Size*0.4, Color(255, 255, 255, 255) )
 
 		end
 
