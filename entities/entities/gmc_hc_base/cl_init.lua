@@ -11,6 +11,12 @@ function ENT:DrawCopterHUD(ang)
 
 		p:Text("Hello there!", "DermaDefaultBold", 0, 5)
 
+		p:Text("AirSpeed:" .. math.Round(self:GetVelocity():Length(), 2), "DermaDefault", 0, 25)
+		p:Text("VSpeed:" .. math.Round(self:GetVelocity().z, 2), "DermaDefault", 0, 40)
+		p:Text("Altitude:" .. math.Round(self:GetPos().z, 2), "DermaDefault", 0, 55)
+		p:Text("Pitch:" .. math.Round(self:GetAngles().p, 2), "DermaDefault", 0, 70)
+		p:Text("Roll:" .. math.Round(self:GetAngles().r, 2), "DermaDefault", 0, 85)
+
 		p:Cursor()
 
 		local pos = self:GetPos()
