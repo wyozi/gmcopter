@@ -1,13 +1,22 @@
+GMC_CAMVIEW_FIRSTPERSON = 1
+GMC_CAMVIEW_CHASE = 2
+GMC_CAMVIEW_THIRDPERSON = 3
+GMC_CAMVIEW_COCKPIT = 4
+
+CreateClientConVar("gmc_camview", GMC_CAMVIEW_FIRSTPERSON, true, false)
+
 concommand.Add("gmc_changeview", function()
 	local oldview = GetConVar("gmc_camview"):GetInt()
 
 	local newview
-	if oldview == GMC_CAMVIEW_CHASE then
+	if oldview == GMC_CAMVIEW_FIRSTPERSON then
+		newview = GMC_CAMVIEW_CHASE
+	elseif oldview == GMC_CAMVIEW_CHASE then
 		newview = GMC_CAMVIEW_THIRDPERSON
 	elseif oldview == GMC_CAMVIEW_THIRDPERSON then
 		newview = GMC_CAMVIEW_COCKPIT
 	else
-		newview = GMC_CAMVIEW_CHASE
+		newview = GMC_CAMVIEW_FIRSTPERSON
 	end
 
 	RunConsoleCommand("gmc_camview", newview)
