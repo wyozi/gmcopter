@@ -25,7 +25,6 @@ PLAYER.AvoidPlayers	= false	-- Automatically swerves around other players
 --
 function PLAYER:SetupDataTables()
 	BaseClass.SetupDataTables( self )
-	self.Player:NetworkVar( "Entity", 0, "Helicopter" )
 end
 
 
@@ -138,7 +137,7 @@ if CLIENT then -- TODO move out of here
 
 			glasses:SetRenderOrigin()
 			glasses:SetRenderAngles()
-			
+
 		end
 
 	end)
