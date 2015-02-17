@@ -1,5 +1,4 @@
-function GM:GrabEarAnimation( ply )
-
+function GM:GrabEarAnimation(ply)
 	ply.ChatGestureWeight = ply.ChatGestureWeight or 0
 
 	-- Don't show this when we're playing a taunt!

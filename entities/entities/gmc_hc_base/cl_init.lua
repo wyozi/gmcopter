@@ -1,6 +1,6 @@
 include("shared.lua")
 
-ENT.RenderGroup = RENDERGROUP_BOTH 
+ENT.RenderGroup = RENDERGROUP_BOTH
 
 function ENT:DrawCopterHUD(ang)
 
@@ -58,7 +58,7 @@ function ENT:Think()
 				dlight.Size = 128
 				dlight.Decay = 75 / meta.Decay
 				dlight.DieTime = CurTime() + meta.BlinkRate
-	            dlight.Style = 0
+				dlight.Style = 0
 
 			end
 		end
@@ -110,7 +110,7 @@ end
 local mat = Material("gmcopter/sprites/light") -- redglow1
 function ENT:DrawLightSprites()
 	for k,ml in pairs(self.MLights) do
-		local meta = self.Lights[k] 
+		local meta = self.Lights[k]
 
 		local timealive = CurTime() - ml.LastBlink
 		local timefrac = timealive
@@ -145,50 +145,8 @@ function ENT:SpawnLaunchSmoke()
 	util.Effect( "ThumperDust", effectdata )
 
 	--gmcparticles.Smokey(vPoint, Vector(math.random(), math.random(), 0) * math.Rand(-300, 300))
- 
+
 end
-
-hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
-    local heli = ply:GetHelicopter()
-    if IsValid(heli) then
-		local camview = GetConVar("gmc_camview"):GetInt()
-    	if camview == GMC_CAMVIEW_CHASE then
-    		local view = {}
-	    	local hang = heli:GetAngles()
-
-	    	local targ = heli:GetPos() - (hang:Forward()*400) + (hang:Up() * 250)
-	    	local tr = util.TraceLine({start=heli:GetPos(), endpos=targ, filter={heli, ply, heli:GetNWEntity("trotor"), heli:GetNWEntity("brotor")}})
-		    view.origin = tr.Hit and tr.HitPos or targ
-		    view.angles = tr.Hit and (heli:GetPos() - view.origin):Angle() or hang
-
-		    view.angles.p = 32
-		    view.angles.r = 0 -- Looks better this way
-
-		    view.fov = fov
-		 
-		    return view
-		elseif camview == GMC_CAMVIEW_THIRDPERSON then
-    		local view = {}
-    		local hang = angles
-
-	    	local targ = heli:GetPos() - (hang:Forward()*500)
-	    	local tr = util.TraceLine({start=heli:GetPos(), endpos=targ, filter={heli, ply, heli:GetNWEntity("trotor"), heli:GetNWEntity("brotor")}})
-		    view.origin = tr.Hit and tr.HitPos or targ
-		    view.angles = angles
-		    view.fov = fov
-		 
-		    return view
-		elseif camview == GMC_CAMVIEW_COCKPIT then
-    		local view = {}
-	    	local hang = heli:GetAngles()
-		    view.origin = heli:GetPos() + (hang:Up() * 50) + (hang:Forward() * 100)
-		    view.angles = heli:GetAngles() --(heli:GetPos() - view.origin):Angle()
-		    view.fov = fov
-		 
-		    return view
-    	end
-    end
-end)
 
 function ENT:OnRemove()
 	for _,snd in pairs(self.MSounds) do
