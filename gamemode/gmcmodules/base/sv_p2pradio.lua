@@ -1,7 +1,13 @@
-function GM:PlayerCanHearPlayersVoice( listener, talker )
-	if listener:GetHelicopter() == talker:GetHelicopter() then -- Doesn't matter if both null
+function GM:PlayerCanHearPlayersVoice(listener, talker)
+	-- If both in same helicopter
+	if listener:IsInHelicopter() and listener:GetHelicopter() == talker:GetHelicopter() then
+		return true, false
+	end
+	
+	-- If neither in helicopter
+	if not listener:IsInHelicopter() and not talker:IsInHelicopter() then
 		return true, true
 	end
-	-- TODO implement radio channels or something
-	return false, false
+
+	return false
 end
