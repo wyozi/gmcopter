@@ -3,19 +3,47 @@ include("shared.lua")
 ENT.RenderGroup = RENDERGROUP_BOTH
 
 function ENT:DrawCopterHUD(ang)
+	do -- Main controls
+		local p = self.MainP or tdui.Create()
+		self.MainP = p
 
+		p:Rect(-45, 0, 90, 215, _, Color(255, 255, 255))
+
+		p:Text("Hello there!", "DermaDefaultBold", 0, 5)
+
+		p:Cursor()
+
+		local pos = self:GetPos()
+		local ang = self:GetAngles()
+
+		pos = pos + ang:Forward() * 60.6 + ang:Up() * 73.3 - ang:Right() * 1.2
+		ang:RotateAroundAxis(ang:Right(), -6)
+		ang:RotateAroundAxis(ang:Forward(), 1)
+		p:Render(pos, ang, 0.1)
+	end
+	do -- Radio
+		local p = self.RadioP or tdui.Create()
+		self.RadioP = p
+
+		p:Rect(-30, 0, 60, 30, _, Color(255, 255, 255))
+
+		p:Text("Dubstep", "DermaDefault", 0, 5)
+
+		p:Cursor()
+
+		local pos = self:GetPos()
+		local ang = self:GetAngles()
+
+		pos = pos + ang:Forward() * 60.2 + ang:Up() * 77.4 - ang:Right() * 1.2
+		--ang:RotateAroundAxis(ang:Forward(), 1)
+		p:Render(pos, ang, 0.1)
+	end
 end
 
 function ENT:Draw()
 	self:DrawModel()
 
-	local fwd = self:GetForward()
-	local ri = self:GetRight()
-	local ang = self:GetAngles()
-	ang:RotateAroundAxis(ri, 90)
-	ang:RotateAroundAxis(fwd, 90)
-
-	self:DrawCopterHUD(ang, fwd, ri, self:GetUp())
+	self:DrawCopterHUD()
 end
 
 function ENT:DrawTranslucent()
