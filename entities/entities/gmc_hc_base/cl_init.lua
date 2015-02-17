@@ -6,7 +6,6 @@ function ENT:DrawCopterHUD(ang)
 
 end
 
-
 function ENT:Draw()
 	self:DrawModel()
 
@@ -17,8 +16,6 @@ function ENT:Draw()
 	ang:RotateAroundAxis(fwd, 90)
 
 	self:DrawCopterHUD(ang, fwd, ri, self:GetUp())
-
-
 end
 
 function ENT:DrawTranslucent()

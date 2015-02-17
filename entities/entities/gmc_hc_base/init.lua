@@ -16,7 +16,7 @@ function ENT:SvInit()
 	self:PhysicsInit(SOLID_VPHYSICS)
 	self:SetMoveType(MOVETYPE_VPHYSICS)
 	self:SetSolid(SOLID_VPHYSICS)
-	
+
 	local phys = self:GetPhysicsObject()
 	if phys:IsValid() then
 		self.Phys = phys
@@ -30,14 +30,6 @@ function ENT:SvInit()
 
 	self:AddRotors()
 	self:AddSeats()
-
-	if self.CopterGuiName then
-		local att = ents.Create("gmc_hc_attachment_cdefs")
-		self:HeliAttach(att)
-		att:Spawn()
-		att:SetNWString("coptergui", self.CopterGuiName)
-	end
-
 end
 
 function ENT:HasBeenOn()
@@ -119,7 +111,7 @@ function ENT:AddSeats()
 		local seat = self.Seats[i]
 
 		local ent = ents.Create("prop_vehicle_prisoner_pod")
-		ent:SetModel("models/nova/airboat_seat.mdl") 
+		ent:SetModel("models/nova/airboat_seat.mdl")
 		ent:SetKeyValue("vehiclescript","scripts/vehicles/prisoner_pod.txt")
 		ent:SetKeyValue("limitview", "0") -- Allow looking all around. We override this in CalcHeliView anyway
 		ent:SetPos(self:LocalToWorld(seat.Pos))
@@ -280,7 +272,7 @@ function ENT:PhysicsUpdate()
 			if self:IsJustAboveGround() then -- If we're above ground dont pitch or roll to avoid glitching with ground due to forcing angle
 				InputAngle.p = 0 -- We could set targetangle here but faking InputAngle makes transition smoother because TargetAngle is directly related to the SetAngles
 				InputAngle.r = 0
-			end 
+			end
 			TargetAng = gmcmath.ApproachAngleMod(TargetAng, InputAngle, math.Clamp(InputTargetDiff / 100, 0.1, 1.5)) -- math.Clamp is here to do some smoothening
 
 			local SetAng = gmcmath.AngleDiff(CurAng, TargetAng) > 0.1 and (TargetAng - CurAng) or nil
@@ -320,8 +312,8 @@ function ENT:DamageHeli(dmg, localhitpos)
 			effectdata:SetStart( vPoint )
 			effectdata:SetOrigin( vPoint )
 			effectdata:SetScale( 0.2 )
-			util.Effect( "HelicopterMegaBomb", effectdata )	
- 		end
+			util.Effect( "HelicopterMegaBomb", effectdata )
+		 end
 	end
 
 
@@ -353,10 +345,10 @@ function ENT:PhysicsCollide(cdata, phys)
 				// Bounce like a crazy bitch
 				local LastSpeed = cdata.OurOldVelocity:Length()
 				local NewVelocity = phys:GetVelocity()
-			 
+
 				NewVelocity:Normalize()
 				local TargetVelocity = NewVelocity * LastSpeed * 0.99
-			 
+
 				phys:SetVelocity( TargetVelocity )
 
 				-- TODO Fix

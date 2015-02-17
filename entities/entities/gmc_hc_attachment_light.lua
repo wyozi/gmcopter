@@ -23,23 +23,23 @@ if SERVER then
 	end
 
 	function ENT:CreateFlashlight()
-		self.flashlight = ents.Create( "env_projectedtexture" )
+		self.flashlight = ents.Create("env_projectedtexture")
 
-		self.flashlight:SetParent( self )
+		self.flashlight:SetParent(self)
 
 		-- The local positions are the offsets from parent..
-		self.flashlight:SetLocalPos( Vector( 0, 0, 0 ) )
-		self.flashlight:SetLocalAngles( Angle(0,0,0) )
+		self.flashlight:SetLocalPos(Vector(0, 0, 0))
+		self.flashlight:SetLocalAngles(Angle(0, 0, 0))
 
 		-- Looks like only one flashlight can have shadows enabled!
-		self.flashlight:SetKeyValue( "enableshadows", 1 )
-		self.flashlight:SetKeyValue( "farz", 2048 )
-		self.flashlight:SetKeyValue( "nearz", 12 )
-		self.flashlight:SetKeyValue( "lightfov", 70 )
+		self.flashlight:SetKeyValue("enableshadows", 1)
+		self.flashlight:SetKeyValue("farz", 2048)
+		self.flashlight:SetKeyValue("nearz", 12)
+		self.flashlight:SetKeyValue("lightfov", 70)
 
 		local c = Color(255, 255, 255)
 		local b = 10
-		self.flashlight:SetKeyValue( "lightcolor", Format( "%i %i %i 255", c.r * b, c.g * b, c.b * b ) )
+		self.flashlight:SetKeyValue("lightcolor", Format("%i %i %i 255", c.r * b, c.g * b, c.b * b))
 
 		self.flashlight:Spawn()
 	end
@@ -67,7 +67,7 @@ if CLIENT then
 	function ENT:Initialize()
 		self.PixVis = util.GetPixelVisibleHandle()
 	end
-	
+
 	local matLight = Material( "sprites/light_ignorez" )
 	local matBeam	= Material( "effects/lamp_beam" )
 
@@ -105,7 +105,7 @@ if CLIENT then
 		if ( ViewDot >= 0 ) then
 
 			render.SetMaterial( matLight )
-			
+
 			local Size = 268 * ViewDot
 
 			render.DrawSprite( LightPos, Size, Size, Color(255, 255, 255, 255))
@@ -113,11 +113,6 @@ if CLIENT then
 
 		end
 
-	end
-
-
-	function ENT:AddComponents(hguiframe)
-		
 	end
 
 end

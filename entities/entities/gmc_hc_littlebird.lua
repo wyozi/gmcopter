@@ -68,17 +68,3 @@ ENT.Lights = {
 		Decay = 0.2
 	}
 }
-
-
-if CLIENT then
-	local PANEL = {}
-
-	function PANEL:Init()
-	end
-
-	function PANEL:Paint()
-		return true -- draw children
-	end
-
-	gmchgui.Create("LittlebirdDefaults", PANEL)
-end
