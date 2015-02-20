@@ -203,6 +203,10 @@ function ENT:PhysicsUpdate()
 		local angles = self:GetAngles()
 		local yawangles = angles:OnlyYaw()
 
+		local horizontal_vel = self:GetVelocity()
+		horizontal_vel.z = 0 -- rip
+		horizontal_vel = horizontal_vel:Length()
+
 		local hovervel = Vector(0, 0, 9)
 		hovervel:AddZ(math.sin(CurTime()) * 10) -- Simulate some movement, which makes stationary hovering more realistic
 
@@ -217,7 +221,6 @@ function ENT:PhysicsUpdate()
 
 		if IsValid(driver) then
 			if driver.IncAltDown then
-				print(self:GetUp().z)
 				InputVelocity:AddZ(400 * self:GetUp().z)
 			elseif driver.DecAltDown then
 				InputVelocity:AddZ(-800 * self:GetUp().z)
@@ -231,12 +234,16 @@ function ENT:PhysicsUpdate()
 				InputAngle.p = -25
 			end
 
+			-- On low velocities we shouldn't have much roll or the helicopter
+			-- starts looking like it's defying laws of physics
+			local roll_mul = (0.3 + 0.7*math.Clamp(horizontal_vel / 800, 0, 1))
+
 			if driver:KeyDown(IN_MOVELEFT) then
 				InputAngleVelocity:AddZ(60)
-				InputAngle.r = -25
+				InputAngle.r = -25 * roll_mul
 			elseif driver:KeyDown(IN_MOVERIGHT) then
 				InputAngleVelocity:AddZ(-60)
-				InputAngle.r = 25
+				InputAngle.r = 25 * roll_mul
 			end
 		else -- No driver
 			InputVelocity:AddZ(-1000)
@@ -250,10 +257,10 @@ function ENT:PhysicsUpdate()
 			local CurVel = self.Phys:GetVelocity()
 			local TargetVel = gmcmath.ApproachVectorMod(self.InputVelocityTrail, InputVelocity, 3.5)
 
-			local AddVel = gmcmath.VectorDiff(CurVel, TargetVel) > 0.1 and (TargetVel - CurVel) or vector_origin
+			local vel = (hovervel + TargetVel) * 60 * FrameTime()
+			self.Phys:SetVelocity(vel)
 
-			local vel = hovervel + AddVel
-			self.Phys:AddVelocity(vel)
+			--print(TargetVel)
 		end
 
 		do -- AngleVelocity
