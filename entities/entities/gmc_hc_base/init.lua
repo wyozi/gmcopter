@@ -217,9 +217,10 @@ function ENT:PhysicsUpdate()
 
 		if IsValid(driver) then
 			if driver.IncAltDown then
-				InputVelocity:AddZ(400)
+				print(self:GetUp().z)
+				InputVelocity:AddZ(400 * self:GetUp().z)
 			elseif driver.DecAltDown then
-				InputVelocity:AddZ(-800)
+				InputVelocity:AddZ(-800 * self:GetUp().z)
 			end
 
 			if driver:KeyDown(IN_FORWARD) then
@@ -252,7 +253,6 @@ function ENT:PhysicsUpdate()
 			local AddVel = gmcmath.VectorDiff(CurVel, TargetVel) > 0.1 and (TargetVel - CurVel) or vector_origin
 
 			local vel = hovervel + AddVel
-			--gmcdebug.Msg("AddingVel", self.Phys:GetVelocity(), vel)
 			self.Phys:AddVelocity(vel)
 		end
 
