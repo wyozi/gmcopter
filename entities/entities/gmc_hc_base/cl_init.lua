@@ -38,12 +38,28 @@ function ENT:DrawAttitudeIndicator(pnl, x, y, w, h)
 	--pnl:Rect(midx+math.cos(math.rad(c2ang))*15-1, midy+math.sin(math.rad(c2ang))*15-1 + yoff, 2, 2, Color(255, 0, 0))
 end
 
-function ENT:DrawMeter(pnl, x, y, w, h)
+function ENT:DrawMeter(pnl, x, y, w, h, ang)
 	pnl:Rect(x, y, w, h, Color(255, 255, 255))
 
 	local midx, midy = x + w/2, y + h/2
 
+	local radius = w/2 - 1
 
+	ang = ang - math.rad(90)
+
+	local ang1 = ang-math.pi/2
+	local ang2 = ang+math.pi/2
+
+	local arrow_thickness = 1
+
+	local arrow_poly = {
+		{x = midx + math.cos(ang2)*arrow_thickness                       , y = midy + math.sin(ang2)*arrow_thickness},
+		{x = midx + math.cos(ang1)*arrow_thickness                       , y = midy + math.sin(ang1)*arrow_thickness},
+		{x = midx + math.cos(ang)*radius + math.cos(ang1)*arrow_thickness, y = midy + math.sin(ang)*radius + math.sin(ang1)*arrow_thickness},
+		{x = midx + math.cos(ang)*radius + math.cos(ang2)*arrow_thickness, y = midy + math.sin(ang)*radius + math.sin(ang2)*arrow_thickness},
+	}
+
+	pnl:Polygon(arrow_poly, Color(0, 0, 0))
 end
 
 ENT.RadioStations = {
@@ -76,9 +92,15 @@ function ENT:DrawCopterHUD(ang)
 		p:Text("Roll:" .. math.Round(self:GetAngles().r, 2), "DermaDefault", 0, 85)]]
 
 		self:DrawAttitudeIndicator(p, -38, 0, 35, 35)
-		self:DrawMeter(p, 3, 0, 35, 35)
-		self:DrawMeter(p, -38, 38, 35, 35)
-		self:DrawMeter(p, 3, 38, 35, 35)
+
+		-- Altitude
+		local alt = self:GetPos().z + 12800
+		self:DrawMeter(p, 3, 0, 35, 35, math.rad((alt / 5000) * 360))
+
+		-- Speed
+		self:DrawMeter(p, -38, 38, 35, 35, math.rad((self:GetVelocity():Length() / 1000) * 360))
+		
+		--self:DrawMeter(p, 3, 38, 35, 35)
 		
 		p:Cursor()
 
