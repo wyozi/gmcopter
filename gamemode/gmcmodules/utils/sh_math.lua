@@ -10,7 +10,7 @@ function gmcmath.Approach(val, targ, amount)
 		return math.max(val - amount, targ)
 	end
 	return val
-end 
+end
 
 function gmcmath.ApproachVectorMod(src, targ, amount)
 	src.x = gmcmath.Approach(src.x, targ.x, amount)
@@ -55,4 +55,8 @@ end
 
 function gmcmath.VectorSignum(vec)
 	return Vector(gmcmath.Signum(vec.x), gmcmath.Signum(vec.y), gmcmath.Signum(vec.z))
+end
+
+function gmcmath.AngleSignum(ang)
+	return Angle(gmcmath.Signum(ang.p), gmcmath.Signum(ang.y), gmcmath.Signum(ang.r))
 end

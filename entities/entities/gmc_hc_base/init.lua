@@ -187,14 +187,16 @@ function ENT:Think()
 end
 
 function ENT:PhysicsUpdate()
+	-- Handle spinning the rotors
 	do
 		local mvm = self:GetRotorFrac() * self.RotorSpinSpeed
 
 		self.LastRotorAng = ((self.LastRotorAng or 0) + math.Clamp(mvm/100, 0, 360)) % 360
 		self.TopRotorEnt:SetLocalAngles(Angle(0, self.LastRotorAng, 0))
 		self.BackRotorEnt:SetLocalAngles(Angle(self.LastRotorAng, 0, 0))
-
 	end
+
+
 	if self:IsEngineRunning() then
 
 		local driver = self:GetDriver()
@@ -202,7 +204,7 @@ function ENT:PhysicsUpdate()
 		local yawangles = angles:OnlyYaw()
 
 		local hovervel = Vector(0, 0, 9)
-		hovervel:AddZ(math.sin(CurTime()) * 20) -- Makes the helicopter "bounce" in air making hovering look a bit more realistic
+		hovervel:AddZ(math.sin(CurTime()) * 10) -- Simulate some movement, which makes stationary hovering more realistic
 
 		--if self:RotorSpeed() < 1000 then -- If rotors arent moving, dont stay in air. TODO make something more sophisticated.  Doesnt work due to custom angle system
 			--hovervel = Vector(0, 0, 0)
@@ -222,18 +224,18 @@ function ENT:PhysicsUpdate()
 
 			if driver:KeyDown(IN_FORWARD) then
 				InputVelocity:Add(yawangles:Forward() * 800)
-				InputAngle.p = 60
+				InputAngle.p = 25
 			elseif driver:KeyDown(IN_BACK) then
 				InputVelocity:Add(-yawangles:Forward() * 800)
-				InputAngle.p = -50
+				InputAngle.p = -25
 			end
 
 			if driver:KeyDown(IN_MOVELEFT) then
 				InputAngleVelocity:AddZ(60)
-				InputAngle.r = -30
+				InputAngle.r = -25
 			elseif driver:KeyDown(IN_MOVERIGHT) then
 				InputAngleVelocity:AddZ(-60)
-				InputAngle.r = 30
+				InputAngle.r = 25
 			end
 		else -- No driver
 			InputVelocity:AddZ(-1000)
@@ -265,17 +267,27 @@ function ENT:PhysicsUpdate()
 
 		do -- Angle
 			local CurAng = self:GetAngles()
-			local TargetAng = self.InputAngleTrail
 
-			local InputTargetDiff = gmcmath.AngleDiff(InputAngle, TargetAng)
+			local InputTargetDiff = self.InputAngleTrail - InputAngle
 
-			if self:IsJustAboveGround() then -- If we're above ground dont pitch or roll to avoid glitching with ground due to forcing angle
+			-- If we're above ground dont pitch or roll to avoid glitching with ground due to forcing angle
+			if self:IsJustAboveGround() then
 				InputAngle.p = 0 -- We could set targetangle here but faking InputAngle makes transition smoother because TargetAngle is directly related to the SetAngles
 				InputAngle.r = 0
 			end
-			TargetAng = gmcmath.ApproachAngleMod(TargetAng, InputAngle, math.Clamp(InputTargetDiff / 100, 0.1, 1.5)) -- math.Clamp is here to do some smoothening
 
-			local SetAng = gmcmath.AngleDiff(CurAng, TargetAng) > 0.1 and (TargetAng - CurAng) or nil
+			local frac = 0.15 + 0.15 * math.sin(math.abs(self.InputAngleTrail.p - InputAngle.p) / 30 * math.pi)
+			self.InputAngleVel = self.InputAngleVel or Angle(0, 0, 0)
+
+			local PitchDiff = InputAngle.p - CurAng.p
+			self.InputAngleVel.p = math.Clamp(gmcmath.Approach(self.InputAngleVel.p, PitchDiff, 3 * FrameTime()), -1, 1)
+			local RollDiff = InputAngle.r - CurAng.r
+			self.InputAngleVel.r = math.Clamp(gmcmath.Approach(self.InputAngleVel.r, RollDiff, 3 * FrameTime()), -1, 1)
+
+			self.InputAngleTrail.p = self.InputAngleTrail.p + self.InputAngleVel.p * 0.2
+			self.InputAngleTrail.r = self.InputAngleTrail.r + self.InputAngleVel.r * 0.3
+
+			local SetAng = gmcmath.AngleDiff(CurAng, self.InputAngleTrail) > 0.1 and self.InputAngleTrail or nil
 
 			if SetAng then
 				SetAng.y = CurAng.y -- Dont mess with yaw because its not directly controlled by player
