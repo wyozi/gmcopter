@@ -78,9 +78,12 @@ surface.CreateFont("GMCHeliRadioFont", {
 	size = 10
 })
 
+local refresh_panels = true
+
 function ENT:DrawCopterHUD(ang)
 	do -- Main controls
-		local p = self.MainP or tdui.Create()
+		local p = self.MainP
+		if not p or refresh_panels then p = tdui.Create() end
 		self.MainP = p
 
 		p:Rect(-45, 0, 90, 215, _, Color(255, 255, 255))
@@ -99,7 +102,7 @@ function ENT:DrawCopterHUD(ang)
 
 		-- Speed
 		self:DrawMeter(p, -38, 38, 35, 35, math.rad((self:GetVelocity():Length() / 1000) * 360))
-		
+
 		--self:DrawMeter(p, 3, 38, 35, 35)
 		
 		p:Cursor()
@@ -118,15 +121,16 @@ function ENT:DrawCopterHUD(ang)
 		local ang = self:GetAngles()
 
 		pos = pos + ang:Forward() * 60.2 + ang:Up() * 77.4 - ang:Right() * 1.2
-		local p = self.RadioP or tdui.Create()
-
-		p:BeginRender(pos, ang, 0.1)
+		local p = self.RadioP
+		if not p or refresh_panels then p = tdui.Create() end
 		self.RadioP = p
 
-		p:DrawRect(-30, 0, 60, 30, _, Color(255, 255, 255))
+		p:BeginRender(pos, ang, 0.1)
+
+		p:Rect(-30, 0, 60, 30, _, Color(255, 255, 255))
 
 		local station = self.RadioStations[self.RadioStationIdx or 0]
-		if p:DrawButton(station and station.name or "Off", "GMCHeliRadioFont", -25, 5, 50, 20) then
+		if p:Button(station and station.name or "Off", "GMCHeliRadioFont", -25, 5, 50, 20) then
 			-- Stop old channel
 			if IsValid(self.RadioStationObj) then
 				self.RadioStationObj:Stop()
@@ -155,6 +159,28 @@ function ENT:DrawCopterHUD(ang)
 
 		p:EndRender()
 	end
+	do -- Top panel
+
+		local pos = self:GetPos()
+		local ang = self:GetAngles()
+
+		pos = pos + ang:Forward() * 35 + ang:Up() * 90 + ang:Right() * 1
+		ang:RotateAroundAxis(ang:Right(), 60)
+
+		local p = self.RadioP
+		if not p or refresh_panels then p = tdui.Create() end
+		self.RadioP = p
+
+		p:BeginRender(pos, ang, 0.1)
+
+		p:Rect(-250, 0, 500, 50, _, Color(255, 255, 255))
+
+		p:Cursor()
+
+		p:EndRender()
+	end
+
+	refresh_panels = false
 end
 
 function ENT:Draw()
