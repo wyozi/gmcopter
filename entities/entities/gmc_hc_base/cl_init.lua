@@ -2,6 +2,44 @@ include("shared.lua")
 
 ENT.RenderGroup = RENDERGROUP_BOTH
 
+--http://en.wikipedia.org/wiki/Attitude_indicator
+function ENT:DrawAttitudeIndicator(pnl, x, y, w, h)
+	pnl:Rect(x, y, w, h, Color(255, 255, 255))
+
+	local midx, midy = x+w/2, y+h/2
+
+	local roll = self:GetAngles().r
+
+	-- Convert to a mathematical angle
+	local ang = 90 - roll
+
+	local c1ang = ang + 90
+	local c2ang = ang - 90
+
+	local yoff = -self:GetAngles().p / math.pi
+
+	local ground_poly = {
+		{x = x, y = midy+math.sin(math.rad(c1ang))*15-1 + yoff},
+		{x = x+w, y = midy+math.sin(math.rad(c2ang))*15-1 + yoff},
+		{x = x+w, y = y+h},
+		{x = x, y = y+h}
+	}
+
+	pnl:Polygon(ground_poly, Color(139, 69, 19))
+
+	local sky_poly = {
+		{x = x, y = y},
+		{x = x+w, y = y},
+		{x = x+w, y = midy+math.sin(math.rad(c2ang))*15-1 + yoff},
+		{x = x, y = midy+math.sin(math.rad(c1ang))*15-1 + yoff},
+	}
+
+	pnl:Polygon(sky_poly, Color(25, 181, 254))
+
+	--pnl:Rect(midx+math.cos(math.rad(c1ang))*15-1, midy+math.sin(math.rad(c1ang))*15-1 + yoff, 2, 2, Color(255, 0, 0))
+	--pnl:Rect(midx+math.cos(math.rad(c2ang))*15-1, midy+math.sin(math.rad(c2ang))*15-1 + yoff, 2, 2, Color(255, 0, 0))
+end
+
 function ENT:DrawCopterHUD(ang)
 	do -- Main controls
 		local p = self.MainP or tdui.Create()
@@ -16,6 +54,8 @@ function ENT:DrawCopterHUD(ang)
 		p:Text("Altitude:" .. math.Round(self:GetPos().z, 2), "DermaDefault", 0, 55)
 		p:Text("Pitch:" .. math.Round(self:GetAngles().p, 2), "DermaDefault", 0, 70)
 		p:Text("Roll:" .. math.Round(self:GetAngles().r, 2), "DermaDefault", 0, 85)
+
+		self:DrawAttitudeIndicator(p, -38, 0, 35, 35)
 
 		p:Cursor()
 
