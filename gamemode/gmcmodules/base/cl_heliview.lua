@@ -22,12 +22,14 @@ concommand.Add("gmc_changeview", function()
 	RunConsoleCommand("gmc_camview", newview)
 end)
 
-hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
+local function CalcView(ply, pos, angles, fov)
 	local heli = ply:GetHelicopter()
 	if IsValid(heli) then
+		local view = {}
+		view.fov = fov
+
 		local camview = GetConVar("gmc_camview"):GetInt()
 		if camview == GMC_CAMVIEW_CHASE then
-			local view = {}
 			local hang = heli:GetAngles()
 
 			local targ = heli:GetPos() - (hang:Forward()*400) + (hang:Up() * 250)
@@ -38,8 +40,6 @@ hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
 			view.angles.p = 32
 			view.angles.r = 0 -- Looks better this way
 
-			view.fov = fov
-
 			return view
 		elseif camview == GMC_CAMVIEW_THIRDPERSON then
 			local view = {}
@@ -49,7 +49,6 @@ hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
 			local tr = util.TraceLine({start=heli:GetPos(), endpos=targ, filter={heli, ply, heli:GetNWEntity("trotor"), heli:GetNWEntity("brotor")}})
 			view.origin = tr.Hit and tr.HitPos or targ
 			view.angles = angles
-			view.fov = fov
 
 			return view
 		elseif camview == GMC_CAMVIEW_COCKPIT then
@@ -57,9 +56,10 @@ hook.Add("CalcView", "CalcHeliView", function(ply, pos, angles, fov)
 			local hang = heli:GetAngles()
 			view.origin = heli:GetPos() + (hang:Up() * 50) + (hang:Forward() * 100)
 			view.angles = heli:GetAngles() --(heli:GetPos() - view.origin):Angle()
-			view.fov = fov
 
 			return view
 		end
 	end
-end)
+end
+
+hook.Add("CalcView", "CalcHeliView", CalcView)
