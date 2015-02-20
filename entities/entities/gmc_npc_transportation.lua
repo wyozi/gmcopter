@@ -4,7 +4,7 @@ end
 
 ENT.Base = "gmc_npc_base"
 
-function ENT:TickBehaviour()
+function ENT:BehaviourTick()
     local heli = self:FindHelicopter()
     local IsInHeli = IsValid(self.InHeli)
 
@@ -39,12 +39,5 @@ function ENT:TickBehaviour()
                 -- TODO
             end
         end
-    end
-end
-
-function ENT:RunBehaviour()
-    while true do
-    	self:TickBehaviour()
-        coroutine.yield()
     end
 end

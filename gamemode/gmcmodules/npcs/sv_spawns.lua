@@ -1,4 +1,6 @@
-local spawns = {
+gmcnpcs = gmcnpcs or {}
+
+gmcnpcs.POIs = {
 	-- Grass area
 	Vector(-2170.8549804688, 240.54220581055, -11135.96875),
 	Vector(-2188.5832519531, -530.82446289063, -11135.96875),
@@ -37,15 +39,15 @@ local spawns = {
 	Vector(-2465.658203125, 9175.6796875, -11143.96875),
 }
 
-timer.Create("NPCSpawner", 5, 0, function()
+timer.Create("NPCSpawner", 1, 0, function()
 	local npccount = #ents.FindByClass("gmc_npc*")
-	if npccount >= 40 then
+	if npccount >= 30 then
 		return
 	end
 
-	local pos = table.Random(spawns)
-	local ent = ents.Create("gmc_npc_transportation")
-	ent:SetPos(pos + Vector(0, 0, 50))
+	local pos = table.Random(gmcnpcs.POIs)
+	local ent = ents.Create("gmc_npc_generic")
+	ent:SetPos(pos + Vector(math.random()*100, math.random()*100, 50))
 	ent:Spawn()
 	ent:Activate()
 end)
