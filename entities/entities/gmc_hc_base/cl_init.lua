@@ -4,8 +4,6 @@ ENT.RenderGroup = RENDERGROUP_BOTH
 
 --http://en.wikipedia.org/wiki/Attitude_indicator
 function ENT:DrawAttitudeIndicator(pnl, x, y, w, h)
-	pnl:Rect(x, y, w, h, Color(255, 255, 255))
-
 	local midx, midy = x+w/2, y+h/2
 
 	local roll = self:GetAngles().r
@@ -40,6 +38,30 @@ function ENT:DrawAttitudeIndicator(pnl, x, y, w, h)
 	--pnl:Rect(midx+math.cos(math.rad(c2ang))*15-1, midy+math.sin(math.rad(c2ang))*15-1 + yoff, 2, 2, Color(255, 0, 0))
 end
 
+function ENT:DrawMeter(pnl, x, y, w, h)
+	pnl:Rect(x, y, w, h, Color(255, 255, 255))
+
+	local midx, midy = x + w/2, y + h/2
+
+
+end
+
+ENT.RadioStations = {
+	{
+		name = "Smooth jazz",
+		url = "http://listen.sky.fm/public3/uptemposmoothjazz.pls"
+	},
+	{
+		name = "Classic rap",
+		url = "http://listen.sky.fm/public3/classicrap.pls"
+	},
+}
+
+surface.CreateFont("GMCHeliRadioFont", {
+	font = "Tahoma",
+	size = 10
+})
+
 function ENT:DrawCopterHUD(ang)
 	do -- Main controls
 		local p = self.MainP or tdui.Create()
@@ -47,16 +69,17 @@ function ENT:DrawCopterHUD(ang)
 
 		p:Rect(-45, 0, 90, 215, _, Color(255, 255, 255))
 
-		p:Text("Hello there!", "DermaDefaultBold", 0, 5)
-
-		p:Text("AirSpeed:" .. math.Round(self:GetVelocity():Length(), 2), "DermaDefault", 0, 25)
+		--[[p:Text("AirSpeed:" .. math.Round(self:GetVelocity():Length(), 2), "DermaDefault", 0, 25)
 		p:Text("VSpeed:" .. math.Round(self:GetVelocity().z, 2), "DermaDefault", 0, 40)
 		p:Text("Altitude:" .. math.Round(self:GetPos().z, 2), "DermaDefault", 0, 55)
 		p:Text("Pitch:" .. math.Round(self:GetAngles().p, 2), "DermaDefault", 0, 70)
-		p:Text("Roll:" .. math.Round(self:GetAngles().r, 2), "DermaDefault", 0, 85)
+		p:Text("Roll:" .. math.Round(self:GetAngles().r, 2), "DermaDefault", 0, 85)]]
 
 		self:DrawAttitudeIndicator(p, -38, 0, 35, 35)
-
+		self:DrawMeter(p, 3, 0, 35, 35)
+		self:DrawMeter(p, -38, 38, 35, 35)
+		self:DrawMeter(p, 3, 38, 35, 35)
+		
 		p:Cursor()
 
 		local pos = self:GetPos()
@@ -68,21 +91,47 @@ function ENT:DrawCopterHUD(ang)
 		p:Render(pos, ang, 0.1)
 	end
 	do -- Radio
-		local p = self.RadioP or tdui.Create()
-		self.RadioP = p
-
-		p:Rect(-30, 0, 60, 30, _, Color(255, 255, 255))
-
-		p:Text("Dubstep", "DermaDefault", 0, 5)
-
-		p:Cursor()
 
 		local pos = self:GetPos()
 		local ang = self:GetAngles()
 
 		pos = pos + ang:Forward() * 60.2 + ang:Up() * 77.4 - ang:Right() * 1.2
-		--ang:RotateAroundAxis(ang:Forward(), 1)
-		p:Render(pos, ang, 0.1)
+		local p = self.RadioP or tdui.Create()
+
+		p:BeginRender(pos, ang, 0.1)
+		self.RadioP = p
+
+		p:DrawRect(-30, 0, 60, 30, _, Color(255, 255, 255))
+
+		local station = self.RadioStations[self.RadioStationIdx or 0]
+		if p:DrawButton(station and station.name or "Off", "GMCHeliRadioFont", -25, 5, 50, 20) then
+			-- Stop old channel
+			if IsValid(self.RadioStationObj) then
+				self.RadioStationObj:Stop()
+			end
+
+			self.RadioStationIdx = (self.RadioStationIdx or 0)
+			self.RadioStationIdx = (self.RadioStationIdx + 1) % (#self.RadioStations + 1)
+
+			local idx = self.RadioStationIdx
+			station = self.RadioStations[self.RadioStationIdx]
+
+			if station then
+				sound.PlayURL(station.url, "noplay", function(chan)
+					-- check if station was changed during loading
+					if self.RadioStationIdx ~= idx then
+						return
+					end
+
+					chan:Play()
+					self.RadioStationObj = chan
+				end)
+			end
+		end
+
+		p:Cursor()
+
+		p:EndRender()
 	end
 end
 

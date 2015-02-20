@@ -168,26 +168,33 @@ function tdui_meta:DrawButton(str, font, x, y, w, h, clr)
 
 	local inputstate = self:_CheckInputInRect(x, y, w, h)
 
-	if     band(inputstate, bor(tdui.FSTATE_PRESSING, tdui.FSTATE_JUSTPRESSED)) ~= 0 then
+	local just_pressed = band(inputstate, tdui.FSTATE_JUSTPRESSED) ~= 0
+	local pressing = band(inputstate, tdui.FSTATE_PRESSING) ~= 0
+	local hovering = band(inputstate, tdui.FSTATE_HOVERING) ~= 0
+
+	if just_pressed or pressing then
 		clr = Color(200, 80, 0)
-	elseif band(inputstate, tdui.FSTATE_HOVERING) ~= 0 then
+	elseif hovering then
 		clr = Color(255, 127, 0)
 	end
 
 	self:DrawText(str, font, x + w/2, y + h/2, clr, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	self:DrawRect(x, y, w, h, Color(0, 0, 0, 0), clr, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
-	return pressed, hovered
+	return just_pressed, pressing, hovering
 end
 function tdui_meta:Button(str, font, x, y, w, h, clr)
 	self:_QueueRender(function()
 		self:DrawButton(str, font, x, y, w, h, clr)
 	end)
 
-	if band(self:_CheckInputInRect(x, y, w, h), tdui.FSTATE_JUSTPRESSED) ~= 0 then
-		return true
-	end
-	return false
+	local inputstate = self:_CheckInputInRect(x, y, w, h)
+
+	local just_pressed = band(inputstate, tdui.FSTATE_JUSTPRESSED) ~= 0
+	local pressing = band(inputstate, tdui.FSTATE_PRESSING) ~= 0
+	local hovering = band(inputstate, tdui.FSTATE_HOVERING) ~= 0
+
+	return just_pressed, pressing, hovering
 end
 
 
@@ -210,6 +217,11 @@ function tdui_meta:Cursor()
 end
 
 function tdui_meta:_QueueRender(fn)
+	if self._rendering then
+		fn()
+		return
+	end
+
 	if not self.renderQueue then return end
 	self.renderQueue[#self.renderQueue+1] = fn
 end
@@ -340,9 +352,13 @@ function tdui_meta:BeginRender(pos, angles, scale)
 	render.PushFilterMag(TEXFILTER.ANISOTROPIC)
 
 	cam.Start3D2D(self._pos, self._angles, self._scale)
+	
+	self._rendering = true
 end
 
 function tdui_meta:EndRender()
+	self._rendering = false
+	
 	-- End 3D2D render context
 	cam.End3D2D()
 
