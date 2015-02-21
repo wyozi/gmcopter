@@ -23,7 +23,7 @@ function ENT:DrawAttitudeIndicator(pnl, x, y, w, h)
 		{x = x, y = y+h}
 	}
 
-	pnl:Polygon(ground_poly, Color(139, 69, 19))
+	pnl:DrawPolygon(ground_poly, Color(139, 69, 19))
 
 	local sky_poly = {
 		{x = x, y = y},
@@ -32,14 +32,14 @@ function ENT:DrawAttitudeIndicator(pnl, x, y, w, h)
 		{x = x, y = midy+math.sin(math.rad(c1ang))*15-1 + yoff},
 	}
 
-	pnl:Polygon(sky_poly, Color(25, 181, 254))
+	pnl:DrawPolygon(sky_poly, Color(25, 181, 254))
 
 	--pnl:Rect(midx+math.cos(math.rad(c1ang))*15-1, midy+math.sin(math.rad(c1ang))*15-1 + yoff, 2, 2, Color(255, 0, 0))
 	--pnl:Rect(midx+math.cos(math.rad(c2ang))*15-1, midy+math.sin(math.rad(c2ang))*15-1 + yoff, 2, 2, Color(255, 0, 0))
 end
 
 function ENT:DrawMeter(pnl, x, y, w, h, ang)
-	pnl:Rect(x, y, w, h, Color(255, 255, 255))
+	pnl:DrawRect(x, y, w, h, Color(255, 255, 255))
 
 	local midx, midy = x + w/2, y + h/2
 
@@ -59,7 +59,7 @@ function ENT:DrawMeter(pnl, x, y, w, h, ang)
 		{x = midx + math.cos(ang)*radius + math.cos(ang2)*arrow_thickness, y = midy + math.sin(ang)*radius + math.sin(ang2)*arrow_thickness},
 	}
 
-	pnl:Polygon(arrow_poly, Color(0, 0, 0))
+	pnl:DrawPolygon(arrow_poly, Color(0, 0, 0))
 end
 
 ENT.RadioStations = {
@@ -78,37 +78,6 @@ surface.CreateFont("GMCHeliRadioFont", {
 	size = 11
 })
 
-
-local MinimapMat = CreateMaterial("GMCMinimapMat", "UnlitGeneric", {})
-hook.Add("PostRenderVGUI", "GMCMinimap", function()
-	local veh = LocalPlayer():GetHelicopter()
-	if not IsValid(veh) then return end
-	
-	local rt = GetRenderTarget("GMCMinimapRT", 256, 256)
-	
-	render.PushRenderTarget(rt)
-		render.Clear( 0, 0, 0, 255, true )
-		
-				local CamData = {}
-				CamData.angles = Angle(90, 0, 0)
-				CamData.origin = veh:GetPos() + Vector(0, 0, 500)
-				CamData.x = 0
-				CamData.y = 0
-				CamData.w = 256
-				CamData.h = 256
-				CamData.fov = 90
-				CamData.drawviewmodel = false
-				CamData.drawhud = false
-				
-		cam.Start2D()
-			render.RenderView(CamData)
-		cam.End2D()
-	render.PopRenderTarget()
-	
-	MinimapMat:SetTexture("$basetexture", rt)
-end)
-	
-
 local refresh_panels = true
 function ENT:DrawCopterHUD(ang)
 	if LocalPlayer():GetHelicopter() ~= self then return end
@@ -121,7 +90,16 @@ function ENT:DrawCopterHUD(ang)
 		if not p or refresh_panels then p = tdui.Create() end
 		self.MainP = p
 
-		p:Rect(-45, 0, 90, 215, _, Color(255, 255, 255))
+		local pos = self:GetPos()
+		local ang = self:GetAngles()
+
+		pos = pos + ang:Forward() * 60.6 + ang:Up() * 73.3 - ang:Right() * 1.2
+		ang:RotateAroundAxis(ang:Right(), -6)
+		ang:RotateAroundAxis(ang:Forward(), 1)
+
+		p:BeginRender(pos, ang, 0.1)
+
+		p:DrawRect(-45, 0, 90, 215, _, Color(255, 255, 255))
 
 		--[[p:Text("AirSpeed:" .. math.Round(self:GetVelocity():Length(), 2), "DermaDefault", 0, 25)
 		p:Text("VSpeed:" .. math.Round(self:GetVelocity().z, 2), "DermaDefault", 0, 40)
@@ -140,15 +118,9 @@ function ENT:DrawCopterHUD(ang)
 
 		--self:DrawMeter(p, 3, 38, 35, 35)
 		
-		p:Cursor()
+		p:DrawCursor()
 
-		local pos = self:GetPos()
-		local ang = self:GetAngles()
-
-		pos = pos + ang:Forward() * 60.6 + ang:Up() * 73.3 - ang:Right() * 1.2
-		ang:RotateAroundAxis(ang:Right(), -6)
-		ang:RotateAroundAxis(ang:Forward(), 1)
-		p:Render(pos, ang, 0.1)
+		p:EndRender()
 	end
 	do -- Radio
 
@@ -162,12 +134,12 @@ function ENT:DrawCopterHUD(ang)
 
 		p:BeginRender(pos, ang, 0.1)
 
-		p:Rect(-30, 0, 60, 30, _, Color(255, 255, 255))
+		p:DrawRect(-30, 0, 60, 30, _, Color(255, 255, 255))
 
-		p:Text("Radio", "GMCHeliRadioFont", 0, 2)
+		p:DrawText("Radio", "GMCHeliRadioFont", 0, 2)
 
 		local station = self.RadioStations[self.RadioStationIdx or 0]
-		if p:Button(station and station.name or "Off", "GMCHeliRadioFont", -28, 13, 56, 15) then
+		if p:DrawButton(station and station.name or "Off", "GMCHeliRadioFont", -28, 13, 56, 15) then
 			-- Stop old channel
 			if IsValid(self.RadioStationObj) then
 				self.RadioStationObj:Stop()
@@ -192,7 +164,7 @@ function ENT:DrawCopterHUD(ang)
 			end
 		end
 
-		p:Cursor()
+		p:DrawCursor()
 
 		p:EndRender()
 	end
@@ -210,8 +182,7 @@ function ENT:DrawCopterHUD(ang)
 
 		p:BeginRender(pos, ang, 0.1)
 
-		p:Mat(MinimapMat, -30, 0, 60, 60)
-		--p:Rect(-30, 0, 60, 60, _, Color(255, 255, 255))
+		p:Rect(-30, 0, 60, 60, _, Color(255, 255, 255))
 		p:Cursor()
 
 		p:EndRender()
