@@ -78,9 +78,41 @@ surface.CreateFont("GMCHeliRadioFont", {
 	size = 11
 })
 
-local refresh_panels = true
 
+local MinimapMat = CreateMaterial("GMCMinimapMat", "UnlitGeneric", {})
+hook.Add("PostRenderVGUI", "GMCMinimap", function()
+	local veh = LocalPlayer():GetHelicopter()
+	if not IsValid(veh) then return end
+	
+	local rt = GetRenderTarget("GMCMinimapRT", 256, 256)
+	
+	render.PushRenderTarget(rt)
+		render.Clear( 0, 0, 0, 255, true )
+		
+				local CamData = {}
+				CamData.angles = Angle(90, 0, 0)
+				CamData.origin = veh:GetPos() + Vector(0, 0, 500)
+				CamData.x = 0
+				CamData.y = 0
+				CamData.w = 256
+				CamData.h = 256
+				CamData.fov = 90
+				CamData.drawviewmodel = false
+				CamData.drawhud = false
+				
+		cam.Start2D()
+			render.RenderView(CamData)
+		cam.End2D()
+	render.PopRenderTarget()
+	
+	MinimapMat:SetTexture("$basetexture", rt)
+end)
+	
+
+local refresh_panels = true
 function ENT:DrawCopterHUD(ang)
+	if LocalPlayer():GetHelicopter() ~= self then return end
+
 	do -- Main controls
 		local p = self.MainP
 		if not p or refresh_panels then p = tdui.Create() end
@@ -175,7 +207,8 @@ function ENT:DrawCopterHUD(ang)
 
 		p:BeginRender(pos, ang, 0.1)
 
-		p:Rect(-30, 0, 60, 60, _, Color(255, 255, 255))
+		p:Mat(MinimapMat, -30, 0, 60, 60)
+		--p:Rect(-30, 0, 60, 60, _, Color(255, 255, 255))
 		p:Cursor()
 
 		p:EndRender()
