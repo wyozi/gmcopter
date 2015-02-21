@@ -55,15 +55,19 @@ tdui.Meta = tdui_meta
 
 function tdui_meta:EnableRectStencil(x, y, w, h)
 	render.ClearStencil()
+
 	render.SetStencilEnable(true)
 	render.SetStencilCompareFunction(STENCIL_ALWAYS)
 	render.SetStencilPassOperation(STENCIL_REPLACE)
 	render.SetStencilFailOperation(STENCIL_KEEP)
 	render.SetStencilZFailOperation(STENCIL_KEEP)
+	render.SetStencilWriteMask(1)
+	render.SetStencilTestMask(1)
 	render.SetStencilReferenceValue(1)
 
 	render.OverrideColorWriteEnable(true, false)
 
+	-- Set the area to 1
 	surface.SetDrawColor(255, 255, 255)
 	surface.DrawRect(x, y, w, h)
 

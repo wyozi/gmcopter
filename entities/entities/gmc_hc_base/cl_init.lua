@@ -62,6 +62,75 @@ function ENT:DrawMeter(pnl, x, y, w, h, ang)
 	pnl:DrawPolygon(arrow_poly, Color(0, 0, 0))
 end
 
+local map_rt = GetRenderTarget( "GMCMinimapRT2", 1024, 1024, true )
+local map_rt_mat = CreateMaterial( "GMCMinimapMat", "UnlitGeneric", { ["$basetexture"] = "GMCMinimapRT2" } )
+
+hook.Add("HUDPaint", "GMCMinimapRenderer", function()
+	
+	render.PushRenderTarget(map_rt)
+
+	local ortho = 13000
+	render.RenderView {
+		origin = Vector(0, 0, 2722.4045),
+		angles = Angle(90, 90, 0),
+		x = 0,
+		y = 0,
+		w = 1024,
+		h = 1024,
+		ortho = true,
+		ortholeft = -ortho,
+		orthoright = ortho,
+		orthotop = -ortho,
+		orthobottom = ortho
+	}
+
+	render.PopRenderTarget()
+	
+	hook.Remove("HUDPaint", "GMCMinimapRenderer")
+end)
+
+function ENT:DrawMinimap(pnl, x, y, w, h)
+	pnl:DrawRect(x, y, w, h, Color(255, 255, 255), Color(255, 255, 255))
+	pnl:EnableRectStencil(x+1, y+1, w-2, h-2)
+
+	local p = self:GetPos()
+	local normalp = Vector(p.x / 13000, p.y / 13000, 0)
+
+	local mapx, mapy, mapw, maph = x, y, w, h
+
+	local zoom = 4
+	mapx = mapx - w*(zoom-1)/2
+	mapy = mapy - h*(zoom-1)/2
+	mapw = mapw * zoom
+	maph = maph * zoom
+
+	mapx = mapx - normalp.x*mapw/2
+	mapy = mapy + normalp.y*maph/2
+
+	pnl:DrawMat(map_rt_mat, mapx, mapy, mapw, maph)
+	pnl:DrawRect(x + w/2 - 2, y + h/2 - 2, 4, 4, Color(255, 0, 0))
+
+	local ang = math.rad(-self:GetAngles().y)
+	local midx, midy = x + w/2, y + h/2
+	local radius = 15
+
+	local ang1 = ang-math.pi/2
+	local ang2 = ang+math.pi/2
+
+	local arrow_thickness = 1
+
+	local arrow_poly = {
+		{x = midx + math.cos(ang2)*arrow_thickness                       , y = midy + math.sin(ang2)*arrow_thickness},
+		{x = midx + math.cos(ang1)*arrow_thickness                       , y = midy + math.sin(ang1)*arrow_thickness},
+		{x = midx + math.cos(ang)*radius + math.cos(ang1)*arrow_thickness, y = midy + math.sin(ang)*radius + math.sin(ang1)*arrow_thickness},
+		{x = midx + math.cos(ang)*radius + math.cos(ang2)*arrow_thickness, y = midy + math.sin(ang)*radius + math.sin(ang2)*arrow_thickness},
+	}
+
+	pnl:DrawPolygon(arrow_poly, Color(255, 0, 0))
+
+	pnl:DisableStencil()
+end
+
 ENT.RadioStations = {
 	{
 		name = "Smooth jazz",
@@ -182,7 +251,8 @@ function ENT:DrawCopterHUD(ang)
 
 		p:BeginRender(pos, ang, 0.1)
 
-		p:Rect(-30, 0, 60, 60, _, Color(255, 255, 255))
+		self:DrawMinimap(p, -30, 0, 60, 60)
+
 		p:Cursor()
 
 		p:EndRender()
