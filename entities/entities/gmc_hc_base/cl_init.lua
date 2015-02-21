@@ -113,6 +113,9 @@ local refresh_panels = true
 function ENT:DrawCopterHUD(ang)
 	if LocalPlayer():GetHelicopter() ~= self then return end
 
+	-- We only want to draw copter HUD to the main screen, not any sub rendertargets
+	if IsValid(render.GetRenderTarget()) then return end
+
 	do -- Main controls
 		local p = self.MainP
 		if not p or refresh_panels then p = tdui.Create() end
