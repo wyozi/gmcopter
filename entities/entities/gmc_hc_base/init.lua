@@ -145,7 +145,7 @@ function ENT:Think()
 	-- Handle engine start logic
 	if not self:IsEngineRunning() then
 		local ang = self:GetAngles()
-		local RequiredAngle = ang:IsPitchWithin(-15, 30) and ang:IsRollWithin(-15, 15) -- Are our angles good for liftoff. TODO warn player if not?
+		local RequiredAngle = ang:IsPitchWithin(-25, 45) and ang:IsRollWithin(-15, 15) -- Are our angles good for liftoff. TODO warn player if not?
 		local CanLiftOff = (IsValid(driver) and driver.IncAltDown and RequiredAngle)
 
 		if not self.MSounds.Start:IsPlaying() and CanLiftOff then
