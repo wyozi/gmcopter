@@ -314,35 +314,33 @@ function ENT:DamageHeli(dmg, localhitpos)
 end
 
 function ENT:PhysicsCollide(cdata, phys)
+	if cdata.DeltaTime < 0.2 then return end
+
 	if cdata.HitEntity:GetClass() == "worldspawn" then
 		if self:IsEngineRunning() and self.LastEngineStarted < CurTime() - 2 then
 			self.InputVelocity = Vector(0, 0, 0)
 
 			local ang = self:GetAngles()
-			local AreAnglesSane = ang:IsPitchWithin(-45, 45) and ang:IsRollWithin(-45, 45) -- we shouldnt accept all angles
 
-			gmc.debug.Msg("Colliding with speed ", cdata.Speed, AreAnglesSane)
-			if cdata.Speed < 100 and AreAnglesSane then
+			-- Make sure that the landing angle is somewhat sensible
+			local angle_sanity = ang:IsPitchWithin(-45, 45) and ang:IsRollWithin(-45, 45)
+
+			gmc.debug.Msg("Colliding with speed ", cdata.Speed, angle_sanity)
+			if cdata.Speed < 150 and angle_sanity then
 				self:StopEngine()
 				phys:SetVelocity(Vector(0, 0, 0))
 			else
 
-				if cdata.DeltaTime > 0.2 then
-					--local hitpos = self:WorldToLocal(self:NearestPoint(cdata.HitPos + cdata.HitNormal*1000))
-					self:DamageHeli(cdata.Speed, self:WorldToLocal(cdata.HitPos))
-				end
+				--local hitpos = self:WorldToLocal(self:NearestPoint(cdata.HitPos + cdata.HitNormal*1000))
+				self:DamageHeli(cdata.Speed, self:WorldToLocal(cdata.HitPos))
 
-				-- Bounce back?
-				// Bounce like a crazy bitch
-				local LastSpeed = cdata.OurOldVelocity:Length()
-				local NewVelocity = phys:GetVelocity()
+				-- Calculate bounce back
+				local TargetVelocity = cdata.OurOldVelocity * -0.5
 
-				NewVelocity:Normalize()
-				local TargetVelocity = NewVelocity * LastSpeed * 0.99
+				self.InputVelocityTrail = TargetVelocity
+				phys:SetVelocity(TargetVelocity)
 
-				phys:SetVelocity( TargetVelocity )
-
-				-- TODO Fix
+				-- TODO this allows damping vertical falling by crashing into a building wall
 			end
 		end
 	end
