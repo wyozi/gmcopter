@@ -1,8 +1,18 @@
 local TransportMission = gmc.class("TransportMission", "Mission")
 
+function TransportMission:on_start()
+	self.targetPOI = table.Random(gmc.npcs.POIs)
+end
+
 function TransportMission:think()
-	self:mark_pos("transport", "npc", self._npcs[1]:GetPos())
-	return 1
+	local the_npc = self._npcs[1]
+	if the_npc:IsInHelicopter() then
+		self:mark_pos("transport", "target", self.targetPOI)
+	else
+		self:mark_pos("transport", "target", the_npc:GetPos())
+	end
+
+	return 0.5
 end
 
 function TransportMission:npc_think(npc)
@@ -33,7 +43,7 @@ function TransportMission:npc_think(npc)
 		end
 	end
 
-	if npc:IsInHelicopter() and npc:GetHelicopter():IsJustAboveGround() then
+	if npc:IsInHelicopter() and npc:GetHelicopter():IsJustAboveGround() and npc:GetHelicopter():GetPos():Distance(self.targetPOI) < 400 then
 		npc:GetHelicopter():LeaveHelicopter(npc)
 
 		self:set_accomplished()

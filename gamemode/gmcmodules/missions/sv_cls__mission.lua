@@ -61,6 +61,8 @@ end
 function Mission:start()
 	self._state = "inprog"
 
+	self:on_start()
+
 	local function TimerFunc()
 		local t = self:think()
 		if t then
@@ -72,6 +74,9 @@ function Mission:start()
 	for _,ply in pairs(self._plys) do
 		self:send_full_upd(ply)
 	end
+end
+
+function Mission:on_start()
 end
 
 function Mission:think()
