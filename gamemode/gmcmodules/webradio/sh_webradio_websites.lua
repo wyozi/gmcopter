@@ -1,10 +1,10 @@
-gmcwebradio = gmcwebradio or {}
+gmc.webradio = gmc.webradio or {}
 
 GMCWR_OPENTYPE_HTML = 1
 GMCWR_OPENTYPE_BASS = 2
 
 -- Youtube video might be detected before YoutubePlaylist, but putting it as last thing seems to make it a bigger priority. TODO make priority system?
-gmcwebradio.Services = {
+gmc.webradio.Services = {
 	YoutubeVideo = {
 		Patterns = {
 			"^https?://youtu%.be/([A-Za-z0-9_%-]+)",
@@ -44,15 +44,15 @@ gmcwebradio.Services = {
 	}
 }
 
--- The service to use if we have no matches from gmcwebradio.Services
-gmcwebradio.OtherService = {
+-- The service to use if we have no matches from gmc.webradio.Services
+gmc.webradio.OtherService = {
 	Pattern = "^https?://(.*)",
 	OpenType = GMCWR_OPENTYPE_HTML,
 	TranslateURL = function(url) return url end
 }
 
-function gmcwebradio.FindService(url)
-	for sname, service in pairs(gmcwebradio.Services) do
+function gmc.webradio.FindService(url)
+	for sname, service in pairs(gmc.webradio.Services) do
 		local matches 
 
 		for _, pattern in pairs(service.Patterns) do
@@ -68,8 +68,8 @@ function gmcwebradio.FindService(url)
 		end
 	end
 
-	local m = {url:match(gmcwebradio.OtherService.Pattern)}
+	local m = {url:match(gmc.webradio.OtherService.Pattern)}
 	if m[1] then
-		return gmcwebradio.OtherService, "Other", m
+		return gmc.webradio.OtherService, "Other", m
 	end
 end

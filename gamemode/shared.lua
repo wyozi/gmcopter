@@ -42,4 +42,7 @@ local function LoadModules()
 
 end
 
+gmc = gmc or {}
+gmc.DEBUG = true
+
 LoadModules()

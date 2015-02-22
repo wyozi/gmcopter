@@ -2,7 +2,7 @@ local PANEL = {}
 
 local function CreateIntroductionPanel(parent)
 	local panel = vgui.Create("DHTML", parent)
-	panel:OpenURL("http://wyozi.github.io/gmcopter/introduction.html")
+	panel:OpenURL("http://wyozi.github.io/gmc.opter/introduction.html")
 
 	return panel
 end
@@ -33,7 +33,7 @@ function PANEL:Init()
 		}
 	}
 
-	gmchooks.Call("GMCAddMenuPanel", tabdata, self.Tabs)
+	gmc.hooks.Call("GMCAddMenuPanel", tabdata, self.Tabs)
 
 	for i,v in ipairs(tabdata) do
 		local btn = vgui.Create("GMCMenuButton", self)

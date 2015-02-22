@@ -42,9 +42,9 @@ if SERVER then
 		end
 		local HeliSize = Vector(370, 370, 130) -- TODO get proper size
 		local SpawnZone = table.Random(self.HeliSpawns)
-		local EmptyMins, EmptyMaxs = gmcutils.FindEmptySpaceInside(SpawnZone:LocalToWorld(SpawnZone:OBBMins()), SpawnZone:LocalToWorld(SpawnZone:OBBMaxs()), HeliSize, 1, {SpawnZone})
+		local EmptyMins, EmptyMaxs = gmc.utils.FindEmptySpaceInside(SpawnZone:LocalToWorld(SpawnZone:OBBMins()), SpawnZone:LocalToWorld(SpawnZone:OBBMaxs()), HeliSize, 1, {SpawnZone})
 		if EmptyMins then
-			gmcdebug.Msg("Found spawn pos! " , EmptyMins, EmptyMaxs)
+			gmc.debug.Msg("Found spawn pos! " , EmptyMins, EmptyMaxs)
 
 			local SpawnPos = EmptyMins + HeliSize*0.5
 			SpawnPos.z = EmptyMins.z + 10
@@ -80,7 +80,7 @@ if SERVER then
 			end
 
 		else
-			gmcdebug.Msg("No spawn pos found :(")
+			gmc.debug.Msg("No spawn pos found :(")
 		end
 	end
 
@@ -95,5 +95,5 @@ end
 --[[hook.Add("PostDrawTranslucentRenderables", "lel", function()
 	local HeliSize = Vector(330, 130, 130) -- TODO get proper size
 	local SpawnZoneMins, SpawnZoneMaxs = Vector(-2049.000000, -5889.000000, 63.000000), Vector(-639.000000, -5119.000000, 209.000000)
-	local EmptyMins, EmptyMaxs = gmcutils.DrawSpottests(SpawnZoneMins, SpawnZoneMaxs, HeliSize, 1)
+	local EmptyMins, EmptyMaxs = gmc.utils.DrawSpottests(SpawnZoneMins, SpawnZoneMaxs, HeliSize, 1)
 end)]]

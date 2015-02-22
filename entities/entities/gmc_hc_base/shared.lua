@@ -54,8 +54,8 @@ ENT.Sounds = {
 }
 
 ENT.HitSounds = {
-	Hard = gmcutils.MapTable(gmcutils.Range(1, 7), function(v) return Sound("physics/metal/metal_barrel_impact_hard" .. tostring(v) .. ".wav") end),
-	Soft = gmcutils.MapTable(gmcutils.Range(1, 4), function(v) return Sound("physics/metal/metal_barrel_impact_soft" .. tostring(v) .. ".wav") end)
+	Hard = gmc.utils.MapTable(gmc.utils.Range(1, 7), function(v) return Sound("physics/metal/metal_barrel_impact_hard" .. tostring(v) .. ".wav") end),
+	Soft = gmc.utils.MapTable(gmc.utils.Range(1, 4), function(v) return Sound("physics/metal/metal_barrel_impact_soft" .. tostring(v) .. ".wav") end)
 }
 
 -- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
@@ -103,7 +103,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Float", 0, "RotorFrac") -- The rotor's speed as frac 0 - 1
 end
 
-gmcutils.AccessorFuncDT(ENT, "ESL", "EngineStartLevel")
+gmc.utils.AccessorFuncDT(ENT, "ESL", "EngineStartLevel")
 
 function ENT:GetEngineStartFrac()
 	return self:GetEngineStartLevel() / self.MaxEngineStartLevel
@@ -133,12 +133,12 @@ function ENT:Initialize()
 		local sndlevel = value.SoundLevel or 100
 
 		sound.Add({
-			name = "gmc." .. self.ClassName .. "." .. name,
+			name = "gmc.." .. self.ClassName .. "." .. name,
 			channel = CHAN_STATIC,
 			soundlevel = sndlevel,
 			sound = value.Sound
 		})
-		self.MSounds[name] = CreateSound(self, "gmc."..self.ClassName.."."..name)
+		self.MSounds[name] = CreateSound(self, "gmc.."..self.ClassName.."."..name)
 	end
 end
 

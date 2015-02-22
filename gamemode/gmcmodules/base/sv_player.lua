@@ -27,13 +27,13 @@ end
 function GM:PlayerSelectSpawn(ply)
 
     local spawns = ents.FindByClass( "gmc_pilotspawn" )
-    gmcdebug.Msg("PilotSpawns: ", #spawns)
+    gmc.debug.Msg("PilotSpawns: ", #spawns)
     if #spawns == 0 then
     	spawns = ents.FindByClass( "info_player_start" )
     end
     local random_entry = math.random( #spawns )
 
-    gmcdebug.Msg("Player spawnpoint selected: ", IsValid(spawns[random_entry]))
+    gmc.debug.Msg("Player spawnpoint selected: ", IsValid(spawns[random_entry]))
 
     return spawns[random_entry]
 end

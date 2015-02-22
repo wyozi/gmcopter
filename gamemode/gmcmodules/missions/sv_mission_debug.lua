@@ -1,7 +1,7 @@
 util.AddNetworkString("PosHighlighter")
 concommand.Add("mission", function(ply)
 	local rand_npc = table.Random(ents.FindByClass("gmc_npc_generic"))
-	local rand_poi = table.Random(gmcnpcs.POIs)
+	local rand_poi = table.Random(gmc.npcs.POIs)
 
 	hook.Add("Think", "MissionHighlighter", function()
 		if not IsValid(rand_npc) then hook.Remove("Think", "MissionHighlighter") return end
@@ -18,7 +18,7 @@ concommand.Add("mission", function(ply)
 			local heli = self:FindHelicopter()
 		    local IsInHeli = IsValid(self.InHeli)
 
-		    --gmcdebug.Msg(self:GetSequence())
+		    --gmc.debug.Msg(self:GetSequence())
 
 		    if not heli and not IsInHeli and self:GetSequence() ~= 626 then -- No idea where 626 is from. Some magic value for sit_ground sequence
 		        self:PlaySequenceAndWait( "idle_to_sit_ground" ) 

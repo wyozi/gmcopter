@@ -1,6 +1,6 @@
-gmcutils = gmcutils or {}
+gmc.utils = gmc.utils or {}
 
-function gmcutils.AccessorFuncDT(tbl, varname, name)
+function gmc.utils.AccessorFuncDT(tbl, varname, name)
    tbl["Get" .. name] = function(s) return s.dt and s.dt[varname] end
    tbl["Set" .. name] = function(s, v) if s.dt then s.dt[varname] = v end end
 end
@@ -9,12 +9,12 @@ function string.Contains(haystack, needle)
 	return haystack:find(needle, 1, true) ~= nil
 end
 
-function gmcutils.IsInside(spacemins, spacemaxs, targmins, targmaxs)
+function gmc.utils.IsInside(spacemins, spacemaxs, targmins, targmaxs)
 	return (spacemins.x <= targmins.x and spacemins.y <= targmins.y and spacemins.z <= targmins.z) and
 		   (spacemaxs.x >= targmaxs.x and spacemaxs.y >= targmaxs.y and spacemaxs.z >= targmaxs.z)
 end
 
-function gmcutils.DrawSpottests(spacemins, spacemaxs, targoob, spottests)
+function gmc.utils.DrawSpottests(spacemins, spacemaxs, targoob, spottests)
 	if not spottests then
 		spottests = 2
 	end
@@ -23,7 +23,7 @@ function gmcutils.DrawSpottests(spacemins, spacemaxs, targoob, spottests)
 	local fittimes = Vector(math.floor(spacesize.x / targoob.x), math.floor(spacesize.y / targoob.y), math.floor(spacesize.z / targoob.z)) -- How many times should we fit inside in total
 	if fittimes.x < 1 or fittimes.y < 1 or fittimes.z < 1 then return end -- We won't fit at all
 
-	--gmcdebug.Msg("Will fit ", fittimes)
+	--gmc.debug.Msg("Will fit ", fittimes)
 	-- We're gonna test fittimes*spottests spots inside the space
 	-- On every coordinate axis we're gonna test every targoob.xyz / spottests coord
 
@@ -39,7 +39,7 @@ function gmcutils.DrawSpottests(spacemins, spacemaxs, targoob, spottests)
 				local startat = spacemins + targoob*(Vector(x/spottests, y/spottests, z/spottests)) -- The point at which we should start
 				local endat = startat + targoob
 
-				local IsInside = gmcutils.IsInside(spacemins, spacemaxs, startat, endat)
+				local IsInside = gmc.utils.IsInside(spacemins, spacemaxs, startat, endat)
 				if IsInside then
 					continue
 				end
@@ -52,7 +52,7 @@ function gmcutils.DrawSpottests(spacemins, spacemaxs, targoob, spottests)
 end
 
 -- TODO targoob to targobb..
-function gmcutils.FindEmptySpaceInside(spacemins, spacemaxs, targoob, spottests, ignoreEnts)
+function gmc.utils.FindEmptySpaceInside(spacemins, spacemaxs, targoob, spottests, ignoreEnts)
 	if not spottests then
 		spottests = 2
 	end
@@ -61,7 +61,7 @@ function gmcutils.FindEmptySpaceInside(spacemins, spacemaxs, targoob, spottests,
 	local fittimes = Vector(math.floor(spacesize.x / targoob.x), math.floor(spacesize.y / targoob.y), math.floor(spacesize.z / targoob.z)) -- How many times should we fit inside in total
 	if fittimes.x < 1 or fittimes.y < 1 or fittimes.z < 1 then return end -- We won't fit at all
 
-	--gmcdebug.Msg("Will fit ", fittimes)
+	--gmc.debug.Msg("Will fit ", fittimes)
 	-- We're gonna test fittimes*spottests spots inside the space
 	-- On every coordinate axis we're gonna test every targoob.xyz / spottests coord
 
@@ -75,7 +75,7 @@ function gmcutils.FindEmptySpaceInside(spacemins, spacemaxs, targoob, spottests,
 				local startat = spacemins + targoob*(Vector(x/spottests, y/spottests, z/spottests)) -- The point at which we should start
 				local endat = startat + targoob
 
-				local IsInside = gmcutils.IsInside(spacemins, spacemaxs, startat, endat)
+				local IsInside = gmc.utils.IsInside(spacemins, spacemaxs, startat, endat)
 				if not IsInside then
 					continue
 				end
@@ -106,7 +106,7 @@ function gmcutils.FindEmptySpaceInside(spacemins, spacemaxs, targoob, spottests,
 end
 
 local sin,cos,rad = math.sin,math.cos,math.rad; --Only needed when you constantly calculate a new polygon, it slightly increases the speed.
-function gmcutils.GenerateCirclePoly(x, y, radius, quality)
+function gmc.utils.GenerateCirclePoly(x, y, radius, quality)
     local circle = {};
     local tmp = 0;
     for i=1,quality do
@@ -116,12 +116,12 @@ function gmcutils.GenerateCirclePoly(x, y, radius, quality)
     return circle;
 end
 
-function gmcutils.ParseHammerVector(value)
+function gmc.utils.ParseHammerVector(value)
 	local spl = value:Split(" ")
 	return Vector(tonumber(spl[1]), tonumber(spl[2]), tonumber(spl[3]))
 end
 
-function gmcutils.Range(from, to, step)
+function gmc.utils.Range(from, to, step)
 	step = step or 1
 	local tbl = {}
 	for i=from, to, step do
@@ -130,7 +130,7 @@ function gmcutils.Range(from, to, step)
 	return tbl
 end
 
-function gmcutils.MapSequentialTable(tbl, funct)
+function gmc.utils.MapSequentialTable(tbl, funct)
 	local ntbl = {}
 	for k,v in ipairs(tbl) do
 		ntbl[k] = func(v)
@@ -138,7 +138,7 @@ function gmcutils.MapSequentialTable(tbl, funct)
 	return ntbl
 end
 
-function gmcutils.MapTable(tbl, func)
+function gmc.utils.MapTable(tbl, func)
 	local ntbl = {}
 	for k,v in pairs(tbl) do
 		ntbl[k] = func(v)

@@ -1,6 +1,6 @@
-gmcparticles = {}
+gmc.particles = {}
 
-function gmcparticles.Smokey(pos, vel)
+function gmc.particles.Smokey(pos, vel)
 
 	if not vel then
 		vel = Vector(math.random(), math.random(), 0) * math.Rand(-100, 100)

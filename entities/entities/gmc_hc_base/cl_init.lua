@@ -98,7 +98,7 @@ function ENT:DrawMinimap(pnl, x, y, w, h)
 
 	local mapx, mapy, mapw, maph = x, y, w, h
 
-	local zoom = 4
+	local zoom = 3.5
 	mapx = mapx - w*(zoom-1)/2
 	mapy = mapy - h*(zoom-1)/2
 	mapw = mapw * zoom
@@ -392,7 +392,7 @@ function ENT:Think()
 
 end
 
-local mat = Material("gmcopter/sprites/light") -- redglow1
+local mat = Material("gmc.opter/sprites/light") -- redglow1
 function ENT:DrawLightSprites()
 	for k,ml in pairs(self.MLights) do
 		local meta = self.Lights[k]
@@ -429,7 +429,7 @@ function ENT:SpawnLaunchSmoke()
 	effectdata:SetScale(10)
 	util.Effect( "ThumperDust", effectdata )
 
-	--gmcparticles.Smokey(vPoint, Vector(math.random(), math.random(), 0) * math.Rand(-300, 300))
+	--gmc.particles.Smokey(vPoint, Vector(math.random(), math.random(), 0) * math.Rand(-300, 300))
 
 end
 

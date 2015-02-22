@@ -8,7 +8,7 @@ function ENT:BehaviourTick()
     local heli = self:FindHelicopter()
     local IsInHeli = IsValid(self.InHeli)
 
-    --gmcdebug.Msg(self:GetSequence())
+    --gmc.debug.Msg(self:GetSequence())
 
     if not heli and not IsInHeli and self:GetSequence() ~= 626 then -- No idea where 626 is from. Some magic value for sit_ground sequence
         self:PlaySequenceAndWait( "idle_to_sit_ground" ) 

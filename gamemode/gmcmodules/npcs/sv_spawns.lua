@@ -1,6 +1,6 @@
-gmcnpcs = gmcnpcs or {}
+gmc.npcs = gmc.npcs or {}
 
-gmcnpcs.POIs = {
+gmc.npcs.POIs = {
 	-- Grass area
 	Vector(-2170.8549804688, 240.54220581055, -11135.96875),
 	Vector(-2188.5832519531, -530.82446289063, -11135.96875),
@@ -45,7 +45,7 @@ timer.Create("NPCSpawner", 1, 0, function()
 		return
 	end
 
-	local pos = table.Random(gmcnpcs.POIs)
+	local pos = table.Random(gmc.npcs.POIs)
 	local ent = ents.Create("gmc_npc_generic")
 	ent:SetPos(pos + Vector(math.random()*100, math.random()*100, 50))
 	ent:Spawn()

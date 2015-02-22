@@ -1,5 +1,5 @@
-gmchooks = {}
+gmc.hooks = {}
 
-function gmchooks.Call(name, ...)
+function gmc.hooks.Call(name, ...)
 	hook.Call(name, GAMEMODE, ...)
 end

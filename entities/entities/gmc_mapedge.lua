@@ -20,7 +20,7 @@ function ENT:FindTeleportTarget(ent, heli)
 
 	local thebox = maxs - mins -- TODO something better..
 
-	gmcdebug.Msg("Orig thebox vals: ", thebox, mins, maxs)
+	gmc.debug.Msg("Orig thebox vals: ", thebox, mins, maxs)
 
 	thebox.x = thebox.x * 0.5
 	thebox.y = thebox.y * 0.5
@@ -28,21 +28,21 @@ function ENT:FindTeleportTarget(ent, heli)
 
 	local e = mins + thebox
 
-	gmcdebug.Msg("Found teleport target ", heli:GetPos(), " --> ", e)
+	gmc.debug.Msg("Found teleport target ", heli:GetPos(), " --> ", e)
 
 	return e
 
 end
 
 function ENT:StartTouch (ent)
-	gmcdebug.Msg(ent, " hit map edge ", self)
+	gmc.debug.Msg(ent, " hit map edge ", self)
 	if ent.IsHelicopter and (not ent.LastMEdgeTele or ent.LastMEdgeTele < CurTime() - 2) then -- TODO more dynamic last tele check
 		local tent = self:GetTeleportEntity()
 		if IsValid(tent) then
 			local oldvel = ent:GetVelocity()
 
 			if self.ReqVel then
-				local ovsignum = gmcmath.VectorSignum(oldvel)
+				local ovsignum = gmc.math.VectorSignum(oldvel)
 				ovsignum = Vector(self.ReqVel.x == 0 and ovsignum.x or self.ReqVel.x,
 									self.ReqVel.y == 0 and ovsignum.y or self.ReqVel.y,
 									self.ReqVel.z == 0 and ovsignum.z or self.ReqVel.z) -- Zero components should match ovsignum in all cases
@@ -58,13 +58,13 @@ function ENT:StartTouch (ent)
 
 			local gotovel = Vector(oldvel.x, oldvel.y, oldvel.z)
 
-			if (forcevel.x ~= 0 and gmcmath.Signum(forcevel.x) ~= gmcmath.Signum(gotovel.x)) then
+			if (forcevel.x ~= 0 and gmc.math.Signum(forcevel.x) ~= gmc.math.Signum(gotovel.x)) then
 				gotovel.x = -gotovel.x
 			end
-			if (forcevel.y ~= 0 and gmcmath.Signum(forcevel.y) ~= gmcmath.Signum(gotovel.y)) then
+			if (forcevel.y ~= 0 and gmc.math.Signum(forcevel.y) ~= gmc.math.Signum(gotovel.y)) then
 				gotovel.y = -gotovel.y
 			end
-			if (forcevel.z ~= 0 and gmcmath.Signum(forcevel.z) ~= gmcmath.Signum(gotovel.z)) then
+			if (forcevel.z ~= 0 and gmc.math.Signum(forcevel.z) ~= gmc.math.Signum(gotovel.z)) then
 				gotovel.z = -gotovel.z
 			end
 
@@ -84,12 +84,12 @@ function ENT:KeyValue(key, value)
 	if key == "otheredge" then
 		self.OtherEdgeName = value
 	elseif key == "forcevelocity" then
-		self.ForceVel = gmcmath.VectorSignum(gmcutils.ParseHammerVector(value))
+		self.ForceVel = gmc.math.VectorSignum(gmc.utils.ParseHammerVector(value))
 	elseif key == "reqvelocity" then
-		self.ReqVel = gmcmath.VectorSignum(gmcutils.ParseHammerVector(value))
+		self.ReqVel = gmc.math.VectorSignum(gmc.utils.ParseHammerVector(value))
 	elseif key == "addvelocity" then
-		self.AddVel = gmcutils.ParseHammerVector(value)
+		self.AddVel = gmc.utils.ParseHammerVector(value)
 	elseif key == "mulvelocity" then
-		self.MulVel = gmcutils.ParseHammerVector(value)
+		self.MulVel = gmc.utils.ParseHammerVector(value)
 	end
 end

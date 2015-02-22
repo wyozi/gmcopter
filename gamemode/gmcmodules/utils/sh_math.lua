@@ -1,9 +1,9 @@
 
 local math = math
 
-gmcmath = {}
+gmc.math = {}
 
-function gmcmath.Approach(val, targ, amount)
+function gmc.math.Approach(val, targ, amount)
 	if val < targ then
 		return math.min(val + amount, targ)
 	elseif val > targ then
@@ -12,39 +12,39 @@ function gmcmath.Approach(val, targ, amount)
 	return val
 end
 
-function gmcmath.ApproachVectorMod(src, targ, amount)
-	src.x = gmcmath.Approach(src.x, targ.x, amount)
-	src.y = gmcmath.Approach(src.y, targ.y, amount)
-	src.z = gmcmath.Approach(src.z, targ.z, amount)
+function gmc.math.ApproachVectorMod(src, targ, amount)
+	src.x = gmc.math.Approach(src.x, targ.x, amount)
+	src.y = gmc.math.Approach(src.y, targ.y, amount)
+	src.z = gmc.math.Approach(src.z, targ.z, amount)
 	return src
 end
-function gmcmath.ApproachVector(src, targ, amount)
+function gmc.math.ApproachVector(src, targ, amount)
 	local v = Vector(src)
-	gmcmath.ApproachVectorMod(v, targ, amount)
+	gmc.math.ApproachVectorMod(v, targ, amount)
 	return v
 end
 
-function gmcmath.ApproachAngleMod(src, targ, amount)
-	src.p = gmcmath.Approach(src.p, targ.p, amount)
-	src.y = gmcmath.Approach(src.y, targ.y, amount)
-	src.r = gmcmath.Approach(src.r, targ.r, amount)
+function gmc.math.ApproachAngleMod(src, targ, amount)
+	src.p = gmc.math.Approach(src.p, targ.p, amount)
+	src.y = gmc.math.Approach(src.y, targ.y, amount)
+	src.r = gmc.math.Approach(src.r, targ.r, amount)
 	return src
 end
 
-function gmcmath.Diff(x, y)
+function gmc.math.Diff(x, y)
 	return math.abs(x - y)
 end
 
-function gmcmath.VectorDiff(x, y)
+function gmc.math.VectorDiff(x, y)
 	return (x-y):Length()
 end
 
-function gmcmath.AngleDiff(x, y)
+function gmc.math.AngleDiff(x, y)
 	local sub = (x-y)
 	return math.sqrt(sub.p*sub.p + sub.y*sub.y + sub.r*sub.r)
 end
 
-function gmcmath.Signum(val)
+function gmc.math.Signum(val)
 	if val < 0 then
 		return -1
 	elseif val > 0 then
@@ -53,10 +53,10 @@ function gmcmath.Signum(val)
 	return 0
 end
 
-function gmcmath.VectorSignum(vec)
-	return Vector(gmcmath.Signum(vec.x), gmcmath.Signum(vec.y), gmcmath.Signum(vec.z))
+function gmc.math.VectorSignum(vec)
+	return Vector(gmc.math.Signum(vec.x), gmc.math.Signum(vec.y), gmc.math.Signum(vec.z))
 end
 
-function gmcmath.AngleSignum(ang)
-	return Angle(gmcmath.Signum(ang.p), gmcmath.Signum(ang.y), gmcmath.Signum(ang.r))
+function gmc.math.AngleSignum(ang)
+	return Angle(gmc.math.Signum(ang.p), gmc.math.Signum(ang.y), gmc.math.Signum(ang.r))
 end

@@ -1,19 +1,19 @@
-gmcwebradio = gmcwebradio or {}
+gmc.webradio = gmc.webradio or {}
 
-function gmcwebradio.Save()
-	file.Write( "gmc_webradios.txt", util.TableToJSON(gmcwebradio.LocalRadios) )
+function gmc.webradio.Save()
+	file.Write( "gmc_webradios.txt", util.TableToJSON(gmc.webradio.LocalRadios) )
 end
 
-function gmcwebradio.Load()
+function gmc.webradio.Load()
 	return util.JSONToTable(file.Read( "gmc_webradios.txt", "DATA" ) or "[]")
 end
 
-gmcwebradio.LocalRadios = gmcwebradio.Load()
+gmc.webradio.LocalRadios = gmc.webradio.Load()
 
-function gmcwebradio.NextRadioUrl(cur)
+function gmc.webradio.NextRadioUrl(cur)
 	local first
 	local retnext = false
-	for _, v in pairs(gmcwebradio.LocalRadios) do
+	for _, v in pairs(gmc.webradio.LocalRadios) do
 		if not first then
 			first = v.url
 		end

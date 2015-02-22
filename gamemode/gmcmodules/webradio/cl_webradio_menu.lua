@@ -41,8 +41,8 @@ function PANEL:Init()
 		line.OnRightClick = function()
 			local menu = DermaMenu()
 			menu:AddOption("Remove", function()
-	            gmcwebradio.LocalRadios[idx] = nil
-	            gmcwebradio.Save()
+	            gmc.webradio.LocalRadios[idx] = nil
+	            gmc.webradio.Save()
 	            list:RemoveLine(LineIdx(line))
 	        end)
 	        menu:AddOption("Copy URL", function()
@@ -52,18 +52,18 @@ function PANEL:Init()
 		end
 	end
 
-	for idx,radio in SortedPairs(gmcwebradio.LocalRadios) do
-		AddLine(idx, radio.url, radio.sname, gmcdebug.ToString(radio.matches))
+	for idx,radio in SortedPairs(gmc.webradio.LocalRadios) do
+		AddLine(idx, radio.url, radio.sname, gmc.debug.ToString(radio.matches))
 	end
 
 	b.DoClick = function()
-		local s, sname, matches = gmcwebradio.FindService(t:GetText())
+		local s, sname, matches = gmc.webradio.FindService(t:GetText())
 		if not s then
 			return
 		end
-		local nidx = table.insert(gmcwebradio.LocalRadios, {url=t:GetText(), sname=sname, matches=matches})
-		AddLine(nidx, t:GetText(), sname, gmcdebug.ToString(matches))
-		gmcwebradio.Save()
+		local nidx = table.insert(gmc.webradio.LocalRadios, {url=t:GetText(), sname=sname, matches=matches})
+		AddLine(nidx, t:GetText(), sname, gmc.debug.ToString(matches))
+		gmc.webradio.Save()
 	end
 
 end

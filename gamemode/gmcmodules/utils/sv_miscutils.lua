@@ -1,5 +1,5 @@
-gmcutils = gmcutils or {}
+gmc.utils = gmc.utils or {}
 
-function gmcutils.SetAngleVelocity(physobj, anglevel)
+function gmc.utils.SetAngleVelocity(physobj, anglevel)
 	physobj:AddAngleVelocity( -1 * physobj:GetAngleVelocity( ) + anglevel)
 end

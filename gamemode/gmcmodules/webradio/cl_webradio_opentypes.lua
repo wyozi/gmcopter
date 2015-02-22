@@ -1,4 +1,4 @@
-gmcwebradio = gmcwebradio or {}
+gmc.webradio = gmc.webradio or {}
 
 local htmlcontainer = {}
 function htmlcontainer:Play()
@@ -32,10 +32,10 @@ function basscontainer:Play()
 			return
 		end
 		if self.Stopped then
-			gmcdebug.Msg("Stopped before starting")
+			gmc.debug.Msg("Stopped before starting")
 			return
 		end
-		gmcdebug.Msg("Basscontainer succesfully loaded channel", snd)
+		gmc.debug.Msg("Basscontainer succesfully loaded channel", snd)
 		self.snd = snd
 		snd:Play()
 		self.PlayingStarted = CurTime()
@@ -59,7 +59,7 @@ function basscontainer:SetPos(pos)
 	if self:IsValid() then self.snd:SetPos(pos) end
 end
 
-function gmcwebradio.Play(url, service)
+function gmc.webradio.Play(url, service)
 	local tbl = {url=service.TranslateURL(url), service=service}
 	if service.OpenType == GMCWR_OPENTYPE_HTML then
 		setmetatable(tbl, {__index = htmlcontainer})

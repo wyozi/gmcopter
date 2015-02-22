@@ -168,7 +168,7 @@ function ENT:Think()
 		self.MSounds.Start:Stop()
 	end
 
-	self:SetRotorFrac(gmcmath.Approach(self:GetRotorFrac(), self:GetEngineStartFrac(), 0.03))
+	self:SetRotorFrac(gmc.math.Approach(self:GetRotorFrac(), self:GetEngineStartFrac(), 0.03))
 
 	-- Make sure if that if engine or rotors are on PhysicsUpdate gets called
 	if self.Phys:IsAsleep() and (self:GetEngineStartLevel() > 0 or self:GetRotorFrac() > 0) then
@@ -189,11 +189,12 @@ end
 function ENT:PhysicsUpdate()
 	-- Handle spinning the rotors
 	do
-		local mvm = self:GetRotorFrac() * self.RotorSpinSpeed
+		local mvm = self:GetRotorFrac() * self.RotorSpinSpeed * FrameTime()
 
-		self.LastRotorAng = ((self.LastRotorAng or 0) + math.Clamp(mvm/100, 0, 360)) % 360
+		self.LastRotorAng = ((self.LastRotorAng or 0) + math.Clamp(mvm/2, 0, 360)) % 360
 		self.TopRotorEnt:SetLocalAngles(Angle(0, self.LastRotorAng, 0))
 		self.BackRotorEnt:SetLocalAngles(Angle(self.LastRotorAng, 0, 0))
+		
 	end
 
 
@@ -212,7 +213,7 @@ function ENT:PhysicsUpdate()
 
 		--if self:RotorSpeed() < 1000 then -- If rotors arent moving, dont stay in air. TODO make something more sophisticated.  Doesnt work due to custom angle system
 			--hovervel = Vector(0, 0, 0)
-			--gmcdebug.Msg("Fallin down due to slow rotorspeed")
+			--gmc.debug.Msg("Fallin down due to slow rotorspeed")
 
 
 		local InputVelocity = Vector(0, 0, 0)
@@ -255,7 +256,7 @@ function ENT:PhysicsUpdate()
 
 		do -- Velocity
 			local CurVel = self.Phys:GetVelocity()
-			local TargetVel = gmcmath.ApproachVectorMod(self.InputVelocityTrail, InputVelocity, 3.5)
+			local TargetVel = gmc.math.ApproachVectorMod(self.InputVelocityTrail, InputVelocity, 3.5)
 
 			local vel = (hovervel + TargetVel) * 60 * FrameTime()
 			self.Phys:SetVelocity(vel)
@@ -265,11 +266,11 @@ function ENT:PhysicsUpdate()
 
 		do -- AngleVelocity
 			local CurAng = self.Phys:GetAngleVelocity()
-			local TargetAng = gmcmath.ApproachVectorMod(self.InputAngleVelocityTrail, InputAngleVelocity, 0.5)
+			local TargetAng = gmc.math.ApproachVectorMod(self.InputAngleVelocityTrail, InputAngleVelocity, 0.5)
 
-			local SetAngVel = gmcmath.VectorDiff(CurAng, TargetAng) > 0.1 and (TargetAng - CurAng) or vector_origin
+			local SetAngVel = gmc.math.VectorDiff(CurAng, TargetAng) > 0.1 and (TargetAng - CurAng) or vector_origin
 
-			gmcutils.SetAngleVelocity(self.Phys, SetAngVel)
+			gmc.utils.SetAngleVelocity(self.Phys, SetAngVel)
 		end
 
 		do -- Angle
@@ -287,14 +288,14 @@ function ENT:PhysicsUpdate()
 			self.InputAngleVel = self.InputAngleVel or Angle(0, 0, 0)
 
 			local PitchDiff = InputAngle.p - CurAng.p
-			self.InputAngleVel.p = math.Clamp(gmcmath.Approach(self.InputAngleVel.p, PitchDiff, 3 * FrameTime()), -1, 1)
+			self.InputAngleVel.p = math.Clamp(gmc.math.Approach(self.InputAngleVel.p, PitchDiff, 3 * FrameTime()), -1, 1)
 			local RollDiff = InputAngle.r - CurAng.r
-			self.InputAngleVel.r = math.Clamp(gmcmath.Approach(self.InputAngleVel.r, RollDiff, 3 * FrameTime()), -1, 1)
+			self.InputAngleVel.r = math.Clamp(gmc.math.Approach(self.InputAngleVel.r, RollDiff, 3 * FrameTime()), -1, 1)
 
 			self.InputAngleTrail.p = self.InputAngleTrail.p + self.InputAngleVel.p * 0.2
 			self.InputAngleTrail.r = self.InputAngleTrail.r + self.InputAngleVel.r * 0.3
 
-			local SetAng = gmcmath.AngleDiff(CurAng, self.InputAngleTrail) > 0.1 and self.InputAngleTrail or nil
+			local SetAng = gmc.math.AngleDiff(CurAng, self.InputAngleTrail) > 0.1 and self.InputAngleTrail or nil
 
 			if SetAng then
 				SetAng.y = CurAng.y -- Dont mess with yaw because its not directly controlled by player
@@ -349,7 +350,7 @@ function ENT:PhysicsCollide(cdata, phys)
 			local ang = self:GetAngles()
 			local AreAnglesSane = ang:IsPitchWithin(-45, 45) and ang:IsRollWithin(-45, 45) -- we shouldnt accept all angles
 
-			gmcdebug.Msg("Colliding with speed ", cdata.Speed, AreAnglesSane)
+			gmc.debug.Msg("Colliding with speed ", cdata.Speed, AreAnglesSane)
 			if cdata.Speed < 100 and AreAnglesSane then
 				self:StopEngine()
 				phys:SetVelocity(Vector(0, 0, 0))

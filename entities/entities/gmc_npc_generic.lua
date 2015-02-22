@@ -15,7 +15,7 @@ function ENT:BehaviourTick()
             self.NextWalkAround = CurTime() + math.random(60, 600)
         end
     elseif self.NextWalkAround and self.NextWalkAround <= CurTime() then
-        self.WalkAroundTarg = table.Random(gmcnpcs.POIs)
+        self.WalkAroundTarg = table.Random(gmc.npcs.POIs)
     else
         if not self.NextWalkAround then
             self.NextWalkAround = CurTime() + math.random(0, 600)
