@@ -370,7 +370,7 @@ function ENT:PlyEnterHelicopter(ply, seatidx)
 	local chair = ents.Create("prop_vehicle_prisoner_pod")
 	chair:SetModel("models/nova/airboat_seat.mdl")
 	chair:SetKeyValue("vehiclescript","scripts/vehicles/prisoner_pod.txt")
-	chair:SetKeyValue("limitview", "0") -- Allow looking all around. We override this in CalcHeliView anyway
+	--chair:SetKeyValue("limitview", "0") -- Allow looking all around. We override this in CalcHeliView anyway
 	chair:SetPos(self:LocalToWorld(seat_data.Pos))
 	chair:SetAngles(self:LocalToWorldAngles(seat_data.Ang))
 	chair:Spawn()
