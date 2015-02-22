@@ -392,7 +392,7 @@ function ENT:Think()
 
 end
 
-local mat = Material("gmc.opter/sprites/light") -- redglow1
+local mat = Material("gmcopter/sprites/light") -- redglow1
 function ENT:DrawLightSprites()
 	for k,ml in pairs(self.MLights) do
 		local meta = self.Lights[k]
