@@ -52,6 +52,58 @@ function ENT:FindHelicopter(range)
 	return heli
 end
 
+-- Override MoveToPos with a better MoveToPos
+function ENT:MoveToPos(pos, options)
+	local options = options or {}
+
+	local path = Path("Follow")
+	path:SetMinLookAheadDistance(options.lookahead or 300)
+	path:SetGoalTolerance(options.tolerance or 20)
+	path:Compute(self, pos)
+
+	if not path:IsValid() then return "failed" end
+
+	while ( path:IsValid() ) do
+		if options.terminate_condition and options.terminate_condition() then
+			return "terminated"
+		end
+
+		path:Update(self)
+
+		-- Draw the path (only visible on listen servers or single player)
+		if options.draw then
+			path:Draw()
+		end
+
+		-- If we're stuck then call the HandleStuck function and abandon
+		if self.loco:IsStuck() then
+			self:HandleStuck()
+			return "stuck"
+		end
+
+		--
+		-- If they set maxage on options then make sure the path is younger than it
+		--
+		if options.maxage then
+			if (path:GetAge() > options.maxage) then return "timeout" end
+		end
+
+		--
+		-- If they set repath then rebuild the path every x seconds
+		--
+		if options.repath then
+			if (path:GetAge() > options.repath) then
+				local newpos = (options.repath_pos and options.repath_pos() or pos)
+				path:Compute(self, newpos)
+			end
+		end
+
+		coroutine.yield()
+	end
+	return "ok"
+end
+
+
 function ENT:BehaviourTick()
 end
 
