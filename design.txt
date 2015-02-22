@@ -3,6 +3,7 @@ Missions:
 		- 1 helicopter
 		- 1 npc
 	Medicare
+	Item transportation
 	Rooftop rescue
 		- 1 helicopter
 		- 1 or more npcs

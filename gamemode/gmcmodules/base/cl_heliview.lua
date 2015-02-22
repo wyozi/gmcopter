@@ -26,7 +26,10 @@ local function CalcView(ply, pos, angles, fov)
 	local heli = ply:GetHelicopter()
 	if IsValid(heli) then
 		local view = {}
-		view.fov = fov
+
+		view.origin = pos
+		view.angles = angles
+		view.fov = 100
 
 		local camview = GetConVar("gmc_camview"):GetInt()
 		if camview == GMC_CAMVIEW_CHASE then
@@ -59,6 +62,8 @@ local function CalcView(ply, pos, angles, fov)
 
 			return view
 		end
+
+		return view
 	end
 end
 
