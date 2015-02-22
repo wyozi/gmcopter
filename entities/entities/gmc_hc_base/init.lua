@@ -199,10 +199,10 @@ function ENT:PhysicsUpdate()
 			end
 
 			if driver:KeyDown(IN_FORWARD) then
-				InputVelocity:Add(yawangles:Forward() * 800)
+				InputVelocity:Add(yawangles:Forward() * 2000)
 				InputAngle.p = 3
 			elseif driver:KeyDown(IN_BACK) then
-				InputVelocity:Add(-yawangles:Forward() * 800)
+				InputVelocity:Add(-yawangles:Forward() * 1200)
 				InputAngle.p = -3
 			end
 
@@ -227,12 +227,13 @@ function ENT:PhysicsUpdate()
 
 		do -- Velocity
 			local CurVel = self.Phys:GetVelocity()
-			local TargetVel = gmc.math.ApproachVectorMod(self.InputVelocityTrail, InputVelocity, 3.5)
+
+			-- To maintain handling in high velocities, we need to modify vel in larger steps in higher velocities
+			local vel_approach = math.Clamp(CurVel:Length() / 300, 3, 10)
+			local TargetVel = gmc.math.ApproachVectorMod(self.InputVelocityTrail, InputVelocity, vel_approach)
 
 			local vel = (hovervel + TargetVel) * 60 * FrameTime()
 			self.Phys:SetVelocity(vel)
-
-			--print(TargetVel)
 		end
 
 		do -- AngleVelocity

@@ -319,7 +319,6 @@ function ENT:DrawTranslucent()
 end
 
 function ENT:Think()
-
 	-- Smoke
 	if self:GetEngineStartFrac() > 0 then
 		self:SpawnLaunchSmoke()
