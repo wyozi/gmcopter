@@ -6,8 +6,8 @@ AccessorFunc(ENT, "mission", "Mission")
 
 function ENT:BehaviourTick()
     local mission = self:GetMission()
-    if mission then
-        mission:npc_tick(self)
+    if mission and mission:is_in_progress() then
+        mission:npc_think(self)
     elseif self.WalkAroundTarg and self.WalkAroundTarg:Distance(self:GetPos()) > 150 then
         self:StartActivity(ACT_WALK)
         self.loco:SetDesiredSpeed(100)
@@ -15,7 +15,8 @@ function ENT:BehaviourTick()
         local s = self:MoveToPos(self.WalkAroundTarg, {
             tolerance = 150,
             terminate_condition = function()
-                return self:GetMission() ~= nil
+                local mission = self:GetMission()
+                return mission and mission:is_in_progress()
             end
         })
         if s == "ok" and self.WalkAroundTarg:Distance(self:GetPos()) < 200 then

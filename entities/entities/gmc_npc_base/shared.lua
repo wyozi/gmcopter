@@ -4,8 +4,8 @@ end
 
 AddCSLuaFile()
 
-
 ENT.Base = "base_nextbot"
+ENT.IsGMCNPC = true
 
 local models = {
 	"models/mossman.mdl",
@@ -103,6 +103,19 @@ function ENT:MoveToPos(pos, options)
 	return "ok"
 end
 
+AccessorFunc(ENT, "heli", "Helicopter")
+
+function ENT:IsInHelicopter()
+	return IsValid(self:GetHelicopter())
+end
+
+function ENT:EnterHelicopter(heli, seat)
+	error("DEPRECATED")
+end
+
+function ENT:LeaveHelicopter()
+	error("DEPRECATED")
+end
 
 function ENT:BehaviourTick()
 end

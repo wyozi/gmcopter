@@ -9,7 +9,12 @@ function ENT:SvInit()
 	self.InputAngleTrail = Angle(0, 0, 0)
 	self.RotorAngVel = 0
 
+	-- SeatEnts are ents that fulfill IsValid if there's someone sitting at that seat.
+	-- SeatEnt can be one of following two things:
+	-- 	* a prop_vehicle_prisoner_pod if there's a Player sitting there
+	--  * a gmc_npc_base if there's a NPC sitting there
 	self.SeatEnts = {}
+
 	self.Attachments = {}
 
 	self:SetModel(hull.Model)
@@ -29,7 +34,6 @@ function ENT:SvInit()
 	self:SetEngineStartLevel(0)
 
 	self:AddRotors()
-	self:AddSeats()
 end
 
 function ENT:HasBeenOn()
@@ -106,39 +110,6 @@ function ENT:AddRotors()
 
 end
 
-function ENT:AddSeats()
-	for i=1,#self.Seats do
-		local seat = self.Seats[i]
-
-		local ent = ents.Create("prop_vehicle_prisoner_pod")
-		ent:SetModel("models/nova/airboat_seat.mdl")
-		ent:SetKeyValue("vehiclescript","scripts/vehicles/prisoner_pod.txt")
-		ent:SetKeyValue("limitview", "0") -- Allow looking all around. We override this in CalcHeliView anyway
-		ent:SetPos(self:LocalToWorld(seat.Pos))
-		ent:Spawn()
-		ent:Activate()
-
-		local ang = self:GetAngles()
-		if seat.Angles then
-			local a = self:GetAngles()
-			a.y = a.y-90
-			a:RotateAroundAxis(Vector(0, 0, 1), seat.Angles.y)
-			ent:SetAngles(a)
-		else
-			ang:RotateAroundAxis(self:GetUp(), -90)
-			ent:SetAngles(ang)
-		end
-
-		ent:SetNoDraw(true)
-		ent:SetNotSolid(true)
-		ent:SetParent(self)
-
-		self.SeatEnts[i] = ent
-
-		self:DeleteOnRemove(ent)
-	end
-end
-
 function ENT:Think()
 	local driver = self:GetDriver()
 
@@ -150,7 +121,7 @@ function ENT:Think()
 
 		if not self.MSounds.Start:IsPlaying() and CanLiftOff then
 			self.MSounds.Start:Play()
-		elseif not driver.IncAltDown then -- Shouldn't get sound of rotors accelerating if we've stopped
+		elseif not IsValid(driver) or not driver.IncAltDown then -- Shouldn't get sound of rotors accelerating if we've stopped
 			self.MSounds.Start:Stop()
 		end
 
@@ -381,32 +352,123 @@ function ENT:RotorSpeed()
 	return self.TopRotorPhys:GetAngleVelocity():Length()
 end
 
--- TODO make cleaner
 function ENT:Use(act, cal)
-	local d,v = self.MaxEnterDistance, _
-	for i=1,#self.Seats do
-		local seat = self.Seats[i]
-		local seatent = self.SeatEnts[i]
-		if not IsValid(seatent) or IsValid(seatent:GetDriver()) then
-			continue
-		end
-
-		local dist = seatent:GetPos():Distance(
-						util.QuickTrace(act:GetShootPos(), act:GetAimVector() * self.MaxEnterDistance, act).HitPos)
-
-		if dist < d then
-			d = dist
-			v = i
-		end
-
-	end
-
-	if v then
-		act:EnterHelicopter(self, v)
+	local s, e = self:EnterHelicopter(act)
+	if not s then
+		act:ChatPrint(e)
 	end
 end
 
-function ENT:GetSeatOf(ent)
+function ENT:PlyEnterHelicopter(ply, seatidx)
+	local idx = seatidx or self:GetFreeSeatIdx(false)
+	if not idx or not self:IsSeatIdxFree(idx) then
+		return false, "no free seat available"
+	end
+
+	local seat_data = self:SeatIdxToSeatData(idx)
+
+	local chair = ents.Create("prop_vehicle_prisoner_pod")
+	chair:SetModel("models/nova/airboat_seat.mdl")
+	chair:SetKeyValue("vehiclescript","scripts/vehicles/prisoner_pod.txt")
+	chair:SetKeyValue("limitview", "0") -- Allow looking all around. We override this in CalcHeliView anyway
+	chair:SetPos(self:LocalToWorld(seat_data.Pos))
+	chair:SetAngles(self:LocalToWorldAngles(seat_data.Ang))
+	chair:Spawn()
+	chair:Activate()
+
+	chair:SetNoDraw(true)
+	chair:SetNotSolid(true)
+	chair:SetParent(self)
+
+	self.SeatEnts[idx] = chair
+
+	ply:EnterVehicle(chair)
+	ply:SetHelicopter(self)
+end
+
+function ENT:NPCEnterHelicopter(npc, seatidx)
+	local idx = seatidx or self:GetFreeSeatIdx(true)
+	if not idx or not self:IsSeatIdxFree(idx) then
+		return false, "no free seat available"
+	end
+
+	local seat_data = self:SeatIdxToSeatData(idx)
+
+	npc:SetSequence("silo_sit")
+	npc:SetMoveType(MOVETYPE_NONE)
+	npc:SetPos(self:LocalToWorld(seat_data.Pos))
+
+	-- hue
+	local wang = self:LocalToWorldAngles(seat_data.Ang)
+	wang:RotateAroundAxis(wang:Up(), -90)
+
+	npc:SetAngles(wang)
+
+	npc:SetParent(self)
+	npc:SetHelicopter(self)
+
+	self.SeatEnts[idx] = npc
+end
+
+function ENT:EnterHelicopter(ent, seatidx)
+	if ent:IsPlayer() then
+		return self:PlyEnterHelicopter(ent, seatidx)
+	elseif ent.IsGMCNPC then
+		return self:NPCEnterHelicopter(ent, seatidx)
+	end
+
+	ErrorNoHalt("Trying to EnterHelicopter an unknown entity " .. tostring(ent))
+end
+
+function ENT:PlyLeaveHelicopter(ply)
+	local idx = self:GetSeatIdxOf(ply)
+	if not idx then
+		return false, "entity was not in this helicopter"
+	end
+
+	local seat_ent = self:SeatIdxToEnt(idx)
+
+	ply:ExitVehicle()
+	ply:SetHelicopter(NULL)
+	ply.HelicopterLeft = CurTime()
+
+	ply:SetPos(self:GetPos() - self:GetRight() * 150)
+
+	seat_ent:Remove()
+
+	ply:SetVelocity(self:GetPhysicsObject():GetVelocity() * 1.2)
+end
+
+function ENT:NPCLeaveHelicopter(npc)
+	local idx = self:GetSeatIdxOf(npc)
+	if not idx then
+		return false, "entity was not in this helicopter"
+	end
+
+	local seat_ent = self:SeatIdxToEnt(idx)
+
+	npc:SetParent(NULL)
+	npc:SetMoveType(MOVETYPE_CUSTOM)
+	npc:SetHelicopter(nil)
+
+	npc:SetPos(self:GetPos() + self:GetRight() * 150)
+
+	npc:StartActivity(ACT_IDLE)
+
+	npc:SetVelocity(self:GetPhysicsObject():GetVelocity() * 1.2)
+end
+
+function ENT:LeaveHelicopter(ent)
+	if ent:IsPlayer() then
+		return self:PlyLeaveHelicopter(ent)
+	elseif ent.IsGMCNPC then
+		return self:NPCLeaveHelicopter(ent)
+	end
+
+	ErrorNoHalt("Trying to LeaveHelicopter an unknown entity " .. tostring(ent))
+end
+
+function ENT:GetSeatIdxOf(ent)
 	for k,v in pairs(self.SeatEnts) do
 		if self:GetPassenger(k) == ent then
 			return k
@@ -414,17 +476,17 @@ function ENT:GetSeatOf(ent)
 	end
 end
 
-function ENT:IsSeatFree(idx)
+function ENT:IsSeatIdxFree(idx)
 	return not IsValid(self:GetPassenger(idx))
 end
 
-function ENT:GetFreeSeat(skipdriver)
-	for k,v in pairs(self.SeatEnts) do
-		if k == 1 and skipdriver then
+function ENT:GetFreeSeatIdx(skipdriver)
+	for i=1, #self.Seats do
+		if i == 1 and skipdriver then
 			continue
 		end
-		if self:IsSeatFree(v) then
-			return k
+		if self:IsSeatIdxFree(i) then
+			return i
 		end
 	end
 end
@@ -436,7 +498,10 @@ end
 function ENT:GetPassenger(idx)
 	local seatent = self:SeatIdxToEnt(idx)
 	if not IsValid(seatent) then return nil end
-	return seatent:GetDriver()
+
+	if seatent:IsVehicle() then return seatent:GetDriver() end
+
+	return seatent
 end
 
 function ENT:SeatIdxToEnt(idx)

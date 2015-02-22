@@ -1,0 +1,23 @@
+Missions:
+	Transportation
+		- 1 helicopter
+		- 1 npc
+	Rooftop rescue
+		- 1 helicopter
+		- 1 or more npcs
+	Traffic jam
+		- 1 helicopter
+		- bunch of car npcs
+	Fire fighting
+		Small fire
+			- 1 helicopter
+			- building/small area on fire
+		Big fire
+			- multiple helicopters
+			- need coordination?
+	Riot control
+		- happens only when bunch of people close to each other?
+		- 
+
+Mission capabilities:
+	- Adding new participants should be as simple as mission:AddParticipant(ply)

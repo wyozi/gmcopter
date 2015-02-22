@@ -3,7 +3,7 @@ hook.Add("CanExitVehicle", "GMCExitVehicle", function(vehicle, ply)
 		return true
 	end
 
-	ply:LeaveHelicopter()
+	ply:GetHelicopter():LeaveHelicopter(ply)
 	
 	return false
 end)

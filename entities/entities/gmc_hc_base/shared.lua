@@ -34,10 +34,12 @@ ENT.BackRotor = {
 ENT.Seats = {
 	{
 		Pos = Vector(22, 15, 49),
-		Exit = Vector(70, 70, 10)
+		Ang = Angle(0, -90, 0),
+		Exit = Vector(70, 70, 10),
 	},
 	{
 		Pos = Vector(22, -12, 49),
+		Ang = Angle(0, 90, 0),
 		Exit = Vector(70, -70, 10),
 	}
 }
