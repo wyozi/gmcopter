@@ -354,7 +354,7 @@ end
 
 function ENT:Use(act, cal)
 	local s, e = self:EnterHelicopter(act)
-	if not s then
+	if s == false then
 		act:ChatPrint(e)
 	end
 end
