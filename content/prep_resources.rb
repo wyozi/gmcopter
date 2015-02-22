@@ -3,7 +3,7 @@ resources = []
 # Rename for Unix compatibility and add files to list of resources
 Dir.glob('**/*').each do |file|
   if file == 'prep_resources.rb'
-  	next
+    next
   end
 
   if file != file.downcase
@@ -11,7 +11,7 @@ Dir.glob('**/*').each do |file|
   end
 
   if not File.directory?(file)
-  	resources.push(file)
+    resources.push(file)
   end
 end
 
