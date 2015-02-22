@@ -1,5 +1,10 @@
 local TransportMission = gmc.class("TransportMission", "Mission")
 
+function TransportMission:think()
+	self:mark_pos("transport", "npc", self._npcs[1]:GetPos())
+	return 1
+end
+
 function TransportMission:npc_think(npc)
 	-- TODO find heli from mission helis, not all of them
 	local heli = npc:FindHelicopter()

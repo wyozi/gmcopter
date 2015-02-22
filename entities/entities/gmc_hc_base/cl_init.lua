@@ -89,6 +89,11 @@ hook.Add("HUDPaint", "GMCMinimapRenderer", function()
 	hook.Remove("HUDPaint", "GMCMinimapRenderer")
 end)
 
+local marker_types = {
+	transport = Material("icon16/user_go.png")
+}
+
+
 function ENT:DrawMinimap(pnl, x, y, w, h)
 	pnl:DrawRect(x, y, w, h, Color(255, 255, 255), Color(255, 255, 255))
 	pnl:EnableRectStencil(x+1, y+1, w-2, h-2)
@@ -108,13 +113,25 @@ function ENT:DrawMinimap(pnl, x, y, w, h)
 	mapy = mapy + normalp.y*maph/2
 
 	pnl:DrawMat(map_rt_mat, mapx, mapy, mapw, maph)
-	pnl:DrawRect(x + w/2 - 2, y + h/2 - 2, 4, 4, Color(255, 0, 0))
+
+	local midx, midy = x + w/2, y + h/2
+
+	for _,marker in pairs(gmc.mission.Markers) do
+		local icon = marker_types[marker.type]
+		local mx, my = midx + (marker.pos.x - p.x) / 13000 * mapw/2, midy - (marker.pos.y - p.y) / 13000 * maph/2
+
+		pnl:DrawRect(mx - 6, my - 6, 12, 12, Color(255, 255, 255, 60), Color(0, 0, 0, 150))
+		pnl:DrawMat(icon, mx - 4, my - 4, 8, 8)
+
+		pnl:DrawLine(midx, midy, mx, my)
+	end
+
+	pnl:DrawRect(midx - 2, midy - 2, 4, 4, Color(255, 0, 0))
 
 	local ang = math.rad(-self:GetAngles().y)
-	local midx, midy = x + w/2, y + h/2
-	local radius = 15
+	local radius = 10
 
-	local ang1 = ang-math.pi/2
+	--[[local ang1 = ang-math.pi/2
 	local ang2 = ang+math.pi/2
 
 	local arrow_thickness = 1
@@ -126,7 +143,9 @@ function ENT:DrawMinimap(pnl, x, y, w, h)
 		{x = midx + math.cos(ang)*radius + math.cos(ang2)*arrow_thickness, y = midy + math.sin(ang)*radius + math.sin(ang2)*arrow_thickness},
 	}
 
-	pnl:DrawPolygon(arrow_poly, Color(255, 0, 0))
+	pnl:DrawPolygon(arrow_poly, Color(255, 0, 0))]]
+
+	pnl:DrawLine(midx, midy, midx + math.cos(ang)*radius, midy + math.sin(ang)*radius, Color(255, 0, 0))
 
 	pnl:DisableStencil()
 end
