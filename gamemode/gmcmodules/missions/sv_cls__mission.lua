@@ -25,14 +25,24 @@ function Mission:is_in_progress()
 	return self._state == "inprog"
 end
 
+util.AddNetworkString("GMCMissionCleanup")
+
 function Mission:set_accomplished()
 	self._state = "done"
-	timer.Destroy("Think", self:_hookname("Think"))
+	timer.Destroy(self:_hookname("Think"))
+
+	net.Start("GMCMissionCleanup")
+	net.WriteString(self._id)
+	net.Send(self._plys)
 end
 
 function Mission:set_failed()
 	self._state = "failed"
-	timer.Destroy("Think", self:_hookname("Think"))
+	timer.Destroy(self:_hookname("Think"))
+
+	net.Start("GMCMissionCleanup")
+	net.WriteString(self._id)
+	net.Send(self._plys)
 end
 
 util.AddNetworkString("GMCMissionUpdate")

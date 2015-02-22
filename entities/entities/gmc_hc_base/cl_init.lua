@@ -116,14 +116,16 @@ function ENT:DrawMinimap(pnl, x, y, w, h)
 
 	local midx, midy = x + w/2, y + h/2
 
-	for _,marker in pairs(gmc.mission.Markers) do
-		local icon = marker_types[marker.type]
-		local mx, my = midx + (marker.pos.x - p.x) / 13000 * mapw/2, midy - (marker.pos.y - p.y) / 13000 * maph/2
+	for _,markers in pairs(gmc.mission.Markers) do
+		for _,submarker in pairs(markers) do
+			local icon = marker_types[submarker.type]
+			local mx, my = midx + (submarker.pos.x - p.x) / 13000 * mapw/2, midy - (submarker.pos.y - p.y) / 13000 * maph/2
 
-		pnl:DrawRect(mx - 6, my - 6, 12, 12, Color(255, 255, 255, 60), Color(0, 0, 0, 150))
-		pnl:DrawMat(icon, mx - 4, my - 4, 8, 8)
+			pnl:DrawRect(mx - 6, my - 6, 12, 12, Color(255, 255, 255, 60), Color(0, 0, 0, 150))
+			pnl:DrawMat(icon, mx - 4, my - 4, 8, 8)
 
-		pnl:DrawLine(midx, midy, mx, my)
+			pnl:DrawLine(midx, midy, mx, my)
+		end
 	end
 
 	pnl:DrawRect(midx - 2, midy - 2, 4, 4, Color(255, 0, 0))
