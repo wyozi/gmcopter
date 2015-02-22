@@ -11,13 +11,13 @@ ENT.IsHelicopter = true
 
 -- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.Hull = {
-	Model = "models/Flyboi/LittleBird/littlebirda_fb.mdl",
+	Model = "models/flyboi/littlebird/littlebirda_fb.mdl",
 	Weight = 1300
 }
 
 -- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.TopRotor = {
-	Model = "models/Flyboi/LittleBird/littlebirdrotorm_fb.mdl",
+	Model = "models/flyboi/littlebird/littlebirdrotorm_fb.mdl",
 	Pos = Vector(-10, 0, 100),
 	Angles = Angle(0, 0, 0)
 }
@@ -25,7 +25,7 @@ ENT.TopRotor = {
 -- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.BackRotor = {
 	Dir = -1,
-	Model = "models/Flyboi/LittleBird/LittleBirdT_fb.mdl",
+	Model = "models/flyboi/littlebird/littlebirdt_fb.mdl",
 	Pos = Vector(-217, 9, 73),
 	Angles = Angle(0, 0, 0)
 }
@@ -46,13 +46,13 @@ ENT.Seats = {
 
 -- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.Sounds = {
-	Start = {Sound = Sound("WAC/Heli/h6_start.wav")},
-	Blades = {Sound = Sound("WAC/Heli/heli_loop_ext.wav"), SoundLevel = 180},
-	Engine = {Sound = Sound("WAC/Heli/heli_loop_int.wav"), SoundLevel = 180, PitchInside = 0.9, VolInside = 0.4},
-	MissileAlert = {Sound = Sound("HelicopterVehicle/MissileNearby.mp3")},
-	MinorAlarm = {Sound = Sound("HelicopterVehicle/MinorAlarm.mp3")},
-	LowHealth = {Sound = Sound("HelicopterVehicle/LowHealth.mp3")},
-	CrashAlarm = {Sound = Sound("HelicopterVehicle/CrashAlarm.mp3")}
+	Start = {Sound = Sound("wac/heli/h6_start.wav")},
+	Blades = {Sound = Sound("wac/heli/heli_loop_ext.wav"), SoundLevel = 180},
+	Engine = {Sound = Sound("wac/heli/heli_loop_int.wav"), SoundLevel = 180, PitchInside = 0.9, VolInside = 0.4},
+	MissileAlert = {Sound = Sound("helicoptervehicle/missilenearby.mp3")},
+	MinorAlarm = {Sound = Sound("helicoptervehicle/minoralarm.mp3")},
+	LowHealth = {Sound = Sound("helicoptervehicle/lowhealth.mp3")},
+	CrashAlarm = {Sound = Sound("helicoptervehicle/crashalarm.mp3")}
 }
 
 ENT.HitSounds = {
