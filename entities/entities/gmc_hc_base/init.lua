@@ -394,13 +394,15 @@ function ENT:NPCEnterHelicopter(npc, seatidx)
 
 	npc:SetSequence("silo_sit")
 	npc:SetMoveType(MOVETYPE_NONE)
-	npc:SetPos(self:LocalToWorld(seat_data.Pos) + Vector(0, 0, -25))
+	npc:SetPos(self:LocalToWorld(seat_data.Pos) + Vector(13, -3, -14))
 
 	-- hue
 	local wang = self:LocalToWorldAngles(seat_data.Ang)
 	wang:RotateAroundAxis(wang:Up(), 90)
 
 	npc:SetAngles(wang)
+	
+	npc:SetLocalAngles(Angle(-15, 0, 0))
 
 	npc:SetParent(self)
 	npc:SetHelicopter(self)
