@@ -17,7 +17,6 @@ local models = {
 	"models/Kleiner.mdl",
 	"models/monk.mdl",
 	"models/odessa.mdl",
-	"models/vortigaunt.mdl",
 	"models/Humans/Group01/Female_01.mdl",
 	"models/Humans/Group01/Female_02.mdl",
 	"models/Humans/Group01/Female_03.mdl",
