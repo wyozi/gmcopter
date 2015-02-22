@@ -401,7 +401,7 @@ function ENT:NPCEnterHelicopter(npc, seatidx)
 	wang:RotateAroundAxis(wang:Up(), 90)
 
 	npc:SetAngles(wang)
-	
+
 	npc:SetLocalAngles(Angle(-15, 0, 0))
 
 	npc:SetParent(self)
@@ -428,11 +428,15 @@ function ENT:PlyLeaveHelicopter(ply)
 
 	local seat_ent = self:SeatIdxToEnt(idx)
 
+	local seat_pos = seat_ent:GetPos()
+	local exit_pos = self:GetPos() - self:GetRight() * 150
+
 	ply:ExitVehicle()
 	ply:SetHelicopter(NULL)
 	ply.HelicopterLeft = CurTime()
 
-	ply:SetPos(self:GetPos() - self:GetRight() * 150)
+	ply:SetPos(exit_pos)
+	ply:SetEyeAngles((seat_pos - exit_pos):Angle())
 
 	seat_ent:Remove()
 
