@@ -39,7 +39,7 @@ ENT.Seats = {
 	},
 	{
 		Pos = Vector(22, -12, 49),
-		Ang = Angle(0, 90, 0),
+		Ang = Angle(0, -90, 0),
 		Exit = Vector(70, -70, 10),
 	}
 }
