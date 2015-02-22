@@ -6,8 +6,10 @@ ENT.Model = Model("models/weapons/w_bugbait.mdl")
 ENT.Type = "anim"
 ENT.Base = "base_anim"
 
+ENT.IsHeliAttachment = true
+
 function ENT:SetupDataTables()
-	self:NetworkVar( "Entity", 0, "Heli" )
+	self:NetworkVar("Entity", 0, "Heli")
 end
 
 if SERVER then
@@ -31,15 +33,6 @@ if SERVER then
 	function ENT:Initialize()
 		self:SetModel(self.Model)
 		self:AttachToHeli(self:GetHelicopter())
-
 	end
 
-end
-
-if CLIENT then
-	-- Add HeliGui components
-	-- Funcs: (take normal vgui panels but you should use gmc.hgui.Create(name, tbl) to create panels based on the HGuiPanel base)
-	-- hguiframe:AddBottomComponent(comp, self)
-	function ENT:AddComponents(hguiframe)
-	end
 end

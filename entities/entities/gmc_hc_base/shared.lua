@@ -151,13 +151,6 @@ function ENT:IsJustAboveGround()
 	return util.TraceLine({start=self:GetPos(), endpos=self:GetPos() - Vector(0, 0, 60), filter={self}}).HitWorld
 end
 
-function ENT:GetHeliAttachments()
-	local es = ents.FindByClass("gmc_hc_attachment_*")
-	local l = {}
-	for _,e in pairs(es) do
-		if e:GetHeli() == self then
-			table.insert(l, e)
-		end
-	end
-	return l
+function ENT:GetHeliAttachment(cls)
+	return ents.FindByClassAndParent(cls, self)[1]
 end

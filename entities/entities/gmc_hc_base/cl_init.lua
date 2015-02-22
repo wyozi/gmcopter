@@ -152,17 +152,6 @@ function ENT:DrawMinimap(pnl, x, y, w, h)
 	pnl:DisableStencil()
 end
 
-ENT.RadioStations = {
-	{
-		name = "Smooth jazz",
-		url = "http://listen.sky.fm/public3/uptemposmoothjazz.pls"
-	},
-	{
-		name = "Classic rap",
-		url = "http://listen.sky.fm/public3/classicrap.pls"
-	},
-}
-
 surface.CreateFont("GMCHeliRadioFont", {
 	font = "Tahoma",
 	size = 11
@@ -228,30 +217,14 @@ function ENT:DrawCopterHUD(ang)
 
 		p:DrawText("Radio", "GMCHeliRadioFont", 0, 2)
 
-		local station = self.RadioStations[self.RadioStationIdx or 0]
-		if p:DrawButton(station and station.name or "Off", "GMCHeliRadioFont", -28, 13, 56, 15) then
-			-- Stop old channel
-			if IsValid(self.RadioStationObj) then
-				self.RadioStationObj:Stop()
-			end
+		local stations = gmc.radio.Stations
 
-			self.RadioStationIdx = (self.RadioStationIdx or 0)
-			self.RadioStationIdx = (self.RadioStationIdx + 1) % (#self.RadioStations + 1)
+		local att = self:GetHeliAttachment("gmc_hc_attachment_radio")
+		local station = stations[att:GetStationIndex()]
 
-			local idx = self.RadioStationIdx
-			station = self.RadioStations[self.RadioStationIdx]
-
-			if station then
-				sound.PlayURL(station.url, "noplay", function(chan)
-					-- check if station was changed during loading
-					if self.RadioStationIdx ~= idx then
-						return
-					end
-
-					chan:Play()
-					self.RadioStationObj = chan
-				end)
-			end
+		if IsValid(att) and p:DrawButton(station and station.name or "Off", "GMCHeliRadioFont", -28, 13, 56, 15) then
+			net.Start("GMCRadio")
+			net.SendToServer()
 		end
 
 		p:DrawCursor()
