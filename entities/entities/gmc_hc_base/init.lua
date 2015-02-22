@@ -456,6 +456,8 @@ function ENT:NPCLeaveHelicopter(npc)
 	npc:StartActivity(ACT_IDLE)
 
 	npc:SetVelocity(self:GetPhysicsObject():GetVelocity() * 1.2)
+
+	self.SeatEnts[idx] = nil
 end
 
 function ENT:LeaveHelicopter(ent)

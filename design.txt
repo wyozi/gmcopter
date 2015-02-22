@@ -2,6 +2,7 @@ Missions:
 	Transportation
 		- 1 helicopter
 		- 1 npc
+	Medicare
 	Rooftop rescue
 		- 1 helicopter
 		- 1 or more npcs
@@ -15,9 +16,14 @@ Missions:
 		Big fire
 			- multiple helicopters
 			- need coordination?
+	TV Crew assistance
+		- Go pick up a camera man
+		- Travel around covering event X
 	Riot control
 		- happens only when bunch of people close to each other?
 		- 
+
+
 
 Mission capabilities:
 	- Adding new participants should be as simple as mission:AddParticipant(ply)
