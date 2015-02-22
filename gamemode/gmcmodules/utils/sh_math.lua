@@ -60,3 +60,18 @@ end
 function gmc.math.AngleSignum(ang)
 	return Angle(gmc.math.Signum(ang.p), gmc.math.Signum(ang.y), gmc.math.Signum(ang.r))
 end
+
+function gmc.math.SourceUnitsToFeet(units)
+    return units / 16
+end
+
+function gmc.math.FeetToMeters(feet)
+    return feet * 0.3048
+end
+
+function gmc.math.MPSToKnots(mps)
+	return mps / 0.514
+end
+function gmc.math.KMHToKnots(kmh)
+    return kmh / 1.852
+end

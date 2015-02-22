@@ -38,8 +38,14 @@ function ENT:DrawAttitudeIndicator(pnl, x, y, w, h)
 	--pnl:Rect(midx+math.cos(math.rad(c2ang))*15-1, midy+math.sin(math.rad(c2ang))*15-1 + yoff, 2, 2, Color(255, 0, 0))
 end
 
-function ENT:DrawMeter(pnl, x, y, w, h, ang)
+surface.CreateFont("GMCMeterLabel", {
+	font = "Tahoma",
+	size = 9
+})
+
+function ENT:DrawMeter(pnl, label, x, y, w, h, ang)
 	pnl:DrawRect(x, y, w, h, Color(255, 255, 255))
+	pnl:DrawText(label, "GMCMeterLabel", x+w/2, y+2, Color(0, 0, 0))
 
 	local midx, midy = x + w/2, y + h/2
 
@@ -189,11 +195,17 @@ function ENT:DrawCopterHUD(ang)
 		self:DrawAttitudeIndicator(p, -38, 0, 35, 35)
 
 		-- Altitude
-		local alt = self:GetPos().z + 12800
-		self:DrawMeter(p, 3, 0, 35, 35, math.rad((alt / 5000) * 360))
+		local alt = self:GetPos().z + 11144
+		self:DrawMeter(p, "ALT", 3, 0, 35, 35, math.rad((alt / 1000) * 360))
+		p:DrawText(math.floor(alt / 1000), "DermaDefaultBold", 3+35/2, 20, Color(0, 0, 0))
 
 		-- Speed
-		self:DrawMeter(p, -38, 38, 35, 35, math.rad((self:GetVelocity():Length() / 1000) * 360))
+		local vel = self:GetVelocity():Length()
+		vel = gmc.math.SourceUnitsToFeet(vel)
+		vel = gmc.math.FeetToMeters(vel)
+		vel = gmc.math.MPSToKnots(vel)
+
+		self:DrawMeter(p, "KNOTS", -38, 38, 35, 35, math.rad((vel / 250) * 360))
 
 		--self:DrawMeter(p, 3, 38, 35, 35)
 		
