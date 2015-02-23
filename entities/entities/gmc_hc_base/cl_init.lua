@@ -207,8 +207,10 @@ function ENT:DrawCopterHUD(ang)
 
 		self:DrawMeter(p, "KNOTS", -38, 38, 35, 35, math.rad((vel / 100) * 360))
 
-		--self:DrawMeter(p, 3, 38, 35, 35)
-		
+		-- Angular deviation = deviation of velocity from forward dir
+		local normvel = math.abs(((math.NormalizeAngle(self:GetVelocity():Angle().y)+180)/360) - ((math.NormalizeAngle(self:GetAngles().y)+180)/360))
+		self:DrawMeter(p, "ANG DEV", 3, 38, 35, 35, math.rad(math.abs(normvel) * 360))
+
 		p:DrawCursor()
 
 		p:EndRender()
