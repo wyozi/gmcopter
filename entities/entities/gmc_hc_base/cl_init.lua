@@ -361,7 +361,7 @@ function ENT:Think()
 			self.MSounds.Engine:ChangeVolume(1, 2)
 		end
 
-		if LocalPlayer():GetHelicopter() == self then
+		if LocalPlayer():GetHelicopter() == self and GetConVar("gmc_camview"):GetInt() == GMC_CAMVIEW_FIRSTPERSON then
 			self.MSounds.Engine:ChangeVolume(self.Sounds.Engine.VolInside, 0)
 			self.MSounds.Engine:ChangePitch(self.Sounds.Engine.PitchInside * 100, 0)
 		else
@@ -382,7 +382,7 @@ function ENT:Think()
 		if not self.MSounds.Blades:IsPlaying() then
 			self.MSounds.Blades:Play()
 		end
-		if LocalPlayer():GetHelicopter() == self then
+		if LocalPlayer():GetHelicopter() == self and GetConVar("gmc_camview"):GetInt() == GMC_CAMVIEW_FIRSTPERSON then
 			self.MSounds.Blades:ChangeVolume(RotorFrac * 0.3, 0)
 		else
 			self.MSounds.Blades:ChangeVolume(RotorFrac, 0)

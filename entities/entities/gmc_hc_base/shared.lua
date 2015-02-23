@@ -47,8 +47,8 @@ ENT.Seats = {
 -- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.Sounds = {
 	Start = {Sound = Sound("wac/heli/h6_start.wav")},
-	Blades = {Sound = Sound("wac/heli/heli_loop_ext.wav"), SoundLevel = 180},
-	Engine = {Sound = Sound("wac/heli/heli_loop_int.wav"), SoundLevel = 180, PitchInside = 0.9, VolInside = 0.9},
+	Blades = {Sound = Sound("wac/heli/heli_loop_ext.wav"), SoundLevel = 180, PitchInside = 0.9, VolInside = 0.5},
+	Engine = {Sound = Sound("wac/heli/heli_loop_int.wav"), SoundLevel = 180, PitchInside = 0.9, VolInside = 0.5},
 	MissileAlert = {Sound = Sound("helicoptervehicle/missilenearby.mp3")},
 	MinorAlarm = {Sound = Sound("helicoptervehicle/minoralarm.mp3")},
 	LowHealth = {Sound = Sound("helicoptervehicle/lowhealth.mp3")},
