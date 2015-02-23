@@ -205,7 +205,7 @@ function ENT:DrawCopterHUD(ang)
 		vel = gmc.math.FeetToMeters(vel)
 		vel = gmc.math.MPSToKnots(vel)
 
-		self:DrawMeter(p, "KNOTS", -38, 38, 35, 35, math.rad((vel / 250) * 360))
+		self:DrawMeter(p, "KNOTS", -38, 38, 35, 35, math.rad((vel / 100) * 360))
 
 		--self:DrawMeter(p, 3, 38, 35, 35)
 		
