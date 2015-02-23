@@ -11,10 +11,6 @@ concommand.Add("gmc_changeview", function()
 	local newview
 	if oldview == GMC_CAMVIEW_FIRSTPERSON then
 		newview = GMC_CAMVIEW_CHASE
-	elseif oldview == GMC_CAMVIEW_CHASE then
-		newview = GMC_CAMVIEW_THIRDPERSON
-	elseif oldview == GMC_CAMVIEW_THIRDPERSON then
-		newview = GMC_CAMVIEW_COCKPIT
 	else
 		newview = GMC_CAMVIEW_FIRSTPERSON
 	end
