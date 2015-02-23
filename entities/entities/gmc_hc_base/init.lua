@@ -180,7 +180,7 @@ function ENT:PhysicsUpdate()
 		horizontal_vel = horizontal_vel:Length()
 
 		local hovervel = Vector(0, 0, 9)
-		hovervel:AddZ(math.sin(CurTime()) * 10) -- Simulate some movement, which makes stationary hovering more realistic
+		hovervel:AddZ(math.sin(CurTime() * 1.5) * 35) -- Simulate some movement, which makes stationary hovering more realistic
 
 		--if self:RotorSpeed() < 1000 then -- If rotors arent moving, dont stay in air. TODO make something more sophisticated.  Doesnt work due to custom angle system
 			--hovervel = Vector(0, 0, 0)
