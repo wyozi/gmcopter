@@ -422,11 +422,6 @@ function ENT:EnterHelicopter(ent, seatidx)
 end
 
 function ENT:PlyLeaveHelicopter(ply)
-	local idx = self:GetSeatIdxOf(ply)
-	if not idx then
-		return false, "entity was not in this helicopter"
-	end
-
 	local seat_ent = self:SeatIdxToEnt(idx)
 
 	local seat_pos = seat_ent:GetPos()
@@ -445,11 +440,6 @@ function ENT:PlyLeaveHelicopter(ply)
 end
 
 function ENT:NPCLeaveHelicopter(npc)
-	local idx = self:GetSeatIdxOf(npc)
-	if not idx then
-		return false, "entity was not in this helicopter"
-	end
-
 	local seat_ent = self:SeatIdxToEnt(idx)
 
 	npc:SetParent(NULL)
@@ -466,6 +456,11 @@ function ENT:NPCLeaveHelicopter(npc)
 end
 
 function ENT:LeaveHelicopter(ent)
+	local idx = self:GetSeatIdxOf(ent)
+	if not idx then
+		return false, "entity was not in this helicopter"
+	end
+
 	if ent:IsPlayer() then
 		return self:PlyLeaveHelicopter(ent)
 	elseif ent.IsGMCNPC then
