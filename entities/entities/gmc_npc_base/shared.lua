@@ -10,32 +10,54 @@ ENT.IsGMCNPC = true
 local models = {
 	"models/mossman.mdl",
 	"models/alyx.mdl",
-	"models/Barney.mdl",
+	"models/barney.mdl",
 	"models/breen.mdl",
-	"models/Eli.mdl",
+	"models/eli.mdl",
 	"models/gman_high.mdl",
-	"models/Kleiner.mdl",
+	"models/kleiner.mdl",
 	"models/monk.mdl",
 	"models/odessa.mdl",
-	"models/Humans/Group01/Female_01.mdl",
-	"models/Humans/Group01/Female_02.mdl",
-	"models/Humans/Group01/Female_03.mdl",
-	"models/Humans/Group01/Female_04.mdl",
-	"models/Humans/Group01/Female_06.mdl",
-	"models/Humans/Group01/Female_07.mdl",
-	"models/Humans/Group01/Male_01.mdl",
-	"models/Humans/Group01/male_02.mdl",
-	"models/Humans/Group01/male_03.mdl",
-	"models/Humans/Group01/Male_04.mdl",
-	"models/Humans/Group01/Male_05.mdl",
-	"models/Humans/Group01/male_06.mdl",
-	"models/Humans/Group01/male_07.mdl",
-	"models/Humans/Group01/male_08.mdl",
-	"models/Humans/Group01/male_09.mdl",
+	"models/humans/group01/female_01.mdl",
+	"models/humans/group01/female_02.mdl",
+	"models/humans/group01/female_03.mdl",
+	"models/humans/group01/female_04.mdl",
+	"models/humans/group01/female_06.mdl",
+	"models/humans/group01/female_07.mdl",
+	"models/humans/group01/male_01.mdl",
+	"models/humans/group01/male_02.mdl",
+	"models/humans/group01/male_03.mdl",
+	"models/humans/group01/male_04.mdl",
+	"models/humans/group01/male_05.mdl",
+	"models/humans/group01/male_06.mdl",
+	"models/humans/group01/male_07.mdl",
+	"models/humans/group01/male_08.mdl",
+	"models/humans/group01/male_09.mdl",
+}
+local male_models = {
+	"models/barney.mdl",
+	"models/breen.mdl",
+	"models/eli.mdl",
+	"models/gman_high.mdl",
+	"models/kleiner.mdl",
+	"models/monk.mdl",
+	"models/odessa.mdl",
+	"models/humans/group01/male_01.mdl",
+	"models/humans/group01/male_02.mdl",
+	"models/humans/group01/male_03.mdl",
+	"models/humans/group01/male_04.mdl",
+	"models/humans/group01/male_05.mdl",
+	"models/humans/group01/male_06.mdl",
+	"models/humans/group01/male_07.mdl",
+	"models/humans/group01/male_08.mdl",
+	"models/humans/group01/male_09.mdl",
 }
 
 function ENT:Initialize()
     self:SetModel(table.Random(models))
+end
+
+function ENT:IsMale()
+	return table.HasValue(male_models, self:GetModel())
 end
 
 function ENT:FindHelicopter(range)

@@ -138,6 +138,16 @@ function gmc.utils.MapSequentialTable(tbl, funct)
 	return ntbl
 end
 
+function gmc.utils.FilterTable(tbl, funct)
+	local ntbl = {}
+	for k,v in ipairs(tbl) do
+		if funct(v) then
+			table.insert(ntbl, v)
+		end
+	end
+	return ntbl
+end
+
 function gmc.utils.MapTable(tbl, func)
 	local ntbl = {}
 	for k,v in pairs(tbl) do
