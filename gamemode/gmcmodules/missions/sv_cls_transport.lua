@@ -33,10 +33,21 @@ function TransportMission:npc_think(npc)
 
 			npc:StartActivity( ACT_WALK )
 			npc.loco:SetDesiredSpeed( 100 )
-			npc:MoveToPos(heli:GetPos(), {repath=0.5, tolerance=150})
-			npc.loco:FaceTowards(heli:GetPos())
-			npc:StartActivity( ACT_IDLE ) 
-			coroutine.wait(0.25)
+
+			local oldhelipos = heli:GetPos()
+			local moved = npc:MoveToPos(oldhelipos, {
+				repath=0.5,
+				tolerance=150,
+				terminate_condition = function()
+					return IsValid(heli) and heli:GetPos():Distance(oldhelipos) >= 150
+				end
+			})
+			npc:StartActivity(ACT_IDLE) 
+			
+			if moved == "ok" then
+				npc.loco:FaceTowards(heli:GetPos())
+				coroutine.wait(0.25)
+			end
 		else
 			heli:EnterHelicopter(npc)
 			coroutine.wait(1)
