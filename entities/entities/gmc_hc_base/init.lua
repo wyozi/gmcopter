@@ -238,7 +238,7 @@ function ENT:PhysicsUpdate()
 
 		do -- AngleVelocity
 			local CurAng = self.Phys:GetAngleVelocity()
-			local TargetAng = gmc.math.ApproachVectorMod(self.InputAngleVelocityTrail, InputAngleVelocity, 0.5)
+			local TargetAng = gmc.math.ApproachVectorMod(self.InputAngleVelocityTrail, InputAngleVelocity, 100 * FrameTime())
 
 			local SetAngVel = gmc.math.VectorDiff(CurAng, TargetAng) > 0.1 and (TargetAng - CurAng) or vector_origin
 
