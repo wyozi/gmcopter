@@ -346,8 +346,6 @@ function ENT:PhysicsCollide(cdata, phys)
 
 	if cdata.HitEntity:GetClass() == "worldspawn" then
 		if self:IsEngineRunning() and self.LastEngineStarted < CurTime() - 2 then
-			self.InputVelocity = Vector(0, 0, 0)
-
 			local ang = self:GetAngles()
 
 			-- Make sure that the landing angle is somewhat sensible
