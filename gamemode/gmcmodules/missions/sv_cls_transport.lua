@@ -18,11 +18,6 @@ end
 function TransportMission:npc_think(npc)
 	-- TODO find heli from mission helis, not all of them
 	local heli = npc:FindHelicopter()
-
-	if not heli and not npc:IsInHelicopter() and npc:GetSequence() ~= 626 then -- No idea where 626 is from. Some magic value for sit_ground sequence
-		npc:PlaySequenceAndWait( "idle_to_sit_ground" ) 
-		npc:SetSequence( "sit_ground" )
-	end
 	 
 	if heli and not npc:IsInHelicopter() and heli:IsJustAboveGround() then
 		if heli:GetPos():Distance(npc:GetPos()) > 150 then
@@ -43,7 +38,7 @@ function TransportMission:npc_think(npc)
 				end
 			})
 			npc:StartActivity(ACT_IDLE) 
-			
+
 			if moved == "ok" then
 				npc.loco:FaceTowards(heli:GetPos())
 				coroutine.wait(0.25)

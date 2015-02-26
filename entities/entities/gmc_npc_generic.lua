@@ -23,12 +23,41 @@ function ENT:BehaviourTick()
             self.WalkAroundTarg = nil
             self.NextWalkAround = CurTime() + math.random(60, 600)
         end
-    elseif self.NextWalkAround and self.NextWalkAround <= CurTime() then
-        self.WalkAroundTarg = table.Random(gmc.npcs.POIs)
     else
-        if not self.NextWalkAround then
-            self.NextWalkAround = CurTime() + math.random(0, 600)
-        end
-        self:StartActivity(ACT_IDLE)
+        self:Idle()
     end
+end
+
+local idle_anims = {
+    "idle_subtle", "LineIdle01", "LineIdle02", "LineIdle03"
+}
+
+function ENT:LookAt(pos)
+    local angdiff = (pos - self:GetPos() + Vector(0, 0, 60)):Angle()
+    self:SetPoseParameter("head_yaw", math.NormalizeAngle(angdiff.y))
+    self:SetPoseParameter("head_pitch", math.Clamp(-math.NormalizeAngle(angdiff.p), -15, 15))
+    self:SetEyeTarget(pos)
+end
+
+function ENT:Idle()
+    local rand = math.random(1, 10)
+    if rand == 2 then
+    else
+        self.IdleAnim = self.IdleAnim or table.Random(idle_anims)
+
+        if math.random(1, 1000) == 1 then
+            self.IdleAnim = table.Random(idle_anims)
+        end
+
+        self:SetSequence(self.IdleAnim)
+
+        for _,e in pairs(ents.FindInSphere(self:GetPos(), 512)) do
+            if e:GetVelocity():Length() > 50 then
+                self:LookAt(e.EyePos and e:EyePos() or e:GetPos())
+                break
+            end
+        end
+    end
+
+    coroutine.wait(0.1)--2 + math.random(0, 2))
 end

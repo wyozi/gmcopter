@@ -97,7 +97,8 @@ end)
 
 local marker_types = {
 	transport = Material("icon16/user_go.png"),
-	fire = Material("icon16/house.png")
+	fire = Material("icon16/house.png"),
+	roofrescue = Material("icon16/building.png")
 }
 
 
@@ -196,7 +197,7 @@ function ENT:DrawCopterHUD(ang)
 		self:DrawAttitudeIndicator(p, -38, 0, 35, 35)
 
 		-- Altitude
-		local alt = self:GetPos().z + 11144
+		local alt = self:GetAltitude()
 		self:DrawMeter(p, "ALT", 3, 0, 35, 35, math.rad((alt / 1000) * 360))
 		p:DrawText(math.floor(alt / 1000), "DermaDefaultBold", 3+35/2, 20, Color(0, 0, 0))
 

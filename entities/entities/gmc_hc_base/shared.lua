@@ -144,6 +144,11 @@ function ENT:Initialize()
 	end
 end
 
+-- TODO map specific
+function ENT:GetAltitude()
+	return self:GetPos().z + 11144
+end
+
 function ENT:GetGroundHitPos()
 	return util.QuickTrace(self:GetPos(), Vector(0, 0, -10000), self).HitPos
 end
