@@ -18,6 +18,16 @@ concommand.Add("gmc_changeview", function()
 	RunConsoleCommand("gmc_camview", newview)
 end)
 
+local function CreateTRFilter(heli)
+	return function(e)
+		if e == heli then return false end
+		if e.GetHelicopter and e:GetHelicopter() == heli then return false end
+		if e:GetParent() == heli then return false end
+		
+		return true
+	end
+end
+
 local function CalcView(ply, pos, angles, fov)
 	local heli = ply:GetHelicopter()
 	if IsValid(heli) then
@@ -32,7 +42,11 @@ local function CalcView(ply, pos, angles, fov)
 			local hang = heli:GetAngles()
 
 			local targ = heli:GetPos() - (hang:Forward()*400) + (hang:Up() * 250)
-			local tr = util.TraceLine({start=heli:GetPos(), endpos=targ, filter={heli, ply, heli:GetNWEntity("trotor"), heli:GetNWEntity("brotor")}})
+			local tr = util.TraceLine({
+				start = heli:GetPos(),
+				endpos = targ,
+				filter = CreateTRFilter(heli)
+			})
 			view.origin = tr.Hit and tr.HitPos or targ
 			view.angles = tr.Hit and (heli:GetPos() - view.origin):Angle() or hang
 
@@ -45,7 +59,11 @@ local function CalcView(ply, pos, angles, fov)
 			local hang = angles
 
 			local targ = heli:GetPos() - (hang:Forward()*500)
-			local tr = util.TraceLine({start=heli:GetPos(), endpos=targ, filter={heli, ply, heli:GetNWEntity("trotor"), heli:GetNWEntity("brotor")}})
+			local tr = util.TraceLine({
+				start = heli:GetPos(),
+				endpos = targ,
+				filter = CreateTRFilter(heli)
+			})
 			view.origin = tr.Hit and tr.HitPos or targ
 			view.angles = angles
 

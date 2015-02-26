@@ -212,13 +212,20 @@ function ENT:DrawCopterHUD(ang)
 		self:DrawMeter(p, "ANG DEV", 3, 38, 35, 35, math.rad(math.abs(normvel) * 360))
 
 		local att = self:GetHeliAttachment("gmc_hc_attachment_watertanker")
-		if p:DrawButton(att:GetLowered() and "Pull up" or "Lower", "DermaDefaultBold", -40, 85, 80, 25) then
+
+		p:Rect(-40, 80, 80 * att:GetWaterStored(), 8, Color(0, 0, 255))
+		p:Rect(-40, 80, 80, 8, Color(0, 0, 0, 0), Color(255, 255, 255))
+
+		if p:DrawButton(att:GetLowered() and "Pull up" or "Lower", "DermaDefaultBold", -40, 90, 80, 20) then
 			net.Start("GMCWaterTanker")
+			net.WriteUInt(1, 8)
 			net.SendToServer()
 		end
-
-		p:Rect(-40, 115, 80 * att:GetWaterStored(), 8, Color(0, 0, 255))
-		p:Rect(-40, 115, 80, 8, Color(0, 0, 0, 0), Color(255, 255, 255))
+		if p:DrawButton(att:GetSpraying() and "Stop spraying" or "Spray", "DermaDefaultBold", -40, 112, 80, 20) then
+			net.Start("GMCWaterTanker")
+			net.WriteUInt(2, 8)
+			net.SendToServer()
+		end
 
 		p:DrawCursor()
 
