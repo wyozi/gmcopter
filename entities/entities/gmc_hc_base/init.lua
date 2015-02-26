@@ -187,22 +187,26 @@ function ENT:PhysicsUpdate()
 			--gmc.debug.Msg("Fallin down due to slow rotorspeed")
 
 
-		local InputVelocity = Vector(0, 0, 0)
+		local InputHVelocity = 0
+		local InputVVelocity = 0
+
 		local InputAngleVelocity = Vector(0, 0, 0)
 		local InputAngle = Angle(0, 0, 0)
 
 		if IsValid(driver) then
 			if driver.IncAltDown then
-				InputVelocity:AddZ(400 * self:GetUp().z)
+				InputVVelocity = 400
 			elseif driver.DecAltDown then
-				InputVelocity:AddZ(-800 * self:GetUp().z)
+				InputVVelocity = -800
 			end
 
 			if driver:KeyDown(IN_FORWARD) then
-				InputVelocity:Add(yawangles:Forward() * 2000)
+				InputHVelocity = 2000
+				--InputVelocity:Add(yawangles:Forward() * 2000)
 				InputAngle.p = 3
 			elseif driver:KeyDown(IN_BACK) then
-				InputVelocity:Add(-yawangles:Forward() * 1200)
+				InputHVelocity = -1200
+				--InputVelocity:Add(-yawangles:Forward() * 1200)
 				InputAngle.p = -3
 			end
 
@@ -221,18 +225,41 @@ function ENT:PhysicsUpdate()
 			InputVelocity:AddZ(-1000)
 		end
 
-		InputVelocity:ClampX(-4000, 4000)
-		InputVelocity:ClampY(-4000, 4000)
-		InputVelocity:ClampZ(-1000, 1000)
+		--InputVelocity:ClampX(-4000, 4000)
+		--InputVelocity:ClampY(-4000, 4000)
+		--InputVelocity:ClampZ(-1000, 1000)
 
 		do -- Velocity
 			local CurVel = self.Phys:GetVelocity()
 
 			-- To maintain handling in high velocities, we need to modify vel in larger steps in higher velocities
-			local vel_approach = math.Clamp(CurVel:Length() / 300, 3, 10)
-			local TargetVel = gmc.math.ApproachVectorMod(self.InputVelocityTrail, InputVelocity, vel_approach)
+			local vel_approach = 10
 
-			local vel = (hovervel + TargetVel) * 60 * FrameTime()
+
+			local h_src = self.InputVelocityTrail
+			local h_srch = Vector(h_src.x, h_src.y, 0)
+			local h_targ = InputHVelocity * yawangles:Forward()
+
+			local h_srclen = h_srch:Length()
+			local h_targlen = h_targ:Length()
+
+			local h_srcang = math.atan2(h_src.y, h_src.x)
+			local h_targang = h_targlen > 0 and math.atan2(h_targ.y, h_targ.x) or h_srcang
+
+			--[[
+			local h_interpang = gmc.math.ApproachOverflow(h_srcang, h_targang, FrameTime(), -math.pi, math.pi)
+			local h_interplen = gmc.math.Approach(h_srclen, h_targlen, FrameTime() * 230)]]
+
+			local speed = h_srclen
+			local angdiff = math.abs(math.AngleDifference(math.deg(h_srcang), math.deg(h_targang)))
+			local str = angdiff > 90 and 1 or math.Clamp(angdiff / 60 + speed / 1500, 1, 10)
+
+			self.InputVelocityTrail.x = gmc.math.Approach(h_src.x, h_targ.x, FrameTime() * 450 * str) --math.cos(h_interpang) * h_interplen
+			self.InputVelocityTrail.y = gmc.math.Approach(h_src.y, h_targ.y, FrameTime() * 450 * str) --math.sin(h_interpang) * h_interplen
+
+			self.InputVelocityTrail.z = gmc.math.Approach(self.InputVelocityTrail.z, InputVVelocity, 5)
+
+			local vel = (hovervel + self.InputVelocityTrail) * 60 * FrameTime()
 			self.Phys:SetVelocity(vel)
 		end
 
