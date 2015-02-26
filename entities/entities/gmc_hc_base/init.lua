@@ -212,14 +212,14 @@ function ENT:PhysicsUpdate()
 
 			-- On low velocities we shouldn't have much roll or the helicopter
 			-- starts looking like it's defying laws of physics
-			local roll_mul = (0.3 + 0.7*math.Clamp(horizontal_vel / 800, 0, 1))
+			local roll_mul = (0.2 + 0.8*math.Clamp(horizontal_vel / 1500, 0, 1))
 
 			if driver:KeyDown(IN_MOVELEFT) then
 				InputAngleVelocity:AddZ(60)
-				InputAngle.r = -4 * roll_mul
+				InputAngle.r = -10 * roll_mul
 			elseif driver:KeyDown(IN_MOVERIGHT) then
 				InputAngleVelocity:AddZ(-60)
-				InputAngle.r = 4 * roll_mul
+				InputAngle.r = 10 * roll_mul
 			end
 		else -- No driver
 			InputVelocity:AddZ(-1000)
@@ -292,7 +292,7 @@ function ENT:PhysicsUpdate()
 			self.InputAngleVel.r = math.Clamp(gmc.math.Approach(self.InputAngleVel.r, RollDiff, 1.5 * FrameTime()), -1, 1)
 
 			self.InputAngleTrail.p = self.InputAngleTrail.p + self.InputAngleVel.p * 0.1
-			self.InputAngleTrail.r = self.InputAngleTrail.r + self.InputAngleVel.r * 0.06
+			self.InputAngleTrail.r = self.InputAngleTrail.r + self.InputAngleVel.r * 0.1
 
 			local SetAng = gmc.math.AngleDiff(CurAng, self.InputAngleTrail) > 0.1 and self.InputAngleTrail or nil
 
