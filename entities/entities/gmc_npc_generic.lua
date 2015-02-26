@@ -64,43 +64,39 @@ local rand_lines = {
 }
 
 function ENT:Idle()
-    local rand = math.random(1, 10)
-    if rand == 2 then
-    else
-        self.IdleAnim = self.IdleAnim or table.Random(idle_anims)
+    self.IdleAnim = self.IdleAnim or table.Random(idle_anims)
 
-        if math.random(1, 1000) == 2 then
-            self.IdleAnim = table.Random(idle_anims)
+    if math.random(1, 1000) == 2 then
+        self.IdleAnim = table.Random(idle_anims)
+    end
+
+    self:SetSequence(self.IdleAnim)
+
+    local possible_ents = ents.FindInSphere(self:GetPos(), 512)
+    possible_ents = gmc.utils.FilterTable(possible_ents, function(e)
+        return e:IsPlayer() or e.IsGMCNPC or e.IsHelicopter
+    end)
+
+    table.sort(possible_ents, function(a, b)
+        if a:IsPlayer() and not b:IsPlayer() then return true end
+        if b:IsPlayer() and not a:IsPlayer() then return false end
+
+        local veldiff = (a:GetVelocity() - b:GetVelocity()):Length()
+        if math.abs(veldiff) > 10 then return veldiff < 0 end
+
+        return a:GetPos():Distance(b:GetPos()) < 0
+    end)
+
+    local e = possible_ents[1]
+    if IsValid(e) then
+        self:LookAt(e.EyePos and e:EyePos() or e:GetPos())
+
+        if e:GetVelocity():Length() > 20 and math.random(1, 20) == 2 then
+            self:EmitSound(string.format("vo/npc/%smale01/hi0%d.wav", self:IsMale() and "" or "fe", math.random(1, 2)))
         end
 
-        self:SetSequence(self.IdleAnim)
-
-        local possible_ents = ents.FindInSphere(self:GetPos(), 512)
-        possible_ents = gmc.utils.FilterTable(possible_ents, function(e)
-            return e:IsPlayer() or e.IsGMCNPC or e.IsHelicopter
-        end)
-
-        table.sort(possible_ents, function(a, b)
-            if a:IsPlayer() and not b:IsPlayer() then return true end
-            if b:IsPlayer() and not a:IsPlayer() then return false end
-
-            local veldiff = (a:GetVelocity() - b:GetVelocity()):Length()
-            if math.abs(veldiff) > 10 then return veldiff < 0 end
-
-            return a:GetPos():Distance(b:GetPos()) < 0
-        end)
-
-        local e = possible_ents[1]
-        if IsValid(e) then
-            self:LookAt(e.EyePos and e:EyePos() or e:GetPos())
-
-            if e:GetVelocity():Length() > 20 and math.random(1, 20) == 2 then
-                self:EmitSound(string.format("vo/npc/%smale01/hi0%d.wav", self:IsMale() and "" or "fe", math.random(1, 2)))
-            end
-
-            if e.IsGMCNPC and math.random(1, 100) == 2 then
-                self:EmitSound(string.format("vo/npc/%smale01/%s.wav", self:IsMale() and "" or "fe", table.Random(rand_lines)))
-            end
+        if e.IsGMCNPC and math.random(1, 100) == 2 then
+            self:EmitSound(string.format("vo/npc/%smale01/%s.wav", self:IsMale() and "" or "fe", table.Random(rand_lines)))
         end
     end
 
