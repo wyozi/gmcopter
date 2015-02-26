@@ -251,8 +251,8 @@ function ENT:PhysicsUpdate()
 			local h_interplen = gmc.math.Approach(h_srclen, h_targlen, FrameTime() * 230)]]
 
 			local speed = h_srclen
-			local angdiff = math.abs(math.AngleDifference(math.deg(h_srcang), math.deg(h_targang)))
-			local str = angdiff > 90 and 1 or math.Clamp(angdiff / 60 + speed / 1500, 1, 10)
+			local angdiff = (h_srclen >= 1 and h_targlen >= 1) and math.abs(math.AngleDifference(math.deg(h_srcang), math.deg(h_targang))) or 0
+			local str = angdiff > 90 and 1 or math.Clamp(angdiff / 60 + speed / 2000, 0.2, 10)
 
 			self.InputVelocityTrail.x = gmc.math.Approach(h_src.x, h_targ.x, FrameTime() * 450 * str) --math.cos(h_interpang) * h_interplen
 			self.InputVelocityTrail.y = gmc.math.Approach(h_src.y, h_targ.y, FrameTime() * 450 * str) --math.sin(h_interpang) * h_interplen
