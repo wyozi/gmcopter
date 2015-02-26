@@ -216,10 +216,10 @@ function ENT:PhysicsUpdate()
 
 			if driver:KeyDown(IN_MOVELEFT) then
 				InputAngleVelocity:AddZ(60)
-				InputAngle.r = -10 * roll_mul
+				--InputAngle.r = -10 * roll_mul
 			elseif driver:KeyDown(IN_MOVERIGHT) then
 				InputAngleVelocity:AddZ(-60)
-				InputAngle.r = 10 * roll_mul
+				--InputAngle.r = 10 * roll_mul
 			end
 		else -- No driver
 			InputVelocity:AddZ(-1000)
@@ -231,10 +231,6 @@ function ENT:PhysicsUpdate()
 
 		do -- Velocity
 			local CurVel = self.Phys:GetVelocity()
-
-			-- To maintain handling in high velocities, we need to modify vel in larger steps in higher velocities
-			local vel_approach = 10
-
 
 			local h_src = self.InputVelocityTrail
 			local h_srch = Vector(h_src.x, h_src.y, 0)
@@ -254,13 +250,17 @@ function ENT:PhysicsUpdate()
 			local angdiff = (h_srclen >= 1 and h_targlen >= 1) and math.abs(math.AngleDifference(math.deg(h_srcang), math.deg(h_targang))) or 0
 			local str = angdiff > 90 and 1 or math.Clamp(angdiff / 60 + speed / 2000, 0.2, 10)
 
-			self.InputVelocityTrail.x = gmc.math.Approach(h_src.x, h_targ.x, FrameTime() * 450 * str) --math.cos(h_interpang) * h_interplen
-			self.InputVelocityTrail.y = gmc.math.Approach(h_src.y, h_targ.y, FrameTime() * 450 * str) --math.sin(h_interpang) * h_interplen
+			self.InputVelocityTrail.x = gmc.math.Approach(h_src.x, h_targ.x, 10 * str) --math.cos(h_interpang) * h_interplen
+			self.InputVelocityTrail.y = gmc.math.Approach(h_src.y, h_targ.y, 10 * str) --math.sin(h_interpang) * h_interplen
 
-			self.InputVelocityTrail.z = gmc.math.Approach(self.InputVelocityTrail.z, InputVVelocity, 5)
+			self.InputVelocityTrail.z = gmc.math.Approach(self.InputVelocityTrail.z, InputVVelocity, 5 + speed / 1500)
 
 			local vel = (hovervel + self.InputVelocityTrail) * 60 * FrameTime()
 			self.Phys:SetVelocity(vel)
+
+			-- TODO move somewhere else
+			-- This makes roll be based on speed and angdiff instead of user input
+			InputAngle.r = speed < 500 and 0 or ((speed-500) / 1000 * math.AngleDifference(math.deg(h_srcang), math.deg(h_targang)) / 2)
 		end
 
 		do -- AngleVelocity
@@ -292,7 +292,7 @@ function ENT:PhysicsUpdate()
 			self.InputAngleVel.r = math.Clamp(gmc.math.Approach(self.InputAngleVel.r, RollDiff, 1.5 * FrameTime()), -1, 1)
 
 			self.InputAngleTrail.p = self.InputAngleTrail.p + self.InputAngleVel.p * 0.1
-			self.InputAngleTrail.r = self.InputAngleTrail.r + self.InputAngleVel.r * 0.1
+			self.InputAngleTrail.r = self.InputAngleTrail.r + self.InputAngleVel.r * 0.2
 
 			local SetAng = gmc.math.AngleDiff(CurAng, self.InputAngleTrail) > 0.1 and self.InputAngleTrail or nil
 
