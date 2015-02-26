@@ -12,6 +12,10 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Entity", 0, "Heli")
 end
 
+function ENT:GetHelicopter()
+	return self:GetHeli()
+end
+
 if SERVER then
 
 	function ENT:AttachToHeli(heli)
@@ -25,14 +29,9 @@ if SERVER then
 		self:SetParent(heli)
 		self:SetHeli(heli)
 	end
-
-	function ENT:GetHelicopter()
-		return self:GetHeli()
-	end
 	
 	function ENT:Initialize()
 		self:SetModel(self.Model)
 		self:AttachToHeli(self:GetHelicopter())
 	end
-
 end

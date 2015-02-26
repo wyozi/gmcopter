@@ -10,14 +10,6 @@ end
 ENT.Base = "gmc_hc_attachment_base"
 
 if SERVER then
-
-	function ENT:AttachToHeli(heli)
-		self:SetNoDraw(true)
-		self:DrawShadow(false)
-		self:SetSolid(SOLID_NONE)
-		self:SetMoveType(MOVETYPE_NONE)
-	end
-
 	util.AddNetworkString("GMCRadio")
 	net.Receive("GMCRadio", function(len, cl)
 		local heli = cl:GetHelicopter()
@@ -28,14 +20,13 @@ if SERVER then
 
 		att:SetStationIndex(((att:GetStationIndex() or 0) + 1) % (#gmc.radio.Stations + 1))
 	end)
-
 end
 
 if CLIENT then
 	function ENT:Think()
 		local idx_playing = self.PlayingIndex or 0
 		local idx_shouldplay = self:GetStationIndex()
-		if LocalPlayer():GetHelicopter() ~= self:GetHeli() then
+		if LocalPlayer():GetHelicopter() ~= self:GetHelicopter() then
 			idx_shouldplay = 0
 		end
 
