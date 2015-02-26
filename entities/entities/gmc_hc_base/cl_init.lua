@@ -96,7 +96,8 @@ hook.Add("HUDPaint", "GMCMinimapRenderer", function()
 end)
 
 local marker_types = {
-	transport = Material("icon16/user_go.png")
+	transport = Material("icon16/user_go.png"),
+	fire = Material("icon16/house.png")
 }
 
 

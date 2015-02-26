@@ -26,6 +26,9 @@ simcopter.SoundMap = {
 		policereq = "d2014", -- police request aerial assistance
 
 		strongwinds = "d2019", -- strong winds may hamper operation
+
+		fireextinguished = "dis053",
+		thxforhelp = "dis066",
 	}
 }
 

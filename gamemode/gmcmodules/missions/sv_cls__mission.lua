@@ -29,20 +29,28 @@ util.AddNetworkString("GMCMissionCleanup")
 
 function Mission:set_accomplished()
 	self._state = "done"
-	timer.Destroy(self:_hookname("Think"))
 
-	net.Start("GMCMissionCleanup")
-	net.WriteString(self._id)
-	net.Send(self._plys)
+	self:finished()
 end
 
 function Mission:set_failed()
 	self._state = "failed"
+
+	self:finished()
+end
+
+function Mission:finished()
 	timer.Destroy(self:_hookname("Think"))
 
 	net.Start("GMCMissionCleanup")
 	net.WriteString(self._id)
 	net.Send(self._plys)
+
+	if self._state == "done" then
+		for _,p in pairs(self._plys) do
+			p:SendLua("simcopter.PlaySoundChain(simcopter.SoundMap.CDisp.thxforhelp)")
+		end
+	end
 end
 
 util.AddNetworkString("GMCMissionUpdate")

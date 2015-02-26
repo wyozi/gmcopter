@@ -46,7 +46,7 @@ if SERVER then
 		self:SetLocalPos(Vector(0, 2.5, self:GetLowered() and -150 or 20))
 
 		if self:GetSpraying() then
-			if self:GetWaterStored() <= 0 or self:GetLowered() then
+			if (self:GetWaterStored() <= 0 or self:GetLowered()) then
 				self:SetSpraying(false)
 			else
 				local tr = util.TraceLine({
@@ -63,7 +63,7 @@ if SERVER then
 
 						local class = prop:GetClass()
 						if string.find(class, "env_fire") then
-							prop:SetHealth(prop:Health() - 100)
+							prop:SetHealth(prop:Health() - 20)
 							if prop:Health() <= 0 then
 								prop:Fire("Extinguish")
 							end
@@ -79,8 +79,6 @@ if SERVER then
 		if fillspeed > 0 then
 			self:SetWaterStored(math.Clamp(self:GetWaterStored() + fillspeed * 0.02, 0, 1))
 		end
-
-		self:SetNextThink(CurTime() + 0.1)
 	end
 
 end
