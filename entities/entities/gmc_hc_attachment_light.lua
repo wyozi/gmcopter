@@ -18,6 +18,8 @@ if SERVER then
 		self:SetLocalPos(Vector(75, 2.5, 20))
 		self:SetLocalAngles(Angle(30, 0, 0))
 
+		self:SetColor(Color(0, 0, 0))
+
 		self.LightOn = true
 
 	end
