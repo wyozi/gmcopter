@@ -1,48 +1,28 @@
-
-util.AddNetworkString("gmc_ispawn")
-
-function GM:PlayerInitialSpawn( pl )
-	MsgN(pl:Nick() .. " initial spawn")
-
-	net.Start("gmc_ispawn")
-	net.Send(pl)
+function GM:PlayerInitialSpawn(pl)
 end
 
-function GM:PlayerSpawn( pl )
+function GM:PlayerSpawn(pl)
 	-- Stop observer mode
 	pl:UnSpectate()
 
-	player_manager.SetPlayerClass( pl, "player_gmc" )
-	player_manager.OnPlayerSpawn( pl )
-	player_manager.RunClass( pl, "Spawn" )
+	player_manager.SetPlayerClass(pl, "player_gmc")
+	player_manager.OnPlayerSpawn(pl)
+	player_manager.RunClass(pl, "Spawn")
 
-	-- Call item loadout function
-	hook.Call( "PlayerLoadout", GAMEMODE, pl )
+	hook.Call("PlayerLoadout", GAMEMODE, pl)
+	hook.Call("PlayerSetModel", GAMEMODE, pl)
+end
 
-	-- Set player model
-	hook.Call( "PlayerSetModel", GAMEMODE, pl )
-
+-- We don't want to give player anything by default
+function GM:PlayerLoadout()
 end
 
 function GM:PlayerSelectSpawn(ply)
+	local spawns = ents.FindByClass("gmc_pilotspawn")
 
-    local spawns = ents.FindByClass( "gmc_pilotspawn" )
-    gmc.debug.Msg("PilotSpawns: ", #spawns)
-    if #spawns == 0 then
-    	spawns = ents.FindByClass( "info_player_start" )
-    end
-    local random_entry = math.random( #spawns )
+	if #spawns == 0 then
+		spawns = ents.FindByClass("info_player_start")
+	end
 
-    gmc.debug.Msg("Player spawnpoint selected: ", IsValid(spawns[random_entry]))
-
-    return spawns[random_entry]
+	return table.Random(spawns)
 end
-
-hook.Add("PlayerSetModel", "SetModel", function(ply)
-	ply:SetModel("models/player/hostage02.mdl")
-end)
-
-concommand.Add("spazz", function(ply)
-	local heli = ply:GetHelicopter()
-	heli:SetPos(heli:GetPos() + heli:GetVelocity():GetNormalized() * 1000 )
-end)
