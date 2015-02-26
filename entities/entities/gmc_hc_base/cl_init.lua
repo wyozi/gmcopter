@@ -111,7 +111,7 @@ function ENT:DrawMinimap(pnl, x, y, w, h)
 
 	local mapx, mapy, mapw, maph = x, y, w, h
 
-	local zoom = 3.5
+	local zoom = self.MinimapZoom or 3.5
 	mapx = mapx - w*(zoom-1)/2
 	mapy = mapy - h*(zoom-1)/2
 	mapw = mapw * zoom
@@ -158,6 +158,16 @@ function ENT:DrawMinimap(pnl, x, y, w, h)
 	pnl:DrawLine(midx, midy, midx + math.cos(ang)*radius, midy + math.sin(ang)*radius, Color(255, 0, 0))
 
 	pnl:DisableStencil()
+
+	if pnl:Button("", "DermaDefaultBold", x, y+h-12, 12, 12, Color(0, 0, 0)) then
+		self.MinimapZoom = (self.MinimapZoom or 3.5) + 0.5
+	end
+	pnl:Rect(x+1, y+h-7, 8, 2, Color(0, 0, 0))
+	pnl:Rect(x+4, y+h-10, 2, 8, Color(0, 0, 0))
+	if pnl:Button("", "DermaDefaultBold", x+w-12, y+h-12, 12, 12, Color(0, 0, 0)) then
+		self.MinimapZoom = (self.MinimapZoom or 3.5) - 0.5
+	end
+	pnl:Rect(x+w-10, y+h-7, 8, 2, Color(0, 0, 0))
 end
 
 surface.CreateFont("GMCHeliRadioFont", {
