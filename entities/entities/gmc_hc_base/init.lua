@@ -222,7 +222,7 @@ function ENT:PhysicsUpdate()
 				--InputAngle.r = 10 * roll_mul
 			end
 		else -- No driver
-			InputVelocity:AddZ(-1000)
+			InputVVelocity = -1000
 		end
 
 		--InputVelocity:ClampX(-4000, 4000)
