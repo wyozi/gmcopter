@@ -49,6 +49,28 @@ if SERVER then
 			if self:GetWaterStored() <= 0 or self:GetLowered() then
 				self:SetSpraying(false)
 			else
+				local tr = util.TraceLine({
+					start = self:GetPos(),
+					endpos = self:GetPos() - self:GetUp() * 16000,
+					filter = self
+				})
+
+				local pos = tr.HitPos
+
+				for id, prop in pairs( ents.FindInSphere( pos, 80 ) ) do
+					if prop:IsValid() then
+						--if prop:IsOnFire() then prop:Extinguish() end
+
+						local class = prop:GetClass()
+						if string.find(class, "env_fire") then
+							prop:SetHealth(prop:Health() - 100)
+							if prop:Health() <= 0 then
+								prop:Fire("Extinguish")
+							end
+						end
+					end
+				end
+
 				self:SetWaterStored(math.Clamp(self:GetWaterStored() - 0.03, 0, 1))
 			end
 		end
