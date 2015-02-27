@@ -1,7 +1,16 @@
 concommand.Add("spawnheli", function(ply, cmd, args)
 	if not ply:GMC_IsDeveloper() then return end
 
-	local ent = ents.Create("gmc_hc_base")
+	local hctype = args[1]
+
+	local cls = "gmc_hc_base"
+	if hctype == "viper" then
+		cls = "gmc_hc_viper"
+	elseif hctype == "blackhawk" then
+		cls = "gmc_hc_blackhawk"
+	end
+
+	local ent = ents.Create(cls)
 	ent.Owner = ply
 	ent:SetPos(ply:GetEyeTrace().HitPos + Vector(0, 0, 50))
 	ent:Spawn()

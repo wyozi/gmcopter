@@ -11,21 +11,19 @@ ENT.IsHelicopter = true
 
 -- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.Hull = {
-	Model = "models/flyboi/littlebird/littlebirda_fb.mdl",
+	Model = "models/Flyboi/LittleBird/littlebird_fb.mdl",
 	Weight = 1300
 }
 
--- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.TopRotor = {
-	Model = "models/flyboi/littlebird/littlebirdrotorm_fb.mdl",
+	Model = "models/Flyboi/LittleBird/littlebirdrotorm_fb.mdl",
 	Pos = Vector(-10, 0, 100),
 	Angles = Angle(0, 0, 0)
 }
 
--- SHOULD BE MOVED TO LITTLEBIRD LUA WHEN DONE WITH HELI BASE
 ENT.BackRotor = {
 	Dir = -1,
-	Model = "models/flyboi/littlebird/littlebirdt_fb.mdl",
+	Model = "models/Flyboi/LittleBird/LittleBirdT_fb.mdl",
 	Pos = Vector(-217, 9, 73),
 	Angles = Angle(0, 0, 0)
 }

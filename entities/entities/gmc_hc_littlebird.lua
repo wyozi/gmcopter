@@ -6,7 +6,7 @@ end
 ENT.Base = "gmc_hc_base"
 
 ENT.Hull = {
-	Model = "models/Flyboi/LittleBird/littlebirda_fb.mdl",
+	Model = "models/Flyboi/LittleBird/littlebird_fb.mdl",
 	Weight = 1300
 }
 
