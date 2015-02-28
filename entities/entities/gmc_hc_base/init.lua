@@ -482,6 +482,7 @@ function ENT:NPCLeaveHelicopter(npc)
 	npc:SetHelicopter(nil)
 
 	npc:SetPos(self:GetPos() + self:GetRight() * 150)
+	npc:SetLocalAngles(Angle(0, 0, 0))
 
 	npc:StartActivity(ACT_IDLE)
 
