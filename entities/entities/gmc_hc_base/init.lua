@@ -53,6 +53,9 @@ function ENT:AddRotors()
 		trotor:SetParent(self)
 		self:SetNWEntity("trotor", trotor)
 
+		trotor:SetSolid(SOLID_BBOX)
+		trotor:SetCollisionBounds(Vector(-300, -300, -20), Vector(300, 300, 20))
+
 		trotor:Spawn()
 
 		local phys = trotor:GetPhysicsObject()
@@ -65,11 +68,19 @@ function ENT:AddRotors()
 			self.TopRotorPhys = phys
 		end
 
-		local cst = constraint.Axis(self, trotor, 0, 0, self.TopRotor.Pos, Vector(0, 0, 1), self.TopRotorForceLimit,0,0,1)
+		local cst = constraint.Axis(self, trotor, 0, 0, self.TopRotor.Pos, Vector(0, 0, 1), self.TopRotorForceLimit, 0, 0, 0)
 		if not cst then
 			MsgN("Constraint waswnt credted")
 		end
 		self.TopRotorHinge = cst
+
+		--[[trotor:AddCallback("PhysicsCollide", function()
+			MsgN("TRotor colliding ", CurTime())
+
+			trotor:SetParent(nil)
+			trotor:GetPhysicsObject():EnableGravity(true)
+			cst:Remove()
+		end)]]
 
 		self:DeleteOnRemove(trotor)
 	end
