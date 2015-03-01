@@ -42,11 +42,14 @@ if SERVER then
 		self:SetMaterial("models/debug/debugwhite")
 	end
 
+	-- Keeps tank filled infinitely
+	local debug_water = false
+
 	function ENT:Think()
 		self:SetLocalPos(Vector(0, 2.5, self:GetLowered() and -150 or 20))
 
 		if self:GetSpraying() then
-			if (self:GetWaterStored() <= 0 or self:GetLowered()) then
+			if not debug_water and (self:GetWaterStored() <= 0 or self:GetLowered()) then
 				self:SetSpraying(false)
 			else
 				local tr = util.TraceLine({
@@ -67,11 +70,16 @@ if SERVER then
 							if prop:Health() <= 0 then
 								prop:Fire("Extinguish")
 							end
+						elseif prop.IsGMCNPC then
+							local mission = prop:GetMission()
+							if mission and mission.handle_npc_watered then mission:handle_npc_watered(prop, self:GetHelicopter()) end
 						end
 					end
 				end
 
-				self:SetWaterStored(math.Clamp(self:GetWaterStored() - 0.03, 0, 1))
+				if not debug_water then
+					self:SetWaterStored(math.Clamp(self:GetWaterStored() - 0.03, 0, 1))
+				end
 			end
 		end
 

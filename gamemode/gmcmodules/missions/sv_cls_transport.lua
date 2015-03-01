@@ -1,9 +1,5 @@
 local TransportMission = gmc.class("TransportMission", "Mission")
 
-function TransportMission:on_start()
-	self.targetPOI = table.Random(gmc.npcs.POIs)
-end
-
 function TransportMission:think()
 	local the_npc = self._npcs[1]
 	if the_npc:IsInHelicopter() then

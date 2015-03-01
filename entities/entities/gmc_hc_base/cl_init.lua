@@ -98,7 +98,8 @@ end)
 local marker_types = {
 	transport = Material("icon16/user_go.png"),
 	fire = Material("icon16/house.png"),
-	roofrescue = Material("icon16/building.png")
+	roofrescue = Material("icon16/building.png"),
+	riot = Material("icon16/group_error.png")
 }
 
 
