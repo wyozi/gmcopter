@@ -71,11 +71,12 @@ end
 local map_rt = GetRenderTarget( "GMCMinimapRT2", 1024, 1024, true )
 local map_rt_mat = CreateMaterial( "GMCMinimapMat", "UnlitGeneric", { ["$basetexture"] = "GMCMinimapRT2" } )
 
+local ORTHO_SIZE = 16000
+
 hook.Add("HUDPaint", "GMCMinimapRenderer", function()
 	
 	render.PushRenderTarget(map_rt)
 
-	local ortho = 13000
 	render.RenderView {
 		origin = Vector(0, 0, 2722.4045),
 		angles = Angle(90, 90, 0),
@@ -84,10 +85,10 @@ hook.Add("HUDPaint", "GMCMinimapRenderer", function()
 		w = 1024,
 		h = 1024,
 		ortho = true,
-		ortholeft = -ortho,
-		orthoright = ortho,
-		orthotop = -ortho,
-		orthobottom = ortho
+		ortholeft = -ORTHO_SIZE,
+		orthoright = ORTHO_SIZE,
+		orthotop = -ORTHO_SIZE,
+		orthobottom = ORTHO_SIZE
 	}
 
 	render.PopRenderTarget()
@@ -108,7 +109,7 @@ function ENT:DrawMinimap(pnl, x, y, w, h)
 	pnl:EnableRectStencil(x+1, y+1, w-2, h-2)
 
 	local p = self:GetPos()
-	local normalp = Vector(p.x / 13000, p.y / 13000, 0)
+	local normalp = Vector(p.x / ORTHO_SIZE, p.y / ORTHO_SIZE, 0)
 
 	local mapx, mapy, mapw, maph = x, y, w, h
 
@@ -128,7 +129,7 @@ function ENT:DrawMinimap(pnl, x, y, w, h)
 	for _,markers in pairs(gmc.mission.Markers) do
 		for _,submarker in pairs(markers) do
 			local icon = marker_types[submarker.type]
-			local mx, my = midx + (submarker.pos.x - p.x) / 13000 * mapw/2, midy - (submarker.pos.y - p.y) / 13000 * maph/2
+			local mx, my = midx + (submarker.pos.x - p.x) / ORTHO_SIZE * mapw/2, midy - (submarker.pos.y - p.y) / ORTHO_SIZE * maph/2
 
 			pnl:DrawRect(mx - 6, my - 6, 12, 12, Color(255, 255, 255, 60), Color(0, 0, 0, 150))
 			pnl:DrawMat(icon, mx - 4, my - 4, 8, 8)
