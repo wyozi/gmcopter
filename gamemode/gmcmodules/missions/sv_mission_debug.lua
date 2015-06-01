@@ -9,7 +9,7 @@ concommand.Add("mission", function(ply, cmd, args)
 		mission:add_player(ply)
 		mission:add_npc(rand_npc)
 
-		mission.targetPOI = table.Random(gmc.npcs.POIs)
+		mission.targetPOI = gmc.npcs.FindPOI()
 
 		mission:start()
 	elseif t == "roofrescue" then
@@ -50,7 +50,7 @@ concommand.Add("mission", function(ply, cmd, args)
 			mission:add_npc(rand_npc)
 		end
 
-		mission.targetPOI = table.Random(gmc.npcs.POIs)
+		mission.targetPOI = gmc.npcs.FindPOI()
 
 		mission:start()
 	end

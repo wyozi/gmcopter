@@ -1,5 +1,7 @@
 gmc.npcs = gmc.npcs or {}
 
+--[[ gm_bigcity
+
 gmc.npcs.POIs = {
 	-- Grass area
 	Vector(-2170.8549804688, 240.54220581055, -11135.96875),
@@ -38,6 +40,12 @@ gmc.npcs.POIs = {
 	Vector(-9580.8681640625, 11403.2265625, -11135.96875),
 	Vector(-2465.658203125, 9175.6796875, -11143.96875),
 }
+]]
+
+function gmc.npcs.FindPOI()
+	local navmeshes = navmesh.GetAllNavAreas()
+	return table.Random(navmeshes):GetCenter()
+end
 
 timer.Create("NPCSpawner", 1, 0, function()
 	local npccount = #ents.FindByClass("gmc_npc*")
@@ -45,7 +53,7 @@ timer.Create("NPCSpawner", 1, 0, function()
 		return
 	end
 
-	local pos = table.Random(gmc.npcs.POIs)
+	local pos = gmc.npcs.FindPOI()
 	local ent = ents.Create("gmc_npc_generic")
 	ent:SetPos(pos + Vector(math.random()*100, math.random()*100, 50))
 	ent:Spawn()
